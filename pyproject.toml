@@ -1,0 +1,22 @@
+[project]
+name = "dbt-pre-commit-hooks"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dbt-bigquery>=1.10.2",
+]
+
+[build-system]
+requires = ["setuptools >= 64"]
+tool.uv.pakage = true
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+]
+
+[project.scripts]
+model-has-description = "main:main"

@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: model-has-description
+        name: model has description
+        description: Check each model has a description
+        entry: model-has-description
+        language: python
+        files: '.*\.(yml|yaml)$'
+        pass_filenames: true
