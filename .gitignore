@@ -5,7 +5,10 @@ build/
 dist/
 wheels/
 *.egg-info
-
+.idea
+.DS_Store
+test_dbt_project/
+logs/
 # Virtual environments
 .venv
-.idea
+.tox
