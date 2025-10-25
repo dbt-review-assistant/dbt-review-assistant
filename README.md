@@ -120,9 +120,9 @@ checks:
 global_arguments:
   arguments: [
     "--project-dir",
-    "< dbt project path >",
+    "my_dbt_project",
     "--include-packages",
-    "< dbt project name >",
+    "my_dbt_project",
   ]
 
 per_check_arguments:
@@ -148,7 +148,7 @@ argument, to tell `dbt-review-assistant` where the config file is:
 dbt-review-assistant all-checks --config-dir ./my_dbt_project
 ```
 
-Note - if using `all-checks` then any arguments other than `--config-dir` are ignored, in favour or arguments specified
+Note - if using `all-checks` then any arguments other than `--config-dir` are ignored, in favour of arguments specified
 in the config file.
 
 #### global_arguments
@@ -254,30 +254,8 @@ This table shows which checks require which dbt artifacts:
 | `macro-arguments-have-descriptions`             | ✅        | ❌       |
 | `macro-arguments-match-manifest-vs-sql`         | ✅        | ❌       |
 
-### Model checks:
-
-`models-have-descriptions`
-`models-have-contracts`
-`models-have-constraints`
-`models-have-data-tests`
-`models-have-unit-tests`
-`models-have-properties-file`
-`model-columns-have-descriptions`
-`model-columns-have-types`
-`model-column-names-match-manifest-vs-catalog`
-`model-column-types-match-manifest-vs-catalog`
-`sources-have-descriptions`
-`sources-have-data-tests`
-`source-columns-have-descriptions`
-`source-columns-have-types`
-`source-column-names-match-manifest-vs-catalog`
-`source-column-types-match-manifest-vs-catalog`
-`macros-have-descriptions`
-`macro-arguments-have-descriptions`
-`macro-arguments-match-manifest-vs-sql`
-
-These JSON files are typically in the `.gitignore`, so they are not
-tracked in git, and are often cleaned up when running `dbt clean`, so knowing how to generate them is important.
+These JSON files are typically in the `.gitignore`, so they are not tracked in git, and are often cleaned up when 
+running `dbt clean`, so knowing how to generate them is important.
 
 To refresh the manifest, run:
 
