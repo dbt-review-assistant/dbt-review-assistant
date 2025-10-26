@@ -322,7 +322,7 @@ the dbt adapter installed and, if refreshing the catalog, has permission to conn
 
 ### Acknowledgements
 
-This tool was inspired by the popular [dbt-checkpoints](https://github.com/dbt-checkpoint/dbt-checkpoint) pre-commit
+This tool was inspired by the popular [dbt-checkpoint](https://github.com/dbt-checkpoint/dbt-checkpoint) pre-commit
 hooks by [DataCoves](https://datacoves.com/product) (formerly pre-commit-dbt). I have found these hooks
 immensely useful for my own dbt projects, and I am very grateful to them for contributing it. That said, there were a
 number of ways in which I believed it could be improved and simplified, so I decided to try writing my own tool. While
