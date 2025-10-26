@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from contextlib import nullcontext as does_not_raise
-from typing import Iterable, Generator
+from typing import Iterable, Generator, Any
 from unittest.mock import patch
 
 from utils.artifact_data import (
@@ -16,6 +16,7 @@ from utils.artifact_data import (
     get_models_from_manifest,
     ManifestFilterConditions,
     filter_nodes_by_path,
+    get_tags_for_manifest_object,
 )
 from utils.console_formatting import colour_message, ConsoleEmphasis
 import pytest
@@ -1670,3 +1671,22 @@ def test_manifest_filter_conditions_eq(
     expected_return: bool,
 ):
     assert (instance_1 == instance_2) is expected_return
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "direct tags list and config tags list"
+    ],
+    argnames=["manifest_object", "expected_return"],
+    argvalues=[
+        (
+            {
+                "tags": ["tag_1", "tag_2"],
+                "config": {"tags": ["tag_3", "tag_4"]},
+            },
+            {"tag_1", "tag_2", "tag_3", "tag_4"}
+        ),
+    ],
+)
+def test_get_tags_for_manifest_object(manifest_object: dict[str, Any], expected_return: set[str]):
+    assert expected_return == get_tags_for_manifest_object(manifest_object)

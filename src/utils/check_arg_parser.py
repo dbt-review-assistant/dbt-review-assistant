@@ -143,6 +143,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         required=False,
         default=None,
     ),
+    CliArgument(
+        name="require_tags",
+        help="List of tags that are required.",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
 )
 ARGUMENTS_DICT = {arg.name: arg for arg in UNIVERSAL_ARGUMENTS + ADDITIONAL_ARGUMENTS}
 
