@@ -1,6 +1,6 @@
 [project]
 name = "dbt-review-assistant"
-version = "0.1.7"
+version = "0.1.8"
 description = "Pre-commit hooks for dbt projects"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,6 +12,9 @@ dependencies = [
     "prettytable>=3.16.0",
     "pyyaml>=6.0.3",
 ]
+
+[project.urls]
+Repository = "https://github.com/dbt-review-assistant/dbt-review-assistant"
 
 [build-system]
 requires = ["setuptools >= 64"]
