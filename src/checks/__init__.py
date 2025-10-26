@@ -33,6 +33,9 @@ from checks.model_checks.model_column_names_match_manifest_vs_catalog import (
 from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
     ModelColumnTypesMatchManifestVsCatalog as ModelColumnTypesMatchManifestVsCatalog,
 )
+from checks.model_checks.model_column_descriptions_are_consistent import (
+    ModelColumnsDescriptionsAreConsistent as ModelColumnsDescriptionsAreConsistent,
+)
 from checks.model_checks.models_have_data_tests import (
     ModelsHaveDataTests as ModelsHaveDataTests,
 )
@@ -78,5 +81,6 @@ ALL_CHECKS = (
     SourcesHaveDataTests,
     ModelColumnTypesMatchManifestVsCatalog,
     ModelColumnsHaveTypes,
+    ModelColumnsDescriptionsAreConsistent,
 )
 ALL_CHECKS_MAP = {check.check_name: check for check in ALL_CHECKS}

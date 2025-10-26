@@ -11,6 +11,8 @@ class ModelColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
     """Check if the model column types match between the manifest and the catalog.
 
     Attributes:
+        manifest_items: dict of column names and types from the manifest
+        catalog_items: dict of column names and types from the catalog
         check_name: name of the check
         additional_arguments: arguments required in addition to the global arguments
     """

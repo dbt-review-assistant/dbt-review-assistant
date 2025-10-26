@@ -11,6 +11,8 @@ class ModelColumnNamesMatchManifestVsCatalog(ManifestVsCatalogComparison):
     """Check if the model column names match between the manifest and the catalog.
 
     Attributes:
+        manifest_items: set of column names from the manifest
+        catalog_items: set of column names from the catalog
         check_name: name of the check
         additional_arguments: arguments required in addition to the global arguments
     """

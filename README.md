@@ -12,7 +12,7 @@ Maintaining dbt projects can be challenging, especially when the projects get la
 contributors. `dbt-review-assistant` aims to help developers and reviewers to focus on what matters, by taking care of
 the most boring checklist items automatically.
 
-There are 19 checks available in this package, which are available as both standalone CLI commands or as pre-commit
+There are 20 checks available in this package, which are available as both standalone CLI commands or as pre-commit
 hooks:
 
 ### Model checks:
@@ -30,6 +30,8 @@ hooks:
   catalog.json
 - `model-column-types-match-manifest-vs-catalog`: Check if model column data types match between the manifest.json and
   the catalog.json
+- `model-column-descriptions-are-consistent`: Check if all instances of a column have the same description across
+  different models
 
 ### Source checks:
 
@@ -244,6 +246,7 @@ This table shows which checks require which dbt artifacts:
 | `model-columns-have-types`                      | ✅        | ❌       |
 | `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-types-match-manifest-vs-catalog`  | ✅        | ✅       |
+| `model-column-descriptions-are-consistent`      | ✅        | ❌       |
 | `sources-have-descriptions`                     | ✅        | ❌       |
 | `sources-have-data-tests`                       | ✅        | ❌       |
 | `source-columns-have-descriptions`              | ✅        | ❌       |
@@ -254,7 +257,7 @@ This table shows which checks require which dbt artifacts:
 | `macro-arguments-have-descriptions`             | ✅        | ❌       |
 | `macro-arguments-match-manifest-vs-sql`         | ✅        | ❌       |
 
-These JSON files are typically in the `.gitignore`, so they are not tracked in git, and are often cleaned up when 
+These JSON files are typically in the `.gitignore`, so they are not tracked in git, and are often cleaned up when
 running `dbt clean`, so knowing how to generate them is important.
 
 To refresh the manifest, run:

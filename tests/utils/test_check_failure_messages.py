@@ -5,6 +5,7 @@ from utils.check_failure_messages import (
     manifest_vs_catalog_column_name_mismatch_message,
     object_missing_attribute_message,
     manifest_vs_catalog_column_type_mismatch_message,
+    inconsistent_column_descriptions_message,
 )
 
 
@@ -157,3 +158,46 @@ def test_manifest_vs_catalog_column_name_mismatch_message(kwargs, expected_retur
 )
 def test_manifest_vs_catalog_column_type_mismatch_message(kwargs, expected_return):
     assert manifest_vs_catalog_column_type_mismatch_message(**kwargs) == expected_return
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "base case",
+    ],
+    argnames=["descriptions", "expected_return"],
+    argvalues=[
+        (
+            {
+                "column_1": [
+                    {"model": "test_model_1", "description": "test description"},
+                    {"model": "test_model_2", "description": "another description"},
+                ],
+                "column_2": [
+                    {"model": "test_model_1", "description": "test description"},
+                    {"model": "test_model_2", "description": "another description"},
+                    {"model": "test_model_3", "description": "yet another description"},
+                ],
+            },
+            """There are inconsistent descriptions for the following model column descriptions:
++-------------------------+-------------------------+-------------------------+
+|          Column         |          Model          |       Descriptions      |
++-------------------------+-------------------------+-------------------------+
+|         column_1        |       test_model_1      |     test description    |
++-------------------------+-------------------------+-------------------------+
+|         column_1        |       test_model_2      |   another description   |
++-------------------------+-------------------------+-------------------------+
+|         column_2        |       test_model_1      |     test description    |
++-------------------------+-------------------------+-------------------------+
+|         column_2        |       test_model_2      |   another description   |
++-------------------------+-------------------------+-------------------------+
+|         column_2        |       test_model_3      | yet another description |
++-------------------------+-------------------------+-------------------------+""",
+        ),
+    ],
+)
+def test_inconsistent_column_descriptions_message(
+    descriptions: dict[str, list[dict[str, str]]], expected_return: str
+):
+    assert expected_return == inconsistent_column_descriptions_message(
+        descriptions=descriptions
+    )

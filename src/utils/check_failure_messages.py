@@ -130,3 +130,31 @@ def object_missing_attribute_message(
         f" {attribute_type}s{' (' + ', '.join(sorted(expected_values)) + ')' if expected_values else ''}:"
         f"\n - {join_string.join(sorted(missing_attributes))}"
     )
+
+
+def inconsistent_column_descriptions_message(
+    descriptions: dict[str, list[dict[str, str]]],
+) -> str:
+    """Summarise check failures when column descriptions are inconsistent across different models.
+
+    Args:
+        descriptions: dict mapping column names to a list of occurrence instance dicts,
+        including the name of the model and the description in that model
+
+    Returns:
+        string summarising the check failures
+    """
+    table = PrettyTable(**PRETTY_TABLE_KWARGS)
+    table.field_names = ["Column", "Model", "Descriptions"]
+    for column_name, column_instances in sorted(
+        descriptions.items(), key=lambda x: x[0]
+    ):
+        for column_instance in column_instances:
+            table.add_row(
+                [
+                    column_name,
+                    column_instance["model"],
+                    column_instance["description"],
+                ]
+            )
+    return f"There are inconsistent descriptions for the following model column descriptions:\n{table}"
