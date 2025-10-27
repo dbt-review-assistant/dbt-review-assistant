@@ -3,7 +3,7 @@ name = "dbt-review-assistant"
 version = "0.1.10"
 description = "Pre-commit hooks for dbt projects"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "colorconsole>=0.8.0",
     "jinja2>=3.1.6",
@@ -56,7 +56,7 @@ convention = "google"
 
 [tool.tox]
 requires = ["tox>=4", "tox-uv>=1.29.0"]
-env_list = ["lint", "type", "3.14t", "3.14", "3.13", "3.12", "3.11"]
+env_list = ["lint", "type", "3.14t", "3.14", "3.13", "3.12", "3.11", "3.10"]
 
 [tool.tox.env_run_base]
 description = "run unit tests"
@@ -83,3 +83,4 @@ commands = [["mypy", { replace = "posargs", default = ["src"], extend = true} ]]
 "3.13" = ["3.13"]
 "3.12" = ["3.12"]
 "3.11" = ["3.11"]
+"3.10" = ["3.10"]

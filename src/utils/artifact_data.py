@@ -165,6 +165,24 @@ def filter_nodes_by_package(
     )
 
 
+def get_tags_for_manifest_object(manifest_object: dict[str, Any]) -> set[str]:
+    """Get all tags for a given manifest object.
+
+    Args:
+        manifest_object: dict of dbt manifest object data
+
+    Returns:
+        set of tag values
+    """
+    manifest_tags = manifest_object.get("tags", [])
+    if isinstance(manifest_tags, str):
+        manifest_tags = [manifest_tags]
+    config_tags = manifest_object.get("config", {}).get("tags", [])
+    if isinstance(config_tags, str):
+        config_tags = [config_tags]
+    return set(manifest_tags + config_tags)
+
+
 def filter_nodes_by_tag(
     nodes: Iterable[dict[str, Any]],
     include_tags: Collection[str] | None = None,
@@ -180,19 +198,18 @@ def filter_nodes_by_tag(
     Returns:
         Generator of node dictionaries from the manifest
     """
-    tag_getter = lambda node: node.get("config", {}).get("tags", []) + node.get(
-        "tags", []
-    )
     yield from (
         node
         for node in nodes
         if (
             include_tags is None
-            or set(tag_getter(node)).intersection(set(include_tags))
+            or set(get_tags_for_manifest_object(node)).intersection(set(include_tags))
         )
         and (
             exclude_tags is None
-            or not set(tag_getter(node)).intersection(set(exclude_tags))
+            or not set(get_tags_for_manifest_object(node)).intersection(
+                set(exclude_tags)
+            )
         )
     )
 

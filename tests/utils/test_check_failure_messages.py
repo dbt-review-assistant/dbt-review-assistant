@@ -6,6 +6,7 @@ from utils.check_failure_messages import (
     object_missing_attribute_message,
     manifest_vs_catalog_column_type_mismatch_message,
     inconsistent_column_descriptions_message,
+    object_missing_values_from_set_message,
 )
 
 
@@ -201,3 +202,80 @@ def test_inconsistent_column_descriptions_message(
     assert expected_return == inconsistent_column_descriptions_message(
         descriptions=descriptions
     )
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "one model missing tags from must_have_all_from",
+        "one model missing data tests from must_have_any_from",
+        "one model missing from both must_have_any_from and must_have_all_from",
+        "one model with no tags, no required tags",
+    ],
+    argnames=["kwargs", "expected_return"],
+    argvalues=[
+        (
+            {
+                "objects": {"test_model": {"test_tag_5"}},
+                "object_type": "model",
+                "attribute_type": "tag",
+                "must_have_all_from": {"test_tag_1", "test_tag_2"},
+                "must_have_any_from": None,
+            },
+            """The following models do not have the required tags:
++-------------------------+-------------------------+-------------------------+
+|          Model          |       Actual tags       |     Require all from    |
++-------------------------+-------------------------+-------------------------+
+|        test_model       |      ['test_tag_5']     |      ['test_tag_1',     |
+|                         |                         |      'test_tag_2']      |
++-------------------------+-------------------------+-------------------------+""",
+        ),
+        (
+            {
+                "objects": {"test_model": {"accepted_values"}},
+                "object_type": "model",
+                "attribute_type": "data test",
+                "must_have_all_from": None,
+                "must_have_any_from": {"not_null", "unique"},
+            },
+            """The following models do not have the required data tests:
++-------------------------+-------------------------+-------------------------+
+|          Model          |    Actual data tests    |     Require any from    |
++-------------------------+-------------------------+-------------------------+
+|        test_model       |   ['accepted_values']   |  ['not_null', 'unique'] |
++-------------------------+-------------------------+-------------------------+""",
+        ),
+        (
+            {
+                "objects": {"test_model": {"test_tag_5"}},
+                "object_type": "model",
+                "attribute_type": "tag",
+                "must_have_all_from": {"test_tag_1", "test_tag_2"},
+                "must_have_any_from": {"test_tag_3", "test_tag_4"},
+            },
+            """The following models do not have the required tags:
++------------------+------------------+------------------+------------------+
+|      Model       |   Actual tags    | Require all from | Require any from |
++------------------+------------------+------------------+------------------+
+|    test_model    |  ['test_tag_5']  |  ['test_tag_1',  |  ['test_tag_3',  |
+|                  |                  |  'test_tag_2']   |  'test_tag_4']   |
++------------------+------------------+------------------+------------------+""",
+        ),
+        (
+            {
+                "objects": {"test_model": set()},
+                "object_type": "model",
+                "attribute_type": "tag",
+                "must_have_all_from": None,
+                "must_have_any_from": None,
+            },
+            """The following models do not have tags:
++------------------------------+
+|            Model             |
++------------------------------+
+|          test_model          |
++------------------------------+""",
+        ),
+    ],
+)
+def test_object_missing_values_from_set_message(kwargs: dict, expected_return: str):
+    assert expected_return == object_missing_values_from_set_message(**kwargs)

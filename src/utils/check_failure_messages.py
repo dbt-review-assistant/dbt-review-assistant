@@ -4,7 +4,6 @@ from typing import Collection, Any
 
 from prettytable import PrettyTable, HRuleStyle
 
-
 PRETTY_TABLE_KWARGS: dict[str, Any] = {
     "max_table_width": 80,
     "hrules": HRuleStyle.ALL,
@@ -158,3 +157,48 @@ def inconsistent_column_descriptions_message(
                 ]
             )
     return f"There are inconsistent descriptions for the following model column descriptions:\n{table}"
+
+
+def object_missing_values_from_set_message(
+    objects: dict[str, set[str]],
+    object_type: str,
+    attribute_type: str,
+    must_have_all_from: set[str] | None = None,
+    must_have_any_from: set[str] | None = None,
+) -> str:
+    """Summarise check failures when an object is missing attribute values from a set.
+
+    Args:
+        objects: objects which have failed the check, with the set of actual values
+        object_type: Type of object being checked
+        attribute_type: Type of attribute being checked for
+        must_have_all_from: the set of values which the object must have all values from
+        must_have_any_from: the set of values which the object must at least one value from
+
+    Returns:
+        string summarising the check failures
+    """
+    table = PrettyTable(**PRETTY_TABLE_KWARGS)
+    field_names = [
+        object_type.capitalize(),
+    ]
+    if must_have_all_from or must_have_any_from:
+        field_names.append(f"Actual {attribute_type}s")
+    if must_have_all_from:
+        field_names.append("Require all from")
+    if must_have_any_from:
+        field_names.append("Require any from")
+    table.field_names = field_names
+    for object_name, actual_values in objects.items():
+        row = [object_name]
+        if must_have_all_from or must_have_any_from:
+            row.append(str(sorted(actual_values)) if actual_values else "")
+        if must_have_all_from:
+            row.append(str(sorted(must_have_all_from)) if must_have_all_from else "")
+        if must_have_any_from:
+            row.append(str(sorted(must_have_any_from)) if must_have_any_from else "")
+        table.add_row(row)
+    return (
+        f"The following {object_type}s do not have{' the required' if must_have_all_from or must_have_any_from else ''}"
+        f" {attribute_type}s:\n{table}"
+    )

@@ -2,35 +2,12 @@
 
 from typing import Collection
 
-from utils.check_failure_messages import object_missing_attribute_message
-from checks.model_checks.models_have_contracts import model_has_contract_enforced
+from utils.check_failure_messages import (
+    object_missing_attribute_message,
+    object_missing_values_from_set_message,
+)
 from utils.check_abc import ManifestCheck
 from utils.artifact_data import get_models_from_manifest
-
-
-def model_has_constraints(
-    model: dict, required_constraints: None | Collection[str] = None
-) -> bool:
-    """Check if a model has constraints, or has all required constraints.
-
-    If required_constraints is provided, then all additional constraints are ignored.
-
-    Args:
-        model: model dictionary from the dbt manifest.json
-        required_constraints: Optional, all required constraints
-
-    Returns:
-        True if the model has constraints, or all required constraints
-    """
-    model_constraints = model.get("constraints", [])
-    model_constraints += [
-        constraint["type"]
-        for column_data in model.get("columns", {}).values()
-        for constraint in column_data.get("constraints", [])
-    ]
-    if required_constraints:
-        return set(required_constraints).issubset(set(model_constraints))
-    return bool(model_constraints)
 
 
 class ModelsHaveConstraints(ManifestCheck):
@@ -43,7 +20,8 @@ class ModelsHaveConstraints(ManifestCheck):
 
     check_name: str = "models-have-constraints"
     additional_arguments = [
-        "constraints",
+        "must_have_all_constraints_from",
+        "must_have_any_constraint_from",
         "include_materializations",
         "include_tags",
         "include_packages",
@@ -56,26 +34,57 @@ class ModelsHaveConstraints(ManifestCheck):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        self.failures = {
-            node["unique_id"]
-            for node in get_models_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
+        failures: dict[str, set[str]] = {}
+        for model in get_models_from_manifest(
+            manifest_dir=self.args.manifest_dir,
+            filter_conditions=self.filter_conditions,
+        ):
+            constraints = set(model.get("constraints", []))
+            constraints.update(
+                {
+                    constraint["type"]
+                    for column_data in model.get("columns", {}).values()
+                    for constraint in column_data.get("constraints", [])
+                }
             )
-            if not (
-                model_has_contract_enforced(node)
-                and model_has_constraints(node, self.args.constraints)
-            )
-        }
+            if any(
+                [
+                    # No specific constraints required
+                    (
+                        not (
+                            self.args.must_have_all_constraints_from
+                            or self.args.must_have_any_constraint_from
+                        )
+                        and not constraints
+                    ),
+                    # Full set of constraints required
+                    (
+                        self.args.must_have_all_constraints_from
+                        and not set(self.args.must_have_all_constraints_from).issubset(
+                            constraints
+                        )
+                    ),
+                    # At least one constraint from set required
+                    (
+                        self.args.must_have_any_constraint_from
+                        and not set(
+                            self.args.must_have_any_constraint_from
+                        ).intersection(constraints)
+                    ),
+                ]
+            ):
+                failures[model["unique_id"]] = constraints
+        self.failures: dict[str, set[str]] = failures
 
     @property
     def failure_message(self) -> str:
         """Compile a failure log message."""
-        return object_missing_attribute_message(
-            missing_attributes=self.failures,
+        return object_missing_values_from_set_message(
+            objects=self.failures,
             object_type="model",
             attribute_type="constraint",
-            expected_values=self.args.constraints,
+            must_have_all_from=self.args.must_have_all_constraints_from,
+            must_have_any_from=self.args.must_have_any_constraint_from,
         )
 
 

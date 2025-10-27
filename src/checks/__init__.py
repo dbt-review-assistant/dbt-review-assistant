@@ -24,6 +24,9 @@ from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
 from checks.model_checks.model_columns_have_descriptions import (
     ModelColumnsHaveDescriptions as ModelColumnsHaveDescriptions,
 )
+from checks.model_checks.models_have_tags import (
+    ModelsHaveTags as ModelsHaveTags,
+)
 from checks.model_checks.model_columns_have_types import (
     ModelColumnsHaveTypes as ModelColumnsHaveTypes,
 )
@@ -82,5 +85,6 @@ ALL_CHECKS = (
     ModelColumnTypesMatchManifestVsCatalog,
     ModelColumnsHaveTypes,
     ModelColumnsDescriptionsAreConsistent,
+    ModelsHaveTags,
 )
 ALL_CHECKS_MAP = {check.check_name: check for check in ALL_CHECKS}
