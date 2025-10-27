@@ -63,7 +63,7 @@ class SourcesHaveDataTests(ManifestCheck):
             missing_attributes=self.failures,
             object_type="source",
             attribute_type="data test",
-            expected_values=self.args.data_tests,
+            expect_all_of_values=self.args.data_tests,
         )
 
 

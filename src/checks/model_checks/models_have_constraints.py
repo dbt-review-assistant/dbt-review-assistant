@@ -75,7 +75,7 @@ class ModelsHaveConstraints(ManifestCheck):
             missing_attributes=self.failures,
             object_type="model",
             attribute_type="constraint",
-            expected_values=self.args.constraints,
+            expect_all_of_values=self.args.constraints,
         )
 
 

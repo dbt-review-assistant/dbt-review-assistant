@@ -1675,7 +1675,9 @@ def test_manifest_filter_conditions_eq(
 
 @pytest.mark.parametrize(
     ids=[
-        "direct tags list and config tags list"
+        "direct tags list and config tags list",
+        "direct tag string and config tag string",
+        "no tags",
     ],
     argnames=["manifest_object", "expected_return"],
     argvalues=[
@@ -1684,9 +1686,19 @@ def test_manifest_filter_conditions_eq(
                 "tags": ["tag_1", "tag_2"],
                 "config": {"tags": ["tag_3", "tag_4"]},
             },
-            {"tag_1", "tag_2", "tag_3", "tag_4"}
+            {"tag_1", "tag_2", "tag_3", "tag_4"},
         ),
+        (
+            {
+                "tags": "tag_1",
+                "config": {"tags": "tag_2"},
+            },
+            {"tag_1", "tag_2"},
+        ),
+        ({}, set()),
     ],
 )
-def test_get_tags_for_manifest_object(manifest_object: dict[str, Any], expected_return: set[str]):
+def test_get_tags_for_manifest_object(
+    manifest_object: dict[str, Any], expected_return: set[str]
+):
     assert expected_return == get_tags_for_manifest_object(manifest_object)

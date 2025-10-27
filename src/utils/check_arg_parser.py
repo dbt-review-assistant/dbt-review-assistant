@@ -144,8 +144,16 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
-        name="require_tags",
-        help="List of tags that are required.",
+        name="must_have_all_tags_from",
+        help="List of values, from which objects must have all values.",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
+        name="must_have_any_tag_from",
+        help="List of values, from which objects must at least one value.",
         type=str,
         nargs="+",
         required=False,

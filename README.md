@@ -12,12 +12,14 @@ Maintaining dbt projects can be challenging, especially when the projects get la
 contributors. `dbt-review-assistant` aims to help developers and reviewers to focus on what matters, by taking care of
 the most boring checklist items automatically.
 
-There are 20 checks available in this package, which are available as both standalone CLI commands or as pre-commit
+There are 21 checks available in this package, which are available as both standalone CLI commands or as pre-commit
 hooks:
 
 ### Model checks:
 
 - `models-have-descriptions`: Check if models have descriptions
+- `models-have-tags`: Check if models have tags. Optionally specify a set from which models must have all tags,
+  or from which they must have at least one tag
 - `models-have-contracts`: Check if models have contracts enabled
 - `models-have-constraints`: Check if models have constraints configured
 - `models-have-data-tests`: Check if models have data tests
@@ -95,6 +97,10 @@ check. If omitted, then the check will pass if any constraints are configured, r
 
 `--data-tests`: Optional - list of data test names which are required - specifically for the `models-have-data-tests`
 check. If omitted, then the check will pass if any data tests are defined, regardless of type.
+
+`--must-have-all-tags-from`: Optional - List of tags, from which objects must have the full set.
+
+`--must-have-any-tag-from`: Optional - List of tags, from which objects must have at least one value.
 
 ### Running checks individually
 
@@ -237,6 +243,7 @@ This table shows which checks require which dbt artifacts:
 | check-id                                        | manifest | catalog |
 |-------------------------------------------------|----------|---------|
 | `models-have-descriptions`                      | ✅        | ❌       |
+| `models-have-tags`                              | ✅        | ❌       |
 | `models-have-contracts`                         | ✅        | ❌       |
 | `models-have-constraints`                       | ✅        | ❌       |
 | `models-have-data-tests`                        | ✅        | ❌       |
