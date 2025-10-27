@@ -1,6 +1,7 @@
 from argparse import Namespace
 from contextlib import nullcontext
 from pathlib import Path
+import re
 
 import pytest
 from jsonschema import ValidationError
@@ -94,7 +95,9 @@ per_check_arguments:
             VALID_MANIFEST,
             pytest.raises(
                 FileNotFoundError,
-                match=str(Path("wrong/path/.dbt-review-assistant.yaml not found.")),
+                match=re.escape(
+                    str(Path("wrong/path/.dbt-review-assistant.yaml not found."))
+                ),
             ),
         ),
     ],
