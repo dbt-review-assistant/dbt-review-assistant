@@ -92,11 +92,13 @@ considered out-of-scope for the check(s).
 `--exclude-node-paths`: Optional - list of node paths to exclude nodes by. Nodes under any of these paths will be
 considered out-of-scope for the check(s).
 
-`--constraints`: Optional - list of constraint names which are required - specifically for the `models-have-constraints`
-check. If omitted, then the check will pass if any constraints are configured, regardless of type.
+`--must-have-all-constraints-from`: Optional - List of constraint names, from which objects must have the full set.
 
-`--data-tests`: Optional - list of data test names which are required - specifically for the `models-have-data-tests`
-check. If omitted, then the check will pass if any data tests are defined, regardless of type.
+`--must-have-any-constraint-from`: Optional - List of constraint names, from which objects must have at least one value.
+
+`--must-have-all-data-tests-from`: Optional - List of data test names, from which objects must have the full set.
+
+`--must-have-any-data-test-from`: Optional - List of data test names, from which objects must have at least one value.
 
 `--must-have-all-tags-from`: Optional - List of tags, from which objects must have the full set.
 
@@ -140,7 +142,7 @@ per_check_arguments:
     description: >
       Primary Key constraints are great, but we only want them on tables
     arguments: [
-      "--constraints",
+      "--must-have-all-constraints-from",
       "primary_key",
       "--include-materializations",
       "table",
@@ -201,7 +203,7 @@ repos:
       - id: all-models-have-constraints
         pass_filenames: false
         args: [
-          "--constraints",
+          "--must-have-all-constraints-from",
           "primary_key",
           "--include-materializations",
           "table",
@@ -317,7 +319,7 @@ repos:
         args: [ "--include-packages", "my_dbt_project" ]
       - id: all-models-have-constraints
         args: [
-          "--constraints",
+          "--must-have-all-constraints-from",
           "primary_key",
           "--include-materializations",
           "table",

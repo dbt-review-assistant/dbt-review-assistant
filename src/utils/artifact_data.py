@@ -169,7 +169,7 @@ def get_tags_for_manifest_object(manifest_object: dict[str, Any]) -> set[str]:
     """Get all tags for a given manifest object.
 
     Args:
-        node: dict of dbt manifest object data
+        manifest_object: dict of dbt manifest object data
 
     Returns:
         set of tag values
@@ -207,7 +207,9 @@ def filter_nodes_by_tag(
         )
         and (
             exclude_tags is None
-            or not set(tag_getter(node)).intersection(set(exclude_tags))
+            or not set(get_tags_for_manifest_object(node)).intersection(
+                set(exclude_tags)
+            )
         )
     )
 

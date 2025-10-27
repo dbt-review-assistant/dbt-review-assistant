@@ -4,58 +4,26 @@ from unittest.mock import patch, Mock
 
 import pytest
 
-from checks.model_checks.models_have_constraints import (
-    ModelsHaveConstraints,
-    model_has_constraints,
-)
+from checks.model_checks.models_have_constraints import ModelsHaveConstraints
 
 
 @pytest.mark.parametrize(
     ids=[
-        "has required constraints",
-        "has no constraints",
-        "has constraints, required_constraints=None",
-        "has no constraints, required_constraints=None",
-    ],
-    argnames=["model", "required_constraints", "expected_return"],
-    argvalues=[
-        (
-            {"constraints": ["primary_key", "not_null"]},
-            ["primary_key", "not_null"],
-            True,
-        ),
-        (
-            {"constraints": []},
-            ["primary_key", "not_null"],
-            False,
-        ),
-        (
-            {"constraints": ["primary_key", "not_null"]},
-            None,
-            True,
-        ),
-        (
-            {"constraints": []},
-            None,
-            False,
-        ),
-    ],
-)
-def test_model_has_constraints(
-    model: dict, required_constraints: Collection[str], expected_return: bool
-):
-    assert model_has_constraints(model, required_constraints) is expected_return
-
-
-@pytest.mark.parametrize(
-    ids=[
-        "two models with required constraints",
-        "two models, one without required constraints, one with no constraints",
+        "two models with must_have_all_constraints_from",
+        "two models, one without must_have_all_constraints_from, one with no constraints",
         "two models with constraints, argument constraints=None",
-        "two models, one without constraints, argument constraints=None",
-        "two models with required constraints, contract not enforced",
+        "two models, one without constraints, argument must_have_all_constraints_from=None",
+        "one model, passes must_have_all_constraints_from and must_have_any_constraint_from",
+        "one model, fails must_have_all_constraints_from and must_have_any_constraint_from",
+        "one model, passes no requirements",
+        "one model, fails no requirements",
     ],
-    argnames=["models", "constraints", "expected_failures"],
+    argnames=[
+        "models",
+        "must_have_all_constraints_from",
+        "must_have_any_constraint_from",
+        "expected_failures",
+    ],
     argvalues=[
         (
             [
@@ -79,7 +47,8 @@ def test_model_has_constraints(
                 },
             ],
             ["primary_key", "not_null"],
-            set(),
+            None,
+            {},
         ),
         (
             [
@@ -102,7 +71,8 @@ def test_model_has_constraints(
                 },
             ],
             ["primary_key", "not_null"],
-            {"test_model", "another_model"},
+            None,
+            {"test_model": {"primary_key"}, "another_model": set()},
         ),
         (
             [
@@ -126,7 +96,8 @@ def test_model_has_constraints(
                 },
             ],
             None,
-            set(),
+            None,
+            {},
         ),
         (
             [
@@ -150,27 +121,79 @@ def test_model_has_constraints(
                 },
             ],
             None,
-            {"another_model"},
+            None,
+            {"another_model": set()},
         ),
         (
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key", "not_null"],
-                },
-                {
-                    "unique_id": "another_model",
-                    "constraints": ["primary_key", "not_null"],
+                    "constraints": ["primary_key", "not_null", "unique"],
+                    "config": {
+                        "contract": {
+                            "enforced": True,
+                        }
+                    },
                 },
             ],
             ["primary_key", "not_null"],
-            {"test_model", "another_model"},
+            ["unique", "check"],
+            {},
+        ),
+        (
+            [
+                {
+                    "unique_id": "test_model",
+                    "constraints": ["primary_key"],
+                    "config": {
+                        "contract": {
+                            "enforced": True,
+                        }
+                    },
+                },
+            ],
+            ["primary_key", "not_null"],
+            ["unique", "check"],
+            {"test_model": {"primary_key"}},
+        ),
+        (
+            [
+                {
+                    "unique_id": "test_model",
+                    "constraints": ["primary_key"],
+                    "config": {
+                        "contract": {
+                            "enforced": True,
+                        }
+                    },
+                },
+            ],
+            None,
+            None,
+            {},
+        ),
+        (
+            [
+                {
+                    "unique_id": "test_model",
+                    "constraints": [],
+                    "config": {
+                        "contract": {
+                            "enforced": True,
+                        }
+                    },
+                },
+            ],
+            None,
+            None,
+            {"test_model": set()},
         ),
     ],
 )
 def test_models_have_constraints_perform_check(
     models: Iterable[dict[str, str]],
-    constraints: Collection[str],
+    must_have_all_constraints_from: Collection[str],
+    must_have_any_constraint_from: Collection[str],
     expected_failures: set[str],
     tmpdir,
 ):
@@ -183,11 +206,13 @@ def test_models_have_constraints_perform_check(
         ) as mock_get_models_from_manifest,
     ):
         instance = ModelsHaveConstraints()
-        instance.args.constraints = constraints
+        instance.args.must_have_all_constraints_from = must_have_all_constraints_from
+        instance.args.must_have_any_constraint_from = must_have_any_constraint_from
         instance.perform_check()
         assert instance.check_name == "models-have-constraints"
         assert instance.additional_arguments == [
-            "constraints",
+            "must_have_all_constraints_from",
+            "must_have_any_constraint_from",
             "include_materializations",
             "include_tags",
             "include_packages",
@@ -210,17 +235,18 @@ def test_models_have_constraints_failure_message():
         patch.object(ModelsHaveConstraints, "parse_args"),
         patch.object(ModelsHaveConstraints, "__call__"),
         patch(
-            "checks.model_checks.models_have_constraints.object_missing_attribute_message"
-        ) as mock_object_missing_attribute_message,
+            "checks.model_checks.models_have_constraints.object_missing_values_from_set_message"
+        ) as mock_object_missing_values_from_set_message,
     ):
         instance = ModelsHaveConstraints()
         instance.args.constraints = Mock()
-        mock_object_missing_attribute_message.return_value = Mock()
+        mock_object_missing_values_from_set_message.return_value = Mock()
         result = instance.failure_message
-        mock_object_missing_attribute_message.assert_called_with(
-            missing_attributes=instance.failures,
+        mock_object_missing_values_from_set_message.assert_called_with(
+            objects=instance.failures,
             object_type="model",
             attribute_type="constraint",
-            expected_values=instance.args.constraints,
+            must_have_all_from=instance.args.must_have_all_constraints_from,
+            must_have_any_from=instance.args.must_have_any_constraint_from,
         )
-        assert result is mock_object_missing_attribute_message.return_value
+        assert result is mock_object_missing_values_from_set_message.return_value

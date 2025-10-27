@@ -9,12 +9,21 @@ from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
 
 @pytest.mark.parametrize(
     ids=[
-        "two models, both pass",
-        "two models, one fails",
-        "two models, both pass, data_tests=None",
-        "two models, one fails, data_tests=None",
+        "two models, both pass must_have_all_data_tests_from",
+        "two models, one fails must_have_all_data_tests_from",
+        "two models, both pass, must_have_all_data_tests_from=None",
+        "two models, one fails, must_have_all_data_tests_from=None",
+        "one model, passes must_have_all_data_tests_from and must_have_any_data_test_from",
+        "one model, fails must_have_all_data_tests_from and must_have_any_data_test_from",
+        "one model, passes no requirements",
+        "one model, fails no requirements",
     ],
-    argnames=["manifest_data", "data_tests", "expected_failures"],
+    argnames=[
+        "manifest_data",
+        "must_have_all_data_tests_from",
+        "must_have_any_data_test_from",
+        "expected_failures",
+    ],
     argvalues=[
         (
             {
@@ -50,7 +59,8 @@ from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
                 },
             },
             ["not_null", "unique"],
-            set(),
+            None,
+            {},
         ),
         (
             {
@@ -78,7 +88,8 @@ from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
                 },
             },
             ["not_null", "unique"],
-            {"another_model"},
+            None,
+            {"another_model": set()},
         ),
         (
             {
@@ -114,7 +125,8 @@ from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
                 },
             },
             None,
-            set(),
+            None,
+            {},
         ),
         (
             {
@@ -146,13 +158,95 @@ from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
                 },
             },
             ["not_null", "unique"],
-            set(),
+            None,
+            {"another_model": {"unique"}},
+        ),
+        (
+            {
+                "nodes": {
+                    "test_model": {
+                        "unique_id": "test_model",
+                        "resource_type": "model",
+                    },
+                    "unique_1": {
+                        "resource_type": "test",
+                        "test_metadata": {"name": "unique"},
+                    },
+                    "not_null_1": {
+                        "resource_type": "test",
+                        "test_metadata": {"name": "not_null"},
+                    },
+                    "accepted_values_1": {
+                        "resource_type": "test",
+                        "test_metadata": {"name": "accepted_values"},
+                    },
+                },
+                "child_map": {
+                    "test_model": ["unique_1", "not_null_1", "accepted_values_1"],
+                },
+            },
+            ["not_null", "unique"],
+            ["accepted_values", "relationships"],
+            {},
+        ),
+        (
+            {
+                "nodes": {
+                    "test_model": {
+                        "unique_id": "test_model",
+                        "resource_type": "model",
+                    },
+                },
+                "child_map": {
+                    "test_model": [],
+                },
+            },
+            ["not_null", "unique"],
+            ["accepted_values", "relationships"],
+            {"test_model": set()},
+        ),
+        (
+            {
+                "nodes": {
+                    "test_model": {
+                        "unique_id": "test_model",
+                        "resource_type": "model",
+                    },
+                    "unique_1": {
+                        "resource_type": "test",
+                        "test_metadata": {"name": "unique"},
+                    },
+                },
+                "child_map": {
+                    "test_model": ["unique_1"],
+                },
+            },
+            None,
+            None,
+            {},
+        ),
+        (
+            {
+                "nodes": {
+                    "test_model": {
+                        "unique_id": "test_model",
+                        "resource_type": "model",
+                    },
+                },
+                "child_map": {
+                    "test_model": [],
+                },
+            },
+            None,
+            None,
+            {"test_model": set()},
         ),
     ],
 )
 def test_models_have_data_tests_perform_checks(
     manifest_data: dict[str, str],
-    data_tests: Collection[str],
+    must_have_all_data_tests_from: Collection[str],
+    must_have_any_data_test_from: Collection[str],
     expected_failures: set[str],
     tmpdir,
 ):
@@ -169,11 +263,13 @@ def test_models_have_data_tests_perform_checks(
         ),
     ):
         instance = ModelsHaveDataTests()
+        instance.args.must_have_all_data_tests_from = must_have_all_data_tests_from
+        instance.args.must_have_any_data_test_from = must_have_any_data_test_from
         instance.perform_check()
-        instance.args.data_tests = data_tests
         assert instance.check_name == "models-have-data-tests"
         assert instance.additional_arguments == [
-            "data_tests",
+            "must_have_all_data_tests_from",
+            "must_have_any_data_test_from",
             "include_materializations",
             "include_tags",
             "include_packages",
@@ -192,17 +288,18 @@ def test_models_have_data_tests_failure_message():
         patch.object(ModelsHaveDataTests, "parse_args"),
         patch.object(ModelsHaveDataTests, "__call__"),
         patch(
-            "checks.model_checks.models_have_data_tests.object_missing_attribute_message"
-        ) as mock_object_missing_attribute_message,
+            "checks.model_checks.models_have_data_tests.object_missing_values_from_set_message"
+        ) as mock_object_missing_values_from_set_message,
     ):
         instance = ModelsHaveDataTests()
         instance.args.data_tests = Mock()
-        mock_object_missing_attribute_message.return_value = Mock()
+        mock_object_missing_values_from_set_message.return_value = Mock()
         result = instance.failure_message
-        mock_object_missing_attribute_message.assert_called_with(
-            missing_attributes=instance.failures,
+        mock_object_missing_values_from_set_message.assert_called_with(
+            objects=instance.failures,
             object_type="model",
             attribute_type="data test",
-            expected_values=instance.args.data_tests,
+            must_have_all_from=instance.args.must_have_all_data_tests_from,
+            must_have_any_from=instance.args.must_have_any_data_test_from,
         )
-        assert result is mock_object_missing_attribute_message.return_value
+        assert result is mock_object_missing_values_from_set_message.return_value

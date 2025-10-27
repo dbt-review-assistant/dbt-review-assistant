@@ -15,7 +15,12 @@ from checks.model_checks.models_have_tags import ModelsHaveTags
         "model does not have any tags, no requirements",
         "model has tags, no requirements",
     ],
-    argnames=["models", "must_have_all_tags_from", "must_have_any_tag_from", "expected_failures"],
+    argnames=[
+        "models",
+        "must_have_all_tags_from",
+        "must_have_any_tag_from",
+        "expected_failures",
+    ],
     argvalues=[
         (
             [
@@ -37,9 +42,7 @@ from checks.model_checks.models_have_tags import ModelsHaveTags
             ],
             {"test_tag_1", "test_tag_2"},
             {"test_tag_3", "test_tag_4"},
-            {
-                "test_model": {"test_tag_1", "test_tag_2"}
-            },
+            {"test_model": {"test_tag_1", "test_tag_2"}},
         ),
         (
             [
@@ -50,9 +53,7 @@ from checks.model_checks.models_have_tags import ModelsHaveTags
             ],
             {"test_tag_1", "test_tag_2"},
             {"test_tag_3", "test_tag_4"},
-            {
-                "test_model": {"test_tag_1", "test_tag_3"}
-            },
+            {"test_model": {"test_tag_1", "test_tag_3"}},
         ),
         (
             [
@@ -63,9 +64,7 @@ from checks.model_checks.models_have_tags import ModelsHaveTags
             ],
             None,
             None,
-            {
-                "test_model": set()
-            },
+            {"test_model": set()},
         ),
         (
             [
@@ -81,11 +80,11 @@ from checks.model_checks.models_have_tags import ModelsHaveTags
     ],
 )
 def test_models_have_tags_perform_checks(
-        models: dict,
-        must_have_all_tags_from: set[str] | None,
-        must_have_any_tag_from: set[str] | None,
-        expected_failures: set[str],
-        tmpdir,
+    models: dict,
+    must_have_all_tags_from: set[str] | None,
+    must_have_any_tag_from: set[str] | None,
+    expected_failures: set[str],
+    tmpdir,
 ):
     with (
         patch.object(sys, "argv", return_value=[]),

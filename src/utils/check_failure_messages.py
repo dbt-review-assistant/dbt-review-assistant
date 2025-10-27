@@ -188,17 +188,15 @@ def object_missing_values_from_set_message(
         field_names.append("Require all from")
     if must_have_any_from:
         field_names.append("Require any from")
-    print(field_names)
     table.field_names = field_names
     for object_name, actual_values in objects.items():
         row = [object_name]
         if must_have_all_from or must_have_any_from:
-            row.append(sorted(actual_values) if actual_values else "")
+            row.append(str(sorted(actual_values)) if actual_values else "")
         if must_have_all_from:
-            row.append(sorted(must_have_all_from) if must_have_all_from else "")
+            row.append(str(sorted(must_have_all_from)) if must_have_all_from else "")
         if must_have_any_from:
-            row.append(sorted(must_have_any_from) if must_have_any_from else "")
-        print(row)
+            row.append(str(sorted(must_have_any_from)) if must_have_any_from else "")
         table.add_row(row)
     return (
         f"The following {object_type}s do not have{' the required' if must_have_all_from or must_have_any_from else ''}"

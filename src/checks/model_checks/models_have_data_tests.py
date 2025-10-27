@@ -1,6 +1,9 @@
 """Check if models have data tests."""
 
-from utils.check_failure_messages import object_missing_attribute_message
+from utils.check_failure_messages import (
+    object_missing_attribute_message,
+    object_missing_values_from_set_message,
+)
 from utils.check_abc import ManifestCheck
 from utils.artifact_data import (
     get_models_from_manifest,
@@ -19,7 +22,8 @@ class ModelsHaveDataTests(ManifestCheck):
 
     check_name: str = "models-have-data-tests"
     additional_arguments = [
-        "data_tests",
+        "must_have_all_data_tests_from",
+        "must_have_any_data_test_from",
         "include_materializations",
         "include_tags",
         "include_packages",
@@ -39,33 +43,54 @@ class ModelsHaveDataTests(ManifestCheck):
                 filter_conditions=self.filter_conditions,
             )
         )
-        models_without_required_data_tests = set()
-        data_tests: dict[str, set[str]] = {}
+        failures: dict[str, set[str]] = {}
         manifest_data = get_json_artifact_data(
             self.args.manifest_dir / MANIFEST_FILE_NAME
         )
         for model in models:
-            data_tests[model] = set()
+            data_tests = set()
             for child_id in manifest_data["child_map"][model]:
                 node_data = manifest_data["nodes"].get(child_id, {})
                 if node_data.get("resource_type") == "test":
-                    test_name = node_data.get("test_metadata", {}).get("name")
-                    if not self.args.data_tests or test_name in self.args.data_tests:
-                        data_tests[model].add(test_name)
-            if (
-                self.args.data_tests and set(self.args.data_tests) - data_tests[model]
-            ) or not data_tests[model]:
-                models_without_required_data_tests.add(model)
-        self.failures = models_without_required_data_tests
+                    data_tests.add(node_data.get("test_metadata", {}).get("name"))
+            if any(
+                [
+                    # No specific data_tests required
+                    (
+                        not (
+                            self.args.must_have_all_data_tests_from
+                            or self.args.must_have_any_data_test_from
+                        )
+                        and not data_tests
+                    ),
+                    # Full set of data_tests required
+                    (
+                        self.args.must_have_all_data_tests_from
+                        and not set(self.args.must_have_all_data_tests_from).issubset(
+                            data_tests
+                        )
+                    ),
+                    # At least one data_test from set required
+                    (
+                        self.args.must_have_any_data_test_from
+                        and not set(
+                            self.args.must_have_any_data_test_from
+                        ).intersection(data_tests)
+                    ),
+                ]
+            ):
+                failures[model] = data_tests
+        self.failures: dict[str, set[str]] = failures
 
     @property
     def failure_message(self) -> str:
         """Compile a failure log message."""
-        return object_missing_attribute_message(
-            missing_attributes=self.failures,
+        return object_missing_values_from_set_message(
+            objects=self.failures,
             object_type="model",
             attribute_type="data test",
-            expect_all_of_values=self.args.data_tests,
+            must_have_all_from=self.args.must_have_all_data_tests_from,
+            must_have_any_from=self.args.must_have_any_data_test_from,
         )
 
 
