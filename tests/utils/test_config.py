@@ -94,7 +94,7 @@ per_check_arguments:
             VALID_MANIFEST,
             pytest.raises(
                 FileNotFoundError,
-                match="wrong/path/.dbt-review-assistant.yaml not found.",
+                match=str(Path("wrong/path/.dbt-review-assistant.yaml not found.")),
             ),
         ),
     ],
