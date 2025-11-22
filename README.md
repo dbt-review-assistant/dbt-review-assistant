@@ -53,7 +53,26 @@ hooks:
 - `macro-arguments-match-manifest-vs-sql`: Check if macro arguments match between the manifest.json and the macro SQL
   code
 
+## Installing as a stand-alone package
+
+To install the package to be used without pre-commit, run the following:
+
+```commandline
+pip install dbt-review-assistant
+```
+
 ## Usage
+
+Run the following command:
+
+```commandline
+dbt-review-assistant
+```
+Or the abbreviated command:
+
+```commandline
+dbtra
+```
 
 #### Supported Check Arguments
 
@@ -331,6 +350,93 @@ The `refresh-manifest` and `refresh-catalog` hooks demonstrated above are not pa
 on your project's own local dbt installation. Add whichever arguments you would normally include when running dbt
 commands within your project. To use these in a CI environment such as GitHubActions, ensure that the worker has
 the dbt adapter installed and, if refreshing the catalog, has permission to connect to your database.
+
+### GitHub Actions
+
+This tool can be used as part of a GitHub Actions Workflow, however this repository does
+not provide a ready-made GitHub Action. This is because the implementation details would be heavily dependent on the 
+project's unique dbt setup, including the build system and method of authentication to connect to the data platform.
+
+To write your own GitHub Actions Workflow, the following steps should be included:
+
+1. Run the `dbt parse` command. Note that this requires dbt to be installed.
+2. Run the `dbt docs generate --no-compile` command (Optional - can be skipped if not required - see table of check requirements above). 
+Note that this requires a connection, and therefore authentication with your data plaform.
+3. Run the `dbt-review-assistant` command
+
+Here is an example of a GitHub Actions Workflow for a BigQuery project, using service account authentication,
+with the keyfile stored as a GitHub secret:
+
+```yaml
+# .github/workflows/ci.yml
+
+name: run dbt review assistant
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  run_bigquery:
+    name: dbt-review-assistant
+    runs-on: ubuntu-latest
+
+    env:
+      DBT_PROFILES_DIR: ./
+      DBT_GOOGLE_PROJECT: ${{ vars.DBT_GOOGLE_PROJECT }}
+      DBT_GOOGLE_DATASET: ${{ vars.DBT_GOOGLE_DATASET }}
+      DBT_GOOGLE_KEYFILE: /tmp/google/google-service-account.json
+      KEYFILE_CONTENTS: ${{secrets.KEYFILE_CONTENTS}}
+
+    steps:
+      - run: mkdir -p "$(dirname $DBT_GOOGLE_KEYFILE)"
+      - run: echo "$KEYFILE_CONTENTS" > $DBT_GOOGLE_KEYFILE
+      - uses: "actions/checkout@v4"
+      - uses: "actions/setup-python@v5"
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: python3 -m pip install uv
+      - name: Install python deps
+        run: uv pip install -r requirements.txt --system
+      - name: Run dbt deps
+        run: dbt deps
+      - name: Run dbt parse
+        run: dbt parse
+      - name: Run dbt docs generate
+        run: dbt docs generate --no-compile
+      - name: Run dbt-review-assistant
+        run: dbt-review-assistant all-checks --config ./
+```
+
+With the following `profiles.yml` contents:
+
+```yaml
+# .profiles.yml
+
+jaffle_shop:
+  outputs:
+    dev:
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      location: europe-west2
+      method: service-account
+      keyfile: "{{ env_var('DBT_GOOGLE_KEYFILE') }}"
+      project: "{{ env_var('DBT_GOOGLE_PROJECT') }}"
+      dataset: "{{ env_var('DBT_GOOGLE_DATASET') }}"
+      priority: interactive
+      threads: 1
+      type: bigquery
+  target: dev
+```
+
+This example requires a GitHub secret called `KEYFILE_CONTENTS`, with the contents of a service account keyfile, and the
+following environment variables:
+- `DBT_GOOGLE_KEYFILE`: filepath to the service account JSON keyfile
+- `DBT_GOOGLE_PROJECT`: GCP project ID for the dbt project
+- `DBT_GOOGLE_DATASET`: GCP dataset ID for the dbt project
+
+Your data platform may require a different authentication method, and your dbt project may require different steps for
+installing dependencies, so adjust this example accordingly.
 
 ### Acknowledgements
 

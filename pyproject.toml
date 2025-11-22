@@ -1,6 +1,6 @@
 [project]
 name = "dbt-review-assistant"
-version = "1.0.0"
+version = "1.0.1"
 description = "Pre-commit hooks for dbt projects"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,6 +39,7 @@ dev = [
 
 [project.scripts]
 dbt-review-assistant = "checks.entrypoint:entrypoint"
+dbtra = "checks.entrypoint:entrypoint"
 
 [tool.ruff.lint]
 # Enable all `pydocstyle` rules, limiting to those that adhere to the
