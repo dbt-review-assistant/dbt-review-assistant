@@ -39,7 +39,9 @@ class ModelsHaveConstraints(ManifestCheck):
             manifest_dir=self.args.manifest_dir,
             filter_conditions=self.filter_conditions,
         ):
-            constraints = set(model.get("constraints", []))
+            constraints = {
+                constraint["type"] for constraint in model.get("constraints", [])
+            }
             constraints.update(
                 {
                     constraint["type"]

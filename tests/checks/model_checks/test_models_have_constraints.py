@@ -29,7 +29,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key", "not_null"],
+                    "constraints": [{"type": "primary_key"}, {"type": "not_null"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -38,7 +38,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
                 },
                 {
                     "unique_id": "another_model",
-                    "constraints": ["primary_key", "not_null"],
+                    "constraints": [{"type": "primary_key"}, {"type": "not_null"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -54,7 +54,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key"],
+                    "constraints": [{"type": "primary_key"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -78,7 +78,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key", "not_null"],
+                    "constraints": [{"type": "primary_key"}, {"type": "not_null"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -87,7 +87,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
                 },
                 {
                     "unique_id": "another_model",
-                    "constraints": ["primary_key", "not_null"],
+                    "constraints": [{"type": "primary_key"}, {"type": "not_null"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -103,7 +103,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key", "not_null"],
+                    "constraints": [{"type": "primary_key"}, {"type": "not_null"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -128,7 +128,11 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key", "not_null", "unique"],
+                    "constraints": [
+                        {"type": "primary_key"},
+                        {"type": "not_null"},
+                        {"type": "unique"},
+                    ],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -144,7 +148,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key"],
+                    "constraints": [{"type": "primary_key"}],
                     "config": {
                         "contract": {
                             "enforced": True,
@@ -160,7 +164,7 @@ from checks.model_checks.models_have_constraints import ModelsHaveConstraints
             [
                 {
                     "unique_id": "test_model",
-                    "constraints": ["primary_key"],
+                    "constraints": [{"type": "primary_key"}],
                     "config": {
                         "contract": {
                             "enforced": True,
