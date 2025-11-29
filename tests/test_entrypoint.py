@@ -138,8 +138,8 @@ def test_parse_cli_entrypoint_args(
 @pytest.mark.parametrize(
     ids=[
         "one pass, one fail",
-        "two pass",
         "two fail",
+        "two pass",
         "one pass",
         "one fail",
     ],
@@ -193,7 +193,7 @@ def test_parse_cli_entrypoint_args(
             },
             pytest.raises(
                 SystemExit,
-                match=re.escape(check_status_header("2/2 checks passed", True)),
+                match="0",
             ),
         ),
         (
@@ -208,7 +208,7 @@ def test_parse_cli_entrypoint_args(
             },
             pytest.raises(
                 SystemExit,
-                match=re.escape(check_status_header("1/1 checks passed", True)),
+                match="0",
             ),
         ),
         (

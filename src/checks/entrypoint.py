@@ -103,11 +103,12 @@ def entrypoint() -> None:
                 False,
             )
         )
-    raise SystemExit(
+    logging.info(
         check_status_header(
             f"{len(all_check_arguments)}/{len(all_check_arguments)} checks passed", True
         )
     )
+    raise SystemExit(0)
 
 
 if __name__ == "__main__":
