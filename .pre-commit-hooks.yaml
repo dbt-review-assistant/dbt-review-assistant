@@ -1,5 +1,5 @@
 - id: all-checks
-  name: all-checks
+  name: dbt-review-assistant
   description: >
     Run all checks
   entry: dbt-review-assistant all-checks

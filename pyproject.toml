@@ -1,6 +1,6 @@
 [project]
 name = "dbt-review-assistant"
-version = "1.0.3"
+version = "1.0.4"
 description = "Pre-commit hooks for dbt projects"
 readme = "README.md"
 requires-python = ">=3.10"

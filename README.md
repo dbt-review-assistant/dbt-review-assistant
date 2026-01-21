@@ -319,6 +319,7 @@ repos:
         ]
         language: python
         pass_filenames: false
+        types: [sql,yaml]
       - id: refresh-catalog
         name: Refresh dbt Catalog
         entry: dbt docs generate
@@ -331,6 +332,7 @@ repos:
         ]
         language: python
         pass_filenames: false
+        types: [sql,yaml]
   - repo: https://github.com/sambloom92/dbt-review-assistant
     rev: <latest tag>
     hooks:
