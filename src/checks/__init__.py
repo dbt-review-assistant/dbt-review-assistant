@@ -63,6 +63,9 @@ from checks.source_checks.source_column_types_match_manifest_vs_catalog import (
 from checks.source_checks.sources_have_data_tests import (
     SourcesHaveDataTests as SourcesHaveDataTests,
 )
+from checks.macro_checks.macro_arguments_have_types import (
+    MacroArgumentsHaveTypes as MacroArgumentsHaveTypes,
+)
 
 ALL_CHECKS = (
     ModelsHaveContracts,
@@ -73,6 +76,7 @@ ALL_CHECKS = (
     ModelsHaveDataTests,
     ModelsHaveUnitTests,
     MacroArgumentsHaveDescriptions,
+    MacroArgumentsHaveTypes,
     MacroArgumentsMatchManifestVsSql,
     ModelColumnsHaveDescriptions,
     ModelColumnNamesMatchManifestVsCatalog,

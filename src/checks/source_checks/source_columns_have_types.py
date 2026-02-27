@@ -32,7 +32,7 @@ class SourceColumnsHaveTypes(ManifestCheck):
                 filter_conditions=self.filter_conditions,
             )
             for column in node.get("columns", {"_": {}}).values()
-            if not column.get("type")
+            if not column.get("data_type")
         }
 
     @property
@@ -41,7 +41,7 @@ class SourceColumnsHaveTypes(ManifestCheck):
         return object_missing_attribute_message(
             missing_attributes=self.failures,
             object_type="source column",
-            attribute_type="type",
+            attribute_type="data_type",
         )
 
 

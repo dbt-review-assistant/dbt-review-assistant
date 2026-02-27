@@ -1,6 +1,6 @@
 [project]
 name = "dbt-review-assistant"
-version = "1.0.4"
+version = "1.0.5"
 description = "Pre-commit hooks for dbt projects"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,9 +25,9 @@ requires = ["setuptools >= 64"]
 [dependency-groups]
 dev = [
     "setuptools>=64",
-    "mypy==1.18.2",
-    "pre-commit==4.3.0",
-    "pytest==8.4.2",
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
     "yamllint>=1.37.1",
     "types-jsonschema>=4.25.1.20251009",
     "types-pyyaml>=6.0.12.20250915",

@@ -70,6 +70,14 @@
   language: python
   pass_filenames: false
 
+- id: macro-arguments-have-types
+  name: macro-arguments-have-types
+  description: >
+    Check if macro arguments have data types
+  entry: dbt-review-assistant macro-arguments-have-types
+  language: python
+  pass_filenames: false
+
 - id: macro-arguments-match-manifest-vs-sql
   name: macro-arguments-match-manifest-vs-sql
   description: >

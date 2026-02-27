@@ -19,15 +19,15 @@ from checks.source_checks.source_columns_have_types import SourceColumnsHaveType
                 {
                     "unique_id": "test_source",
                     "columns": {
-                        "column_1": {"name": "column_1", "type": "INT64"},
-                        "column_2": {"name": "column_2", "type": "STRING"},
+                        "column_1": {"name": "column_1", "data_type": "INT64"},
+                        "column_2": {"name": "column_2", "data_type": "STRING"},
                     },
                 },
                 {
                     "unique_id": "another_source",
                     "columns": {
-                        "column_1": {"name": "column_1", "type": "INT64"},
-                        "column_2": {"name": "column_2", "type": "STRING"},
+                        "column_1": {"name": "column_1", "data_type": "INT64"},
+                        "column_2": {"name": "column_2", "data_type": "STRING"},
                     },
                 },
             ],
@@ -38,14 +38,14 @@ from checks.source_checks.source_columns_have_types import SourceColumnsHaveType
                 {
                     "unique_id": "test_source",
                     "columns": {
-                        "column_1": {"name": "column_1", "type": "INT64"},
-                        "column_2": {"name": "column_2", "type": "STRING"},
+                        "column_1": {"name": "column_1", "data_type": "INT64"},
+                        "column_2": {"name": "column_2", "data_type": "STRING"},
                     },
                 },
                 {
                     "unique_id": "another_source",
                     "columns": {
-                        "column_1": {"name": "column_1", "type": "INT64"},
+                        "column_1": {"name": "column_1", "data_type": "INT64"},
                         "column_2": {"name": "column_2"},
                     },
                 },
@@ -100,6 +100,6 @@ def test_source_columns_have_descriptions_failure_message():
         mock_object_missing_attribute_message.assert_called_with(
             missing_attributes=instance.failures,
             object_type="source column",
-            attribute_type="type",
+            attribute_type="data_type",
         )
         assert result is mock_object_missing_attribute_message.return_value

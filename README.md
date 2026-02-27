@@ -49,6 +49,7 @@ hooks:
 ### Macro checks:
 
 - `macros-have-descriptions`: Check if macros have descriptions
+- `macros-have-types`: Check if macros have data types
 - `macro-arguments-have-descriptions`: Check if macro arguments have descriptions
 - `macro-arguments-match-manifest-vs-sql`: Check if macro arguments match between the manifest.json and the macro SQL
   code
@@ -283,6 +284,7 @@ This table shows which checks require which dbt artifacts:
 | `source-column-types-match-manifest-vs-catalog` | ✅        | ✅       |
 | `macros-have-descriptions`                      | ✅        | ❌       |
 | `macro-arguments-have-descriptions`             | ✅        | ❌       |
+| `macro-arguments-have-types`                    | ✅        | ❌       |
 | `macro-arguments-match-manifest-vs-sql`         | ✅        | ❌       |
 
 These JSON files are typically in the `.gitignore`, so they are not tracked in git, and are often cleaned up when
