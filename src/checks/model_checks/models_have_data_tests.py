@@ -49,7 +49,7 @@ class ModelsHaveDataTests(ManifestCheck):
         )
         for model in models:
             data_tests = set()
-            for child_id in manifest_data["child_map"][model]:
+            for child_id in manifest_data["child_map"].get(model, []):
                 node_data = manifest_data["nodes"].get(child_id, {})
                 if node_data.get("resource_type") == "test":
                     data_tests.add(node_data.get("test_metadata", {}).get("name"))

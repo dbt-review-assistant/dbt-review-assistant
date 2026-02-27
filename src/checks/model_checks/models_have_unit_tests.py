@@ -45,7 +45,7 @@ class ModelsHaveUnitTests(ManifestCheck):
         )
         for model in models:
             unit_tests[model] = False
-            for child_id in manifest_data["child_map"][model]:
+            for child_id in manifest_data["child_map"].get(model, []):
                 unit_test_data = manifest_data["unit_tests"].get(child_id)
                 if unit_test_data:
                     unit_tests[model] = True

@@ -44,7 +44,7 @@ class SourcesHaveDataTests(ManifestCheck):
         )
         for source in sources:
             data_tests = set()
-            for child_id in manifest_data["child_map"][source]:
+            for child_id in manifest_data["child_map"].get(source, []):
                 node_data = manifest_data["nodes"].get(child_id, {})
                 if node_data.get("resource_type") == "test":
                     data_tests.add(node_data.get("test_metadata", {}).get("name"))

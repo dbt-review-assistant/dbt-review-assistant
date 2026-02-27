@@ -14,7 +14,10 @@ def model_has_contract_enforced(model: dict) -> bool:
     Returns:
         True if the model has an enforced contract
     """
-    return bool(model.get("config", {}).get("contract", {}).get("enforced"))
+    config = model.get("config", {})
+    contract = config.get("contract", {})
+    enforced = contract is not None and contract.get("enforced", False)
+    return enforced
 
 
 class ModelsHaveContracts(ManifestCheck):
@@ -45,9 +48,9 @@ class ModelsHaveContracts(ManifestCheck):
                 manifest_dir=self.args.manifest_dir,
                 filter_conditions=self.filter_conditions,
             )
-            if not model_has_contract_enforced(node)
             # Ephemeral models cannot have contracts
-            and node.get("config", {}).get("materialized") != "ephemeral"
+            if node.get("config", {}).get("materialized") != "ephemeral"
+            and not model_has_contract_enforced(node)
         }
 
     @property

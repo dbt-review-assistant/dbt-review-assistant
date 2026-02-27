@@ -15,6 +15,7 @@ from checks.model_checks.models_have_contracts import (
         "has constract enforced",
         "has constract, not enforced",
         "has no contract",
+        "contract is None",
     ],
     argnames=["model", "expected_return"],
     argvalues=[
@@ -40,6 +41,10 @@ from checks.model_checks.models_have_contracts import (
         ),
         (
             {"config": {}},
+            False,
+        ),
+        (
+            {"config": {"contract": None}},
             False,
         ),
     ],
