@@ -1,12 +1,15 @@
 import sys
 from typing import Iterable
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
 
 from checks.source_checks.source_columns_have_descriptions import (
     SourceColumnsHaveDescriptions,
 )
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.node.model.model import ManifestModel
+from utils.manifest_object.source.source import ManifestSource
 
 
 @pytest.mark.parametrize(
@@ -64,11 +67,17 @@ def test_source_columns_have_descriptions_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(SourceColumnsHaveDescriptions, "__call__"),
-        patch(
-            "checks.source_checks.source_columns_have_descriptions.get_sources_from_manifest",
-            return_value=sources,
-        ) as mock_get_sources_from_manifest,
+        patch.object(
+            SourceColumnsHaveDescriptions, "manifest", new_callable=PropertyMock
+        ) as mock_manifest,
     ):
+        mock_in_scope_sources = PropertyMock(
+            return_value=[
+                ManifestSource(source_data, ManifestFilterConditions())
+                for source_data in sources
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
         instance = SourceColumnsHaveDescriptions()
         instance.perform_check()
         assert instance.check_name == "source-columns-have-descriptions"
@@ -81,10 +90,7 @@ def test_source_columns_have_descriptions_perform_checks(
             "exclude_node_paths",
         ]
         assert instance.failures == expected_failures
-        mock_get_sources_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_in_scope_sources.assert_called_once()
 
 
 def test_source_columns_have_descriptions_failure_message():

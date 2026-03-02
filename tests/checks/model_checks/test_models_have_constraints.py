@@ -1,10 +1,12 @@
 import sys
 from typing import Iterable, Collection
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
 
 from checks.model_checks.models_have_constraints import ModelsHaveConstraints
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(
@@ -204,11 +206,17 @@ def test_models_have_constraints_perform_check(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveConstraints, "__call__"),
-        patch(
-            "checks.model_checks.models_have_constraints.get_models_from_manifest",
-            return_value=models,
-        ) as mock_get_models_from_manifest,
+        patch.object(
+            ModelsHaveConstraints, "manifest", new_callable=PropertyMock
+        ) as mock_manifest,
     ):
+        mock_in_scope_models = PropertyMock(
+            return_value=[
+                ManifestModel(model_data, ManifestFilterConditions())
+                for model_data in models
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
         instance = ModelsHaveConstraints()
         instance.args.must_have_all_constraints_from = must_have_all_constraints_from
         instance.args.must_have_any_constraint_from = must_have_any_constraint_from
@@ -227,10 +235,7 @@ def test_models_have_constraints_perform_check(
             "exclude_node_paths",
         ]
         assert instance.failures == expected_failures
-        mock_get_models_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_in_scope_models.assert_called()
 
 
 def test_models_have_constraints_failure_message():

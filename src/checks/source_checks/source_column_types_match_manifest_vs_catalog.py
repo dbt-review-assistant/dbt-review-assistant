@@ -1,7 +1,6 @@
 """Check if the source column types match between the manifest and the catalog."""
 
 from utils.check_abc import ManifestVsCatalogComparison
-from utils.artifact_data import get_json_artifact_data, get_sources_from_manifest
 from utils.check_failure_messages import (
     manifest_vs_catalog_column_type_mismatch_message,
 )
@@ -32,25 +31,20 @@ class SourceColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
     def perform_check(self) -> None:
         """Execute the check logic."""
         eligible_sources = {
-            node["unique_id"]: node
-            for node in get_sources_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            if node.get("config", {}).get("enabled", True)
+            source.unique_id: source
+            for source in self.manifest.in_scope_sources
+            if source.enabled
         }
         self.manifest_items = {
-            f"{node_name}.{column['name']}": column.get("data_type")
-            for node_name, node in eligible_sources.items()
-            for column in node["columns"].values()
+            column_id: column.data_type
+            for source_id, source in eligible_sources.items()
+            for column_id, column in source.columns.items()
         }
         self.catalog_items = {
-            f"{source.get('unique_id')}.{column_name}": column_data["type"]
-            for source in get_json_artifact_data(
-                self.args.catalog_dir / "catalog.json"
-            )["sources"].values()
-            if source["unique_id"] in eligible_sources.keys()
-            for column_name, column_data in source["columns"].items()
+            column_id: column_data.type
+            for source_id, source in self.catalog.sources.items()
+            if source_id in eligible_sources.keys()
+            for column_id, column_data in source.columns.items()
         }
 
     @property

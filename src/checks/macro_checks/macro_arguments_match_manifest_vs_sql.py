@@ -3,13 +3,13 @@
 from jinja2 import Environment
 from jinja2.ext import Extension
 from jinja2.nodes import Expr
-from jinja2.nodes import Macro
+from jinja2.nodes import Macro as JinjaMacro
 from jinja2.nodes import Name
 from jinja2.parser import Parser
 
-from utils.check_abc import Check
+from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import macro_argument_mismatch_manifest_vs_sql
-from utils.artifact_data import get_macros_from_manifest
+from utils.manifest_object.macro import Macro as ManifestMacro
 
 
 class Jinja2TestMacroExtension(Extension):
@@ -28,7 +28,7 @@ class Jinja2TestMacroExtension(Extension):
 
     tags = {"test"}
 
-    def parse(self, parser: Parser) -> Macro:
+    def parse(self, parser: Parser) -> JinjaMacro:
         """Parse Jinja2 templates for the 'test' tag.
 
         :param parser: a jinja2.parser.Parser instance
@@ -53,12 +53,12 @@ class Jinja2TestMacroExtension(Extension):
             args.append(arg)
         parser.stream.expect("rparen")
         body = parser.parse_statements(("name:endtest",), drop_needle=True)
-        macro = Macro(macro_name, args, defaults, body)
+        macro = JinjaMacro(macro_name, args, defaults, body)
         macro.set_lineno(lineno)
         return macro
 
 
-def get_macro_args_from_sql_code(macro: dict) -> set[str]:
+def get_macro_args_from_sql_code(macro: ManifestMacro) -> set[str]:
     """Get the names of all a macro's arguments from the SQL code.
 
     Checking YAML files alone for macros where arguments are listed
@@ -72,15 +72,15 @@ def get_macro_args_from_sql_code(macro: dict) -> set[str]:
     """
     env = Environment()
     env.add_extension(Jinja2TestMacroExtension)
-    body = env.parse(macro["macro_sql"]).body
+    body = env.parse(macro.macro_sql).body
     for item in body:
-        macro_key = macro["unique_id"].split(".")[-1]
-        if isinstance(item, Macro) and item.name == macro_key:
+        macro_key = macro.unique_id.split(".")[-1]
+        if isinstance(item, JinjaMacro) and item.name == macro_key:
             return {arg.name for arg in item.args}
     return set()
 
 
-class MacroArgumentsMatchManifestVsSql(Check):
+class MacroArgumentsMatchManifestVsSql(ManifestCheck):
     """Check macro arguments match between the manifest and the SQL code.
 
     Attributes:
@@ -102,17 +102,14 @@ class MacroArgumentsMatchManifestVsSql(Check):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        macros = get_macros_from_manifest(
-            manifest_dir=self.args.manifest_dir,
-            filter_conditions=self.filter_conditions,
-        )
+        macros = self.manifest.in_scope_macros
         sql_args = set()
         manifest_args = set()
         for macro in macros:
             for arg in get_macro_args_from_sql_code(macro):
-                sql_args.add(f"{macro['unique_id']}.{arg}")
-            for arg in macro.get("arguments", []):
-                manifest_args.add(f"{macro['unique_id']}.{arg['name']}")
+                sql_args.add(f"{macro.unique_id}.{arg}")
+            for arg in macro.arguments:
+                manifest_args.add(f"{macro.unique_id}.{arg.name}")
         self.manifest_args = manifest_args
         self.sql_args = sql_args
 

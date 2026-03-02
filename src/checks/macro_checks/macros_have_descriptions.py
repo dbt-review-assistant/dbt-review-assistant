@@ -2,7 +2,6 @@
 
 from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_macros_from_manifest
 
 
 class MacrosHaveDescriptions(ManifestCheck):
@@ -24,12 +23,9 @@ class MacrosHaveDescriptions(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            macro["unique_id"]
-            for macro in get_macros_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            if not macro.get("description")
+            macro.unique_id
+            for macro in self.manifest.in_scope_macros
+            if not macro.description
         }
 
     @property

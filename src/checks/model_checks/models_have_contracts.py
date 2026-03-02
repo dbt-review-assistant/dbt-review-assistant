@@ -2,7 +2,6 @@
 
 from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_models_from_manifest
 
 
 def model_has_contract_enforced(model: dict) -> bool:
@@ -43,14 +42,9 @@ class ModelsHaveContracts(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            node["unique_id"]
-            for node in get_models_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            # Ephemeral models cannot have contracts
-            if node.get("config", {}).get("materialized") != "ephemeral"
-            and not model_has_contract_enforced(node)
+            model.unique_id
+            for model in self.manifest.in_scope_models
+            if not model.has_contract
         }
 
     @property

@@ -1,10 +1,12 @@
 import sys
 from typing import Collection
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
 
 from checks.model_checks.models_have_tags import ModelsHaveTags
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(
@@ -89,11 +91,17 @@ def test_models_have_tags_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveTags, "__call__"),
-        patch(
-            "checks.model_checks.models_have_tags.get_models_from_manifest",
-            return_value=models,
-        ),
+        patch.object(
+            ModelsHaveTags, "manifest", new_callable=PropertyMock
+        ) as mock_manifest,
     ):
+        mock_in_scope_models = PropertyMock(
+            return_value=[
+                ManifestModel(model_data, ManifestFilterConditions())
+                for model_data in models
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
         instance = ModelsHaveTags()
         instance.args.must_have_all_tags_from = must_have_all_tags_from
         instance.args.must_have_any_tag_from = must_have_any_tag_from

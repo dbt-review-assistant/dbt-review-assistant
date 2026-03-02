@@ -267,14 +267,7 @@ def test_sources_have_data_tests_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(SourcesHaveDataTests, "__call__"),
-        patch(
-            "checks.source_checks.sources_have_data_tests.get_json_artifact_data",
-            return_value=manifest_data,
-        ),
-        patch(
-            "utils.artifact_data.get_json_artifact_data",
-            return_value=manifest_data,
-        ),
+        patch("utils.artifact_data.get_json_artifact_data", return_value=manifest_data),
     ):
         instance = SourcesHaveDataTests()
         instance.args.must_have_all_data_tests_from = must_have_all_data_tests_from

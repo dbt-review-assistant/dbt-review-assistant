@@ -2,7 +2,6 @@
 
 from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_sources_from_manifest
 
 
 class SourceColumnsHaveTypes(ManifestCheck):
@@ -26,13 +25,10 @@ class SourceColumnsHaveTypes(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            f"{node['unique_id']}.{column['name']}"
-            for node in get_sources_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            for column in node.get("columns", {"_": {}}).values()
-            if not column.get("data_type")
+            column_id
+            for source in self.manifest.in_scope_sources
+            for column_id, column in source.columns.items()
+            if not column.has_data_type
         }
 
     @property

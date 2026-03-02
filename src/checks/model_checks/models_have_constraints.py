@@ -7,7 +7,6 @@ from utils.check_failure_messages import (
     object_missing_values_from_set_message,
 )
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_models_from_manifest
 
 
 class ModelsHaveConstraints(ManifestCheck):
@@ -34,49 +33,14 @@ class ModelsHaveConstraints(ManifestCheck):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        failures: dict[str, set[str]] = {}
-        for model in get_models_from_manifest(
-            manifest_dir=self.args.manifest_dir,
-            filter_conditions=self.filter_conditions,
-        ):
-            constraints = {
-                constraint["type"] for constraint in model.get("constraints", [])
-            }
-            constraints.update(
-                {
-                    constraint["type"]
-                    for column_data in model.get("columns", {}).values()
-                    for constraint in column_data.get("constraints", [])
-                }
+        self.failures: dict[str, set[str]] = {
+            model.unique_id: {constraint.type for constraint in model.constraints}
+            for model in self.manifest.in_scope_models
+            if model.has_required_constraints(
+                must_have_all_constraints_from=self.args.must_have_all_constraints_from,
+                must_have_any_constraint_from=self.args.must_have_any_constraint_from,
             )
-            if any(
-                [
-                    # No specific constraints required
-                    (
-                        not (
-                            self.args.must_have_all_constraints_from
-                            or self.args.must_have_any_constraint_from
-                        )
-                        and not constraints
-                    ),
-                    # Full set of constraints required
-                    (
-                        self.args.must_have_all_constraints_from
-                        and not set(self.args.must_have_all_constraints_from).issubset(
-                            constraints
-                        )
-                    ),
-                    # At least one constraint from set required
-                    (
-                        self.args.must_have_any_constraint_from
-                        and not set(
-                            self.args.must_have_any_constraint_from
-                        ).intersection(constraints)
-                    ),
-                ]
-            ):
-                failures[model["unique_id"]] = constraints
-        self.failures: dict[str, set[str]] = failures
+        }
 
     @property
     def failure_message(self) -> str:

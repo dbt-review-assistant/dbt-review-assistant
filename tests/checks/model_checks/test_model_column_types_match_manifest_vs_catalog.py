@@ -1,12 +1,15 @@
 import sys
 from typing import Iterable
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, PropertyMock
 
 import pytest
 
 from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
     ModelColumnTypesMatchManifestVsCatalog,
 )
+from utils.catalog_object.catalog_table import CatalogTable
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(
@@ -33,15 +36,15 @@ from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
                     },
                 },
             ],
-            [
-                {
+            {
+                "test_model": {
                     "unique_id": "test_model",
                     "columns": {
                         "column_1": {"type": "INT64"},
                         "column_2": {"type": "STRING"},
                     },
                 },
-            ],
+            },
             {"test_model.column_1": "INT64", "test_model.column_2": "STRING"},
             {"test_model.column_1": "INT64", "test_model.column_2": "STRING"},
         ),
@@ -64,8 +67,8 @@ from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
                     },
                 },
             ],
-            [
-                {
+            {
+                "test_model": {
                     "unique_id": "test_model",
                     "config": {"enabled": True},
                     "columns": {
@@ -73,7 +76,7 @@ from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
                         "column_2": {"type": "JSON"},
                     },
                 },
-                {
+                "another_model": {
                     "unique_id": "another_model",
                     "config": {"enabled": True},
                     "columns": {
@@ -81,7 +84,7 @@ from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
                         "column_4": {"type": "JSON"},
                     },
                 },
-            ],
+            },
             {
                 "test_model.column_1": "INT64",
                 "test_model.column_2": "STRING",
@@ -106,15 +109,15 @@ from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
                     },
                 },
             ],
-            [
-                {
+            {
+                "test_model": {
                     "unique_id": "test_model",
                     "columns": {
                         "column_1": {"type": "INT64"},
                         "column_2": {"type": "STRING"},
                     },
                 },
-            ],
+            },
             {},
             {},
         ),
@@ -122,7 +125,7 @@ from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
 )
 def test_model_column_types_match_manifest_vs_catalog_perform_checks(
     manifest_models: Iterable[dict[str, str]],
-    catalog_nodes: list[dict[str, str]],
+    catalog_nodes: dict[str, dict[str, str]],
     expected_manifest_items: set[str],
     expected_catalog_items: set[str],
     tmpdir,
@@ -130,15 +133,29 @@ def test_model_column_types_match_manifest_vs_catalog_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(ModelColumnTypesMatchManifestVsCatalog, "__call__"),
-        patch(
-            "checks.model_checks.model_column_types_match_manifest_vs_catalog.get_models_from_manifest",
-            return_value=manifest_models,
-        ) as mock_get_models_from_manifest,
-        patch(
-            "checks.model_checks.model_column_types_match_manifest_vs_catalog.get_json_artifact_data",
-            return_value={"nodes": {node["unique_id"]: node for node in catalog_nodes}},
-        ) as mock_get_json_artifact_data,
+        patch.object(
+            ModelColumnTypesMatchManifestVsCatalog,
+            "manifest",
+            new_callable=PropertyMock,
+        ) as mock_manifest,
+        patch.object(
+            ModelColumnTypesMatchManifestVsCatalog, "catalog", new_callable=PropertyMock
+        ) as mock_catalog,
     ):
+        mock_in_scope_models = PropertyMock(
+            return_value=[
+                ManifestModel(model_data, ManifestFilterConditions())
+                for model_data in manifest_models
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
+        mock_catalog_nodes = PropertyMock(
+            return_value={
+                model_id: CatalogTable(model_data)
+                for model_id, model_data in catalog_nodes.items()
+            }
+        )
+        type(mock_catalog.return_value).nodes = mock_catalog_nodes
         instance = ModelColumnTypesMatchManifestVsCatalog()
         instance.perform_check()
         assert instance.check_name == "model-column-types-match-manifest-vs-catalog"
@@ -154,13 +171,8 @@ def test_model_column_types_match_manifest_vs_catalog_perform_checks(
         ]
         assert instance.catalog_items == expected_catalog_items
         assert instance.manifest_items == expected_manifest_items
-        mock_get_json_artifact_data.assert_called_once_with(
-            instance.args.manifest_dir / "catalog.json",
-        )
-        mock_get_models_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_catalog_nodes.assert_called_once()
+        mock_in_scope_models.assert_called_once()
 
 
 def test_model_column_types_match_manifest_vs_catalog_failure_message():

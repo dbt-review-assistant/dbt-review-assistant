@@ -1,12 +1,14 @@
 import sys
 from typing import Iterable
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, PropertyMock
 
 import pytest
 
 from checks.model_checks.model_column_descriptions_are_consistent import (
     ModelColumnsDescriptionsAreConsistent,
 )
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(
@@ -72,11 +74,17 @@ def test_model_column_descriptions_are_consistent_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(ModelColumnsDescriptionsAreConsistent, "__call__"),
-        patch(
-            "checks.model_checks.model_column_descriptions_are_consistent.get_models_from_manifest",
-            return_value=models,
-        ) as mock_get_models_from_manifest,
+        patch.object(
+            ModelColumnsDescriptionsAreConsistent, "manifest", new_callable=PropertyMock
+        ) as mock_manifest,
     ):
+        mock_in_scope_models = PropertyMock(
+            return_value=[
+                ManifestModel(model_data, ManifestFilterConditions())
+                for model_data in models
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
         instance = ModelColumnsDescriptionsAreConsistent()
         instance.perform_check()
         assert instance.check_name == "model-column-descriptions-are-consistent"
@@ -91,10 +99,7 @@ def test_model_column_descriptions_are_consistent_perform_checks(
             "exclude_node_paths",
         ]
         assert instance.descriptions == expected_descriptions
-        mock_get_models_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_in_scope_models.assert_called_once()
 
 
 @pytest.mark.parametrize(

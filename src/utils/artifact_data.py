@@ -2,122 +2,183 @@
 
 import json
 from pathlib import Path
-from typing import Iterable, Any, Collection, Generator
+from typing import Any, Generator
 from functools import lru_cache
 
-from utils.console_formatting import colour_message, ConsoleEmphasis
-
+from utils.catalog_object.catalog_table import CatalogTable
+from utils.manifest_object.macro import Macro
+from utils.manifest_object.node.analysis import ManifestAnalysis
+from utils.manifest_object.node.function import ManifestFunction
+from utils.manifest_object.node.generic_test import GenericTest
+from utils.manifest_object.node.model.model import ManifestModel
+from utils.manifest_object.node.seed import ManifestSeed
+from utils.manifest_object.node.singular_test import SingularTest
+from utils.manifest_object.node.snapshot import ManifestSnapshot
+from utils.manifest_object.source.source import ManifestSource
+from utils.manifest_object.unit_test import UnitTest
 
 MANIFEST_FILE_NAME = "manifest.json"
+CATALOG_FILE_NAME = "catalog.json"
 
 
-class ManifestFilterConditions:
-    """Conditions to filter manifest objects by.
-
-    Attributes:
-        include_materializations: materialization types to be included. Only applicable to models.
-        exclude_materializations: materialization types to be excluded. Only applicable to models.
-        include_packages: dbt packages to be included.
-        exclude_packages: dbt packages to be excluded.
-        include_tags: tags to be included.
-        exclude_tags: tags to be excluded.
-        include_node_paths: node paths to be included.
-        exclude_node_paths: node paths to be excluded.
-    """
-
-    def __init__(
-        self,
-        include_materializations: Collection[str] | None = None,
-        include_tags: Collection[str] | None = None,
-        include_packages: Collection[str] | None = None,
-        include_node_paths: Collection[Path] | None = None,
-        exclude_materializations: Collection[str] | None = None,
-        exclude_tags: Collection[str] | None = None,
-        exclude_packages: Collection[str] | None = None,
-        exclude_node_paths: Collection[Path] | None = None,
-    ) -> None:
-        """Initialize the instance.
-
-        Args:
-            include_materializations: materialization types to be included. Only applicable to models.
-            exclude_materializations: materialization types to be excluded. Only applicable to models.
-            include_packages: dbt packages to be included.
-            exclude_packages: dbt packages to be excluded.
-            include_tags: tags to be included.
-            exclude_tags: tags to be excluded.
-            include_node_paths: node paths to be included.
-            exclude_node_paths: node paths to be excluded.
-        """
-        self.include_materializations = (
-            set(include_materializations) if include_materializations else None
-        )
-        self.include_tags = set(include_tags) if include_tags else None
-        self.include_packages = set(include_packages) if include_packages else None
-        self.include_node_paths = (
-            set(include_node_paths) if include_node_paths else None
-        )
-        self.exclude_materializations = (
-            set(exclude_materializations) if exclude_materializations else None
-        )
-        self.exclude_tags = set(exclude_tags) if exclude_tags else None
-        self.exclude_packages = set(exclude_packages) if exclude_packages else None
-        self.exclude_node_paths = (
-            set(exclude_node_paths) if exclude_node_paths else None
-        )
+class Catalog:
+    def __init__(self, catalog_dir: Path):
+        self.data = get_json_artifact_data(catalog_dir / CATALOG_FILE_NAME)
 
     @property
-    def summary(self) -> str:
-        """Summarise all the filter conditions in a block of text."""
-        includes: list[str] = []
-        excludes: list[str] = []
-        if self.include_materializations:
-            includes.append(
-                f"materialized: {', '.join(sorted(self.include_materializations))}"
-            )
-        if self.include_tags:
-            includes.append(f"tags: {', '.join(sorted(self.include_tags))}")
-        if self.include_packages:
-            includes.append(f"packages: {', '.join(sorted(self.include_packages))}")
-        if self.include_node_paths:
-            includes.append(
-                f"node paths: {', '.join(sorted(path.as_posix() for path in self.include_node_paths))}"
-            )
-        if self.exclude_materializations:
-            excludes.append(
-                f"materialized: {', '.join(sorted(self.exclude_materializations))}"
-            )
-        if self.exclude_tags:
-            excludes.append(f"tags: {', '.join(sorted(self.exclude_tags))}")
-        if self.exclude_packages:
-            excludes.append(f"packages: {', '.join(sorted(self.exclude_packages))}")
-        if self.exclude_node_paths:
-            excludes.append(
-                f"node paths: {', '.join(sorted(path.as_posix() for path in self.exclude_node_paths))}"
-            )
-        return colour_message(
-            ""
-            + ("Including:\n\t" + "\n\t".join(includes) if includes else "")
-            + ("\nExcluding:\n\t" + "\n\t".join(excludes) if excludes else ""),
-            emphasis=ConsoleEmphasis.ITALIC,
-        )
+    def nodes(self) -> dict[str, CatalogTable]:
+        return {
+            node_id: CatalogTable(node_data)
+            for node_id, node_data in self.data.get("nodes", {}).items()
+        }
 
-    def __eq__(self, other: Any) -> bool:
-        """Test for equality of ManifestFilterConditions instances."""
-        if not isinstance(other, ManifestFilterConditions):
-            return False
-        return all(
-            getattr(self, attr) == getattr(other, attr)
-            for attr in [
-                "include_materializations",
-                "include_tags",
-                "include_packages",
-                "include_node_paths",
-                "exclude_materializations",
-                "exclude_tags",
-                "exclude_packages",
-                "exclude_node_paths",
-            ]
-        )
+    def get_node(self, node_id: str) -> CatalogTable | None:
+        return self.nodes.get(node_id)
+
+    @property
+    def sources(self) -> dict[str, CatalogTable]:
+        return {
+            source_id: CatalogTable(source_data)
+            for source_id, source_data in self.data.get("sources", {}).items()
+        }
+
+    def get_source(self, source_id: str) -> CatalogTable | None:
+        return self.sources.get(source_id)
+
+
+class Manifest:
+    def __init__(
+        self, manifest_dir: Path, filter_conditions: "ManifestFilterConditions"
+    ):
+        self.data = get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)
+        self.filter_conditions = filter_conditions
+
+    @property
+    def nodes(self) -> dict[str, dict[str, Any]]:
+        return self.data.get("nodes", {})
+
+    @property
+    def models(self) -> dict[str, ManifestModel]:
+        return {
+            node_id: ManifestModel(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "model"
+        }
+
+    @property
+    def in_scope_models(self) -> Generator[ManifestModel, None, None]:
+        return (model for model in self.models.values() if model.is_in_scope)
+
+    def get_model(self, model_id: str) -> ManifestModel | None:
+        return self.models.get(model_id)
+
+    @property
+    def generic_tests(self) -> dict[str, GenericTest]:
+        return {
+            node_id: GenericTest(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "test"
+        }
+
+    def get_generic_test(self, test_id: str) -> GenericTest | None:
+        return self.generic_tests.get(test_id)
+
+    @property
+    def snapshots(self) -> dict[str, ManifestSnapshot]:
+        return {
+            node_id: ManifestSnapshot(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "snapshot"
+        }
+
+    @property
+    def seeds(self) -> dict[str, ManifestSeed]:
+        return {
+            node_id: ManifestSeed(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "seed"
+        }
+
+    @property
+    def analyses(self) -> dict[str, ManifestAnalysis]:
+        return {
+            node_id: ManifestAnalysis(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "analysis"
+        }
+
+    @property
+    def singular_tests(self) -> dict[str, SingularTest]:
+        return {
+            node_id: SingularTest(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "singular_test"
+        }
+
+    @property
+    def functions(self) -> dict[str, ManifestFunction]:
+        return {
+            node_id: ManifestFunction(
+                data=node_data, filter_conditions=self.filter_conditions
+            )
+            for node_id, node_data in self.nodes.items()
+            if node_data.get("resource_type") == "function"
+        }
+
+    @property
+    def sources(self) -> dict[str, ManifestSource]:
+        return {
+            source_id: ManifestSource(
+                source_data, filter_conditions=self.filter_conditions
+            )
+            for source_id, source_data in self.data.get("sources").items()
+        }
+
+    @property
+    def in_scope_sources(self) -> Generator[ManifestSource, None, None]:
+        return (source for source in self.sources.values() if source.is_in_scope)
+
+    def get_source(self, source_id: str) -> ManifestSource | None:
+        return self.sources.get(source_id)
+
+    @property
+    def macros(self) -> dict[str, Macro]:
+        return {
+            macro_id: Macro(macro_data, filter_conditions=self.filter_conditions)
+            for macro_id, macro_data in self.data.get("macros").items()
+        }
+
+    @property
+    def in_scope_macros(self) -> Generator[Macro, None, None]:
+        return (macro for macro in self.macros.values() if macro.is_in_scope)
+
+    @property
+    def unit_tests(self) -> dict[str, UnitTest]:
+        return {
+            unit_test_id: UnitTest(
+                unit_test_data, filter_conditions=self.filter_conditions
+            )
+            for unit_test_id, unit_test_data in self.data.get("unit_tests").items()
+        }
+
+    def get_unit_test(self, unit_test_id: str) -> UnitTest | None:
+        return self.unit_tests.get(unit_test_id)
+
+    @property
+    def child_map(self) -> dict[str, list[str] | None]:
+        return self.data.get("child_map", {})
 
 
 @lru_cache
@@ -138,276 +199,3 @@ def get_json_artifact_data(artifact_path: Path) -> dict:
     with open(artifact_path, "r") as file_handler:
         data = json.load(file_handler)
     return data
-
-
-def filter_nodes_by_package(
-    nodes: Iterable[dict[str, Any]],
-    include_packages: Collection[str] | None = None,
-    exclude_packages: Collection[str] | None = None,
-) -> Generator[dict[str, Any], None, None]:
-    """Filter nodes by package name.
-
-    Args:
-        nodes: Sequence of nodes dictionaries from the manifest
-        include_packages: Collection of package names to be included
-        exclude_packages: Collection of package names to be excluded
-
-    Returns:
-        Generator of node dictionaries from the manifest
-    """
-    yield from (
-        node
-        for node in nodes
-        if (include_packages is None or node.get("package_name") in include_packages)
-        and (
-            exclude_packages is None or node.get("package_name") not in exclude_packages
-        )
-    )
-
-
-def get_tags_for_manifest_object(manifest_object: dict[str, Any]) -> set[str]:
-    """Get all tags for a given manifest object.
-
-    Args:
-        manifest_object: dict of dbt manifest object data
-
-    Returns:
-        set of tag values
-    """
-    manifest_tags = manifest_object.get("tags", [])
-    if isinstance(manifest_tags, str):
-        manifest_tags = [manifest_tags]
-    config_tags = manifest_object.get("config", {}).get("tags", [])
-    if isinstance(config_tags, str):
-        config_tags = [config_tags]
-    return set(manifest_tags + config_tags)
-
-
-def filter_nodes_by_tag(
-    nodes: Iterable[dict[str, Any]],
-    include_tags: Collection[str] | None = None,
-    exclude_tags: Collection[str] | None = None,
-) -> Generator[dict[str, Any], None, None]:
-    """Filter nodes by tag values.
-
-    Args:
-        nodes: Sequence of nodes dictionaries from the manifest
-        include_tags: Collection of tag values to be included
-        exclude_tags: Collection of tag values to be excluded
-
-    Returns:
-        Generator of node dictionaries from the manifest
-    """
-    yield from (
-        node
-        for node in nodes
-        if (
-            include_tags is None
-            or set(get_tags_for_manifest_object(node)).intersection(set(include_tags))
-        )
-        and (
-            exclude_tags is None
-            or not set(get_tags_for_manifest_object(node)).intersection(
-                set(exclude_tags)
-            )
-        )
-    )
-
-
-def filter_models_by_materialization_type(
-    models: Iterable[dict[str, Any]],
-    include_materializations: Collection[str] | None = None,
-    exclude_materializations: Collection[str] | None = None,
-) -> Generator[dict[str, Any], None, None]:
-    """Filter nodes by materialization.
-
-    Args:
-        models: Sequence of nodes dictionaries from the manifest
-        include_materializations: Collection of materializations to be included
-        exclude_materializations: Collection of materializations to be excluded
-
-    Returns:
-        Generator of model dictionaries from the manifest
-    """
-    yield from (
-        model
-        for model in models
-        if (
-            include_materializations is None
-            or model.get("config", {}).get("materialized") in include_materializations
-        )
-        and (
-            exclude_materializations is None
-            or model.get("config", {}).get("materialized")
-            not in exclude_materializations
-        )
-    )
-
-
-def filter_nodes_by_path(
-    nodes: Iterable[dict[str, Any]],
-    include_paths: Collection[Path] | None = None,
-    exclude_paths: Collection[Path] | None = None,
-) -> Generator[dict[str, Any], None, None]:
-    """Filter nodes by the original filepath, relative to the dbt project directory.
-
-    Args:
-        nodes: Sequence of node dictionaries from the manifest
-        include_paths: Collection of node paths to be included. Nodes under any of these paths are included.
-        exclude_paths: Collection of node paths to be excluded. Nodes under any of these paths are excluded.
-
-    Returns:
-        Generator of node dictionaries from the manifest
-    """
-    yield from (
-        node
-        for node in nodes
-        if (
-            include_paths is None
-            or any(
-                Path(node["original_file_path"]).is_relative_to(path)
-                for path in include_paths
-            )
-        )
-        and (
-            exclude_paths is None
-            or not any(
-                Path(node["original_file_path"]).is_relative_to(path)
-                for path in exclude_paths
-            )
-        )
-    )
-
-
-def filter_nodes_by_resource_type(
-    nodes: Iterable[dict[str, Any]],
-    include_resource_types: Collection[str] | None = None,
-    exclude_resource_types: Collection[str] | None = None,
-) -> Generator[dict[str, Any], None, None]:
-    """Filter nodes by resource type.
-
-    Args:
-        nodes: Sequence of nodes dictionaries from the manifest
-        include_resource_types: Collection of resource types to be included
-        exclude_resource_types: Collection of resource types to be included
-
-    Returns:
-        Generator of node dictionaries from the manifest
-    """
-    yield from (
-        node
-        for node in nodes
-        if (
-            include_resource_types is None
-            or node["resource_type"] in include_resource_types
-        )
-        and (
-            exclude_resource_types is None
-            or node["resource_type"] not in exclude_resource_types
-        )
-    )
-
-
-def get_macros_from_manifest(
-    manifest_dir: Path,
-    filter_conditions: ManifestFilterConditions,
-) -> Generator[dict[str, Any], None, None]:
-    """Get macros from the dbt manifest file.
-
-    Args:
-        manifest_dir: Path to the directory containing the dbt manifest.json
-        filter_conditions: ManifestFilterConditions object to filter by
-
-    Yields:
-        dictionary of manifest macro data
-    """
-    return filter_nodes_by_package(
-        get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)["macros"].values(),
-        include_packages=filter_conditions.include_packages,
-        exclude_packages=filter_conditions.exclude_packages,
-    )
-
-
-def get_sources_from_manifest(
-    manifest_dir: Path,
-    filter_conditions: ManifestFilterConditions,
-) -> Generator[dict[str, Any], None, None]:
-    """Get sources from the dbt manifest file.
-
-    Args:
-        manifest_dir: Path to the directory containing the dbt manifest.json
-        filter_conditions: ManifestFilterConditions object to filter by
-
-    Yields:
-        dictionary of manifest source data
-    """
-    return filter_nodes_by_path(
-        filter_nodes_by_tag(
-            filter_nodes_by_package(
-                get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)[
-                    "sources"
-                ].values(),
-                include_packages=filter_conditions.include_packages,
-                exclude_packages=filter_conditions.exclude_packages,
-            ),
-            include_tags=filter_conditions.include_tags,
-            exclude_tags=filter_conditions.exclude_tags,
-        ),
-        include_paths=filter_conditions.include_node_paths,
-        exclude_paths=filter_conditions.exclude_node_paths,
-    )
-
-
-def get_nodes_from_manifest(
-    manifest_dir: Path,
-    filter_conditions: ManifestFilterConditions,
-) -> Generator[dict[str, Any], None, None]:
-    """Get nodes from the dbt manifest file.
-
-    Args:
-        manifest_dir: Path to the directory containing the dbt manifest.json
-        filter_conditions: ManifestFilterConditions object to filter by
-
-    Yields:
-        dictionary of manifest node data
-    """
-    return filter_nodes_by_path(
-        filter_nodes_by_tag(
-            filter_nodes_by_package(
-                get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)[
-                    "nodes"
-                ].values(),
-                include_packages=filter_conditions.include_packages,
-                exclude_packages=filter_conditions.exclude_packages,
-            ),
-            include_tags=filter_conditions.include_tags,
-            exclude_tags=filter_conditions.exclude_tags,
-        ),
-        include_paths=filter_conditions.include_node_paths,
-        exclude_paths=filter_conditions.exclude_node_paths,
-    )
-
-
-def get_models_from_manifest(
-    manifest_dir: Path, filter_conditions: ManifestFilterConditions
-) -> Generator[dict[str, Any], None, None]:
-    """Get model nodes from the dbt manifest file.
-
-    Args:
-        manifest_dir: Path to the directory containing the dbt manifest.json
-        filter_conditions: ManifestFilterConditions object to filter by
-
-    Yields:
-        model dictionaries
-    """
-    return filter_models_by_materialization_type(
-        filter_nodes_by_resource_type(
-            get_nodes_from_manifest(
-                manifest_dir=manifest_dir,
-                filter_conditions=filter_conditions,
-            ),
-            include_resource_types=["model"],
-        ),
-        include_materializations=filter_conditions.include_materializations,
-        exclude_materializations=filter_conditions.exclude_materializations,
-    )

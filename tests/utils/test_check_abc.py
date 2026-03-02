@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 
 import pytest
 
-from utils.artifact_data import ManifestFilterConditions
+from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.check_abc import Check, ManifestCheck, ManifestVsCatalogComparison
 
 

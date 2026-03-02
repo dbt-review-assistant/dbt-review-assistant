@@ -10,14 +10,12 @@ from utils.artifact_data import (
     filter_nodes_by_tag,
     filter_models_by_materialization_type,
     filter_nodes_by_resource_type,
-    get_macros_from_manifest,
-    get_sources_from_manifest,
-    get_nodes_from_manifest,
-    get_models_from_manifest,
-    ManifestFilterConditions,
+    get_in_scope_macros_from_manifest,
+    get_all_nodes_from_manifest,
     filter_nodes_by_path,
     get_tags_for_manifest_object,
 )
+from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.console_formatting import colour_message, ConsoleEmphasis
 import pytest
 
@@ -1007,7 +1005,7 @@ def test_get_macros_from_manifest(
         },
     ) as mock_get_json_artifact_data:
         assert expected_macros == list(
-            get_macros_from_manifest(Path(), filter_condition)
+            get_in_scope_macros_from_manifest(Path(), filter_condition)
         )
         mock_get_json_artifact_data.assert_called_with(Path("manifest.json"))
 
@@ -1040,7 +1038,7 @@ def test_get_macros_from_manifest(
                 ManifestFilterConditions(
                     include_packages=["test_dbt_package"],
                     include_tags=["test_tag"],
-                    include_node_paths=[
+                    include_paths=[
                         Path("test/model/path"),
                         Path("test/another/path"),
                     ],
@@ -1173,7 +1171,7 @@ def test_get_sources_from_manifest(
         },
     ) as mock_get_json_artifact_data:
         assert expected_sources == list(
-            get_sources_from_manifest(Path(), filter_condition)
+            get_in_scope_sources_from_manifest(Path(), filter_condition)
         )
         mock_get_json_artifact_data.assert_called_with(Path("manifest.json"))
 
@@ -1206,7 +1204,7 @@ def test_get_sources_from_manifest(
                 ManifestFilterConditions(
                     include_packages=["test_dbt_package"],
                     include_tags=["test_tag"],
-                    include_node_paths=[
+                    include_paths=[
                         Path("test/model/path"),
                         Path("test/another/path"),
                     ],
@@ -1338,7 +1336,9 @@ def test_get_nodes_from_manifest(
             "not_nodes": "",
         },
     ) as mock_get_json_artifact_data:
-        assert expected_nodes == list(get_nodes_from_manifest(Path(), filter_condition))
+        assert expected_nodes == list(
+            get_all_nodes_from_manifest(Path(), filter_condition)
+        )
         mock_get_json_artifact_data.assert_called_with(Path("manifest.json"))
 
 
@@ -1498,7 +1498,7 @@ def test_get_models_from_manifest(
         },
     ) as mock_get_json_artifact_data:
         assert expected_nodes == list(
-            get_models_from_manifest(
+            get_in_scope_models_from_manifest(
                 manifest_dir=Path(), filter_conditions=filter_condition
             )
         )
@@ -1629,21 +1629,21 @@ def test_manifest_filter_conditions_summary(kwargs, expected_summary):
                 include_materializations=("table", "view"),
                 include_packages=("test_dbt_project", "another_dbt_project"),
                 include_tags=("test_tag", "another_tag"),
-                include_node_paths=(Path("test/model/path"), Path("test/another/path")),
+                include_paths=(Path("test/model/path"), Path("test/another/path")),
                 exclude_materializations=("ephemeral", "incremental"),
                 exclude_packages=("one_more_dbt_project",),
                 exclude_tags=("one_more_tag",),
-                exclude_node_paths=(Path("test/one/more/path"),),
+                exclude_paths=(Path("test/one/more/path"),),
             ),
             ManifestFilterConditions(
                 include_materializations=("table", "view"),
                 include_packages=("test_dbt_project", "another_dbt_project"),
                 include_tags=("test_tag", "another_tag"),
-                include_node_paths=(Path("test/model/path"), Path("test/another/path")),
+                include_paths=(Path("test/model/path"), Path("test/another/path")),
                 exclude_materializations=("ephemeral", "incremental"),
                 exclude_packages=("one_more_dbt_project",),
                 exclude_tags=("one_more_tag",),
-                exclude_node_paths=(Path("test/one/more/path"),),
+                exclude_paths=(Path("test/one/more/path"),),
             ),
             True,
         ),
@@ -1652,11 +1652,11 @@ def test_manifest_filter_conditions_summary(kwargs, expected_summary):
                 include_materializations=("table", "view"),
                 include_packages=("test_dbt_project", "another_dbt_project"),
                 include_tags=("test_tag", "another_tag"),
-                include_node_paths=(Path("test/model/path"), Path("test/another/path")),
+                include_paths=(Path("test/model/path"), Path("test/another/path")),
                 exclude_materializations=("ephemeral", "incremental"),
                 exclude_packages=("one_more_dbt_project",),
                 exclude_tags=("one_more_tag",),
-                exclude_node_paths=(Path("test/one/more/path"),),
+                exclude_paths=(Path("test/one/more/path"),),
             ),
             ManifestFilterConditions(
                 include_materializations=("table", "view"),

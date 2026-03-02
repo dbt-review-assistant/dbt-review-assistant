@@ -2,7 +2,6 @@
 
 from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_sources_from_manifest
 
 
 class SourcesHaveDescriptions(ManifestCheck):
@@ -25,13 +24,10 @@ class SourcesHaveDescriptions(ManifestCheck):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        self.failures: set[str] = {
-            node["unique_id"]
-            for node in get_sources_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            if not node.get("description")
+        self.failures = {
+            source.unique_id
+            for source in self.manifest.in_scope_sources
+            if not source.description
         }
 
     @property

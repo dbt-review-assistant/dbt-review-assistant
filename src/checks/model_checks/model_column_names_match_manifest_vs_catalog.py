@@ -4,7 +4,6 @@ from utils.check_failure_messages import (
     manifest_vs_catalog_column_name_mismatch_message,
 )
 from utils.check_abc import ManifestVsCatalogComparison
-from utils.artifact_data import get_json_artifact_data, get_models_from_manifest
 
 
 class ModelColumnNamesMatchManifestVsCatalog(ManifestVsCatalogComparison):
@@ -34,25 +33,20 @@ class ModelColumnNamesMatchManifestVsCatalog(ManifestVsCatalogComparison):
     def perform_check(self) -> None:
         """Execute the check logic."""
         eligible_models = {
-            node["unique_id"]: node
-            for node in get_models_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            if node.get("config", {}).get("enabled", True)
+            model.unique_id: model
+            for model in self.manifest.in_scope_models
+            if model.enabled
         }
         self.manifest_items: set[str] = {
-            f"{node_name}.{column['name']}"
-            for node_name, node in eligible_models.items()
-            for column in node["columns"].values()
+            column_id
+            for model in eligible_models.values()
+            for column_id, column in model.columns.items()
         }
         self.catalog_items = {
-            f"{node['unique_id']}.{column}"
-            for node in get_json_artifact_data(self.args.catalog_dir / "catalog.json")[
-                "nodes"
-            ].values()
-            if node["unique_id"] in eligible_models.keys()
-            for column in node["columns"]
+            column_id
+            for node_id, node in self.catalog.nodes.items()
+            if node_id in eligible_models.keys()
+            for column_id in node.columns.keys()
         }
 
     @property

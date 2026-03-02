@@ -1,9 +1,11 @@
 import sys
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
 
 from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(
@@ -68,14 +70,7 @@ def test_models_have_unit_tests_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveUnitTests, "__call__"),
-        patch(
-            "checks.model_checks.models_have_unit_tests.get_json_artifact_data",
-            return_value=manifest_data,
-        ),
-        patch(
-            "utils.artifact_data.get_json_artifact_data",
-            return_value=manifest_data,
-        ),
+        patch("utils.artifact_data.get_json_artifact_data", return_value=manifest_data),
     ):
         instance = ModelsHaveUnitTests()
         instance.perform_check()

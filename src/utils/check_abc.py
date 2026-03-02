@@ -6,7 +6,8 @@ from argparse import Namespace
 from typing import Collection
 
 from utils.check_arg_parser import CheckArgParser
-from utils.artifact_data import ManifestFilterConditions
+from utils.artifact_data import Manifest, Catalog
+from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.console_formatting import (
     check_status_header,
     colour_message,
@@ -54,13 +55,13 @@ class Check(ABC):
             ),
             include_tags=getattr(self.args, "include_tags", None),
             include_packages=getattr(self.args, "include_packages", None),
-            include_node_paths=getattr(self.args, "include_node_paths", None),
+            include_paths=getattr(self.args, "include_node_paths", None),
             exclude_materializations=getattr(
                 self.args, "exclude_materializations", None
             ),
             exclude_tags=getattr(self.args, "exclude_tags", None),
             exclude_packages=getattr(self.args, "exclude_packages", None),
-            exclude_node_paths=getattr(self.args, "exclude_node_paths", None),
+            exclude_paths=getattr(self.args, "exclude_node_paths", None),
         )
 
     @abstractmethod
@@ -119,6 +120,13 @@ class ManifestCheck(Check, ABC):
         """Determine whether any entities failed the check."""
         return bool(self.failures)
 
+    @property
+    def manifest(self) -> Manifest:
+        return Manifest(
+            manifest_dir=self.args.manifest_dir,
+            filter_conditions=self.filter_conditions,
+        )
+
 
 class ManifestVsCatalogComparison(Check, ABC):
     """Abstract base class for manifest vs. catalog comparison checks.
@@ -135,3 +143,14 @@ class ManifestVsCatalogComparison(Check, ABC):
     def has_failures(self) -> bool:
         """Determine whether any entities failed the check."""
         return bool(self.manifest_items != self.catalog_items)
+
+    @property
+    def manifest(self) -> Manifest:
+        return Manifest(
+            manifest_dir=self.args.manifest_dir,
+            filter_conditions=self.filter_conditions,
+        )
+
+    @property
+    def catalog(self) -> Catalog:
+        return Catalog(catalog_dir=self.args.catalog_dir)

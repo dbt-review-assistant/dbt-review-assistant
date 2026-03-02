@@ -2,11 +2,6 @@
 
 from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import (
-    get_models_from_manifest,
-    get_json_artifact_data,
-    MANIFEST_FILE_NAME,
-)
 
 
 class ModelsHaveUnitTests(ManifestCheck):
@@ -31,27 +26,11 @@ class ModelsHaveUnitTests(ManifestCheck):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        models = (
-            node["unique_id"]
-            for node in get_models_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-        )
-        models_without_required_unit_tests: set[str] = set()
-        unit_tests = {}
-        manifest_data = get_json_artifact_data(
-            self.args.manifest_dir / MANIFEST_FILE_NAME
-        )
-        for model in models:
-            unit_tests[model] = False
-            for child_id in manifest_data["child_map"].get(model, []):
-                unit_test_data = manifest_data["unit_tests"].get(child_id)
-                if unit_test_data:
-                    unit_tests[model] = True
-            if not unit_tests[model]:
-                models_without_required_unit_tests.add(model)
-        self.failures = models_without_required_unit_tests
+        self.failures: set[str] = {
+            model.unique_id
+            for model in self.manifest.in_scope_models
+            if not model.has_unit_tests(self.manifest)
+        }
 
     @property
     def failure_message(self) -> str:

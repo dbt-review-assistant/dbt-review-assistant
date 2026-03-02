@@ -1,6 +1,6 @@
 import sys
 from typing import Iterable
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, PropertyMock
 
 import pytest
 from jinja2 import Environment
@@ -10,6 +10,8 @@ from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
     Jinja2TestMacroExtension,
     get_macro_args_from_sql_code,
 )
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.macro import Macro as ManifestMacro
 
 
 @pytest.mark.parametrize(
@@ -52,7 +54,10 @@ from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
     ),
 )
 def test_get_macro_args_from_sql_code(macro: dict[str, str], expected_args: set[str]):
-    assert get_macro_args_from_sql_code(macro) == expected_args
+    assert (
+        get_macro_args_from_sql_code(ManifestMacro(macro, ManifestFilterConditions()))
+        == expected_args
+    )
 
 
 @pytest.mark.parametrize(
@@ -161,11 +166,17 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(MacroArgumentsMatchManifestVsSql, "__call__"),
-        patch(
-            "checks.macro_checks.macro_arguments_match_manifest_vs_sql.get_macros_from_manifest",
-            return_value=macros,
-        ) as mock_get_macros_from_manifest,
+        patch.object(
+            MacroArgumentsMatchManifestVsSql, "manifest", new_callable=PropertyMock
+        ) as mock_manifest,
     ):
+        mock_in_scope_macros = PropertyMock(
+            return_value=[
+                ManifestMacro(macro_data, ManifestFilterConditions())
+                for macro_data in macros
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
         instance = MacroArgumentsMatchManifestVsSql()
         instance.perform_check()
         assert instance.check_name == "macro-arguments-match-manifest-vs-sql"
@@ -177,10 +188,7 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
         ]
         assert instance.sql_args == expected_sql_args
         assert instance.manifest_args == expected_manifest_args
-        mock_get_macros_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_in_scope_macros.assert_called_once()
 
 
 @pytest.mark.parametrize(

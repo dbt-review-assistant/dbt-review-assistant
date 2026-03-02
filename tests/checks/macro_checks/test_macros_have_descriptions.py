@@ -1,10 +1,12 @@
 import sys
 from typing import Iterable
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
 
 from checks.macro_checks.macros_have_descriptions import MacrosHaveDescriptions
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.macro import Macro
 
 
 @pytest.mark.parametrize(
@@ -50,11 +52,16 @@ def test_macros_have_descriptions_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(MacrosHaveDescriptions, "__call__"),
-        patch(
-            "checks.macro_checks.macros_have_descriptions.get_macros_from_manifest",
-            return_value=macros,
-        ) as mock_get_macros_from_manifest,
+        patch.object(
+            MacrosHaveDescriptions, "manifest", new_callable=PropertyMock
+        ) as mock_manifest,
     ):
+        mock_in_scope_macros = PropertyMock(
+            return_value=[
+                Macro(macro_data, ManifestFilterConditions()) for macro_data in macros
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
         instance = MacrosHaveDescriptions()
         instance.perform_check()
         assert instance.check_name == "macros-have-descriptions"
@@ -65,10 +72,7 @@ def test_macros_have_descriptions_perform_checks(
             "exclude_tags",
         ]
         assert instance.failures == expected_failures
-        mock_get_macros_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_in_scope_macros.assert_called_once()
 
 
 def test_macros_have_descriptions_failure_message():

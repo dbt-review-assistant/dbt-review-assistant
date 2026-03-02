@@ -2,7 +2,6 @@
 
 from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_models_from_manifest
 
 
 class ModelsHaveDescriptions(ManifestCheck):
@@ -28,12 +27,9 @@ class ModelsHaveDescriptions(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            model["unique_id"]
-            for model in get_models_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            if not model.get("description")
+            model.unique_id
+            for model in self.manifest.in_scope_models
+            if not model.description
         }
 
     @property
