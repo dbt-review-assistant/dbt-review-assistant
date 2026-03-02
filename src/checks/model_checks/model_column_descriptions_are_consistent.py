@@ -1,7 +1,6 @@
 """Check if model columns have descriptions."""
 
 from utils.check_failure_messages import (
-    object_missing_attribute_message,
     inconsistent_column_descriptions_message,
 )
 from utils.check_abc import Check
