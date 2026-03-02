@@ -26,6 +26,7 @@ class UnitTest(ManifestObject):
             config_tags = [config_tags]
         return set(config_tags)
 
+    @property
     def filter_by_tag(self) -> bool:
         return (
             self.filter_conditions.include_tags is None
@@ -40,6 +41,6 @@ class UnitTest(ManifestObject):
         return all(
             [
                 super().is_in_scope,
-                self.filter_by_tag(),
+                self.filter_by_tag,
             ]
         )

@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Generator, TYPE_CHECKING
 from functools import lru_cache
 
 from utils.catalog_object.catalog_table import CatalogTable
@@ -16,6 +16,10 @@ from utils.manifest_object.node.singular_test import SingularTest
 from utils.manifest_object.node.snapshot import ManifestSnapshot
 from utils.manifest_object.source.source import ManifestSource
 from utils.manifest_object.unit_test import UnitTest
+
+if TYPE_CHECKING:
+    from utils.manifest_filter_conditions import ManifestFilterConditions
+
 
 MANIFEST_FILE_NAME = "manifest.json"
 CATALOG_FILE_NAME = "catalog.json"
@@ -32,18 +36,12 @@ class Catalog:
             for node_id, node_data in self.data.get("nodes", {}).items()
         }
 
-    def get_node(self, node_id: str) -> CatalogTable | None:
-        return self.nodes.get(node_id)
-
     @property
     def sources(self) -> dict[str, CatalogTable]:
         return {
             source_id: CatalogTable(source_data)
             for source_id, source_data in self.data.get("sources", {}).items()
         }
-
-    def get_source(self, source_id: str) -> CatalogTable | None:
-        return self.sources.get(source_id)
 
 
 class Manifest:
@@ -83,9 +81,6 @@ class Manifest:
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "test"
         }
-
-    def get_generic_test(self, test_id: str) -> GenericTest | None:
-        return self.generic_tests.get(test_id)
 
     @property
     def snapshots(self) -> dict[str, ManifestSnapshot]:
@@ -150,9 +145,6 @@ class Manifest:
     def in_scope_sources(self) -> Generator[ManifestSource, None, None]:
         return (source for source in self.sources.values() if source.is_in_scope)
 
-    def get_source(self, source_id: str) -> ManifestSource | None:
-        return self.sources.get(source_id)
-
     @property
     def macros(self) -> dict[str, Macro]:
         return {
@@ -172,9 +164,6 @@ class Manifest:
             )
             for unit_test_id, unit_test_data in self.data.get("unit_tests").items()
         }
-
-    def get_unit_test(self, unit_test_id: str) -> UnitTest | None:
-        return self.unit_tests.get(unit_test_id)
 
     @property
     def child_map(self) -> dict[str, list[str] | None]:

@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import Any, TYPE_CHECKING
 
 from utils.manifest_object.manifest_object import ManifestObject
@@ -34,6 +33,7 @@ class ManifestSource(ManifestObject):
             config_tags = [config_tags]
         return set(manifest_tags + config_tags)
 
+    @property
     def filter_by_tag(self) -> bool:
         return (
             self.filter_conditions.include_tags is None
@@ -48,16 +48,15 @@ class ManifestSource(ManifestObject):
         return all(
             [
                 super().is_in_scope,
-                self.filter_by_tag(),
+                self.filter_by_tag,
             ]
         )
 
-    @lru_cache
     def get_data_tests(self, manifest: "Manifest") -> set[str]:
         return {
             test.generic_test_name
             for test in map(
-                manifest.get_generic_test, manifest.child_map.get(self.unique_id, [])
+                manifest.generic_tests.get, manifest.child_map.get(self.unique_id, [])
             )
             if test
         }

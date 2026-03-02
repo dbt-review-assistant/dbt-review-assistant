@@ -26,6 +26,9 @@ class CatalogTable:
     def __init__(self, data: dict) -> None:
         self.data = data
 
+    def __eq__(self, other: "CatalogTable") -> bool:
+        return isinstance(other, CatalogTable) and self.data == other.data
+
     @property
     def metadata(self) -> dict[str, Any]:
         return self.data["metadata"]

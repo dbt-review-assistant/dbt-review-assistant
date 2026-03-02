@@ -24,12 +24,12 @@ class ManifestFilterConditions:
         include_tags: Collection[str] | None = None,
         include_packages: Collection[str] | None = None,
         include_paths: Collection[Path] | None = None,
-        include_resource_types: Collection[Path] | None = None,
+        include_resource_types: Collection[str] | None = None,
         exclude_materializations: Collection[str] | None = None,
         exclude_tags: Collection[str] | None = None,
         exclude_packages: Collection[str] | None = None,
         exclude_paths: Collection[Path] | None = None,
-        exclude_resource_types: Collection[Path] | None = None,
+        exclude_resource_types: Collection[str] | None = None,
     ) -> None:
         """Initialize the instance.
 
@@ -119,11 +119,11 @@ class ManifestFilterConditions:
                 "include_materializations",
                 "include_tags",
                 "include_packages",
-                "include_node_paths",
+                "include_paths",
                 "exclude_resource_types",
                 "exclude_materializations",
                 "exclude_tags",
                 "exclude_packages",
-                "exclude_node_paths",
+                "exclude_paths",
             ]
         )

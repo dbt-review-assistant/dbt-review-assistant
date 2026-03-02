@@ -11,26 +11,30 @@ class ManifestObject(ABC):
         self.data = data
         self.filter_conditions = filter_conditions
 
+    def __eq__(self, other: "ManifestObject") -> bool:
+        return (
+            type(self) is type(other)
+            and self.data == other.data
+            and self.filter_conditions == other.filter_conditions
+        )
+
     @property
     def description(self) -> str:
         return self.data.get("description")
-
-    @property
-    def has_description(self) -> bool:
-        return self.description is not None
 
     @property
     def unique_id(self) -> str:
         return self.data["unique_id"]
 
     @property
-    def resource_type(self) -> str:
+    def resource_type(self) -> str | None:
         return self.data.get("resource_type")
 
     @property
-    def package_name(self) -> str:
+    def package_name(self) -> str | None:
         return self.data.get("package_name")
 
+    @property
     def filter_by_package(self) -> bool:
         return (
             self.filter_conditions.include_packages is None
@@ -40,6 +44,7 @@ class ManifestObject(ABC):
             or self.package_name not in self.filter_conditions.exclude_packages
         )
 
+    @property
     def filter_by_path(self) -> bool:
         return (
             self.filter_conditions.include_paths is None
@@ -55,6 +60,7 @@ class ManifestObject(ABC):
             )
         )
 
+    @property
     def filter_by_resource_type(self) -> bool:
         return (
             self.filter_conditions.include_resource_types is None
@@ -68,8 +74,8 @@ class ManifestObject(ABC):
     def is_in_scope(self) -> bool:
         return all(
             [
-                self.filter_by_resource_type(),
-                self.filter_by_package(),
-                self.filter_by_path(),
+                self.filter_by_resource_type,
+                self.filter_by_package,
+                self.filter_by_path,
             ]
         )
