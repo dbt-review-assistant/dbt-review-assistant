@@ -186,3 +186,12 @@
   language: python
   pass_filenames: false
   types_or: [sql, yaml]
+
+- id: model-column-descriptions-are-consistent
+  name: model-column-descriptions-are-consistent
+  description: >
+    Check if column descriptions are consistent across different models
+  entry: dbt-review-assistant model-columns-have-types
+  language: python
+  pass_filenames: false
+  types_or: [sql, yaml]
