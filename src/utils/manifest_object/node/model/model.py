@@ -2,23 +2,11 @@ from typing import TYPE_CHECKING
 
 from utils.manifest_object.node.model.column import ManifestModelColumn
 from utils.manifest_object.node.model.constraint import Constraint
+from utils.manifest_object.node.model.contract import Contract
 from utils.manifest_object.node.node import ManifestNode
 
 if TYPE_CHECKING:
     from utils.artifact_data import Manifest
-
-
-class Contract:
-    def __init__(self, data: dict):
-        self.data = data
-
-    @property
-    def enforced(self) -> bool:
-        return self.data.get("enforced", False)
-
-
-class ModelLevelConstraint(Constraint):
-    pass
 
 
 class ManifestModel(ManifestNode):
@@ -30,9 +18,9 @@ class ManifestModel(ManifestNode):
         }
 
     @property
-    def constraints(self) -> tuple[ModelLevelConstraint, ...]:
+    def constraints(self) -> tuple[Constraint, ...]:
         return tuple(
-            ModelLevelConstraint(constraint_data)
+            Constraint(constraint_data)
             for constraint_data in self.data.get("constraints", [])
         )
 

@@ -32,15 +32,11 @@ class ModelColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        self.filter_conditions.exclude_materializations = (
-            set(self.args.exclude_materializations + ["ephemeral"])
-            if self.args.exclude_materializations
-            else {"ephemeral"}
-        )
         eligible_models = {
             model.unique_id: model
             for model in self.manifest.in_scope_models
             if model.enabled
+            and model.materialized != "ephemeral"
         }
         self.manifest_items = {
             column_id: column.data_type

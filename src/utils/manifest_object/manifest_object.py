@@ -1,22 +1,14 @@
 from abc import ABC
+from dataclasses import dataclass
 from pathlib import Path
 
 from utils.manifest_filter_conditions import ManifestFilterConditions
 
 
+@dataclass(eq=True, frozen=True)
 class ManifestObject(ABC):
-    def __init__(
-        self, data: dict, filter_conditions: "ManifestFilterConditions"
-    ) -> None:
-        self.data = data
-        self.filter_conditions = filter_conditions
-
-    def __eq__(self, other: "ManifestObject") -> bool:
-        return (
-            type(self) is type(other)
-            and self.data == other.data
-            and self.filter_conditions == other.filter_conditions
-        )
+    data: dict
+    filter_conditions: ManifestFilterConditions
 
     @property
     def description(self) -> str:

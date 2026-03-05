@@ -1,9 +1,14 @@
+from dataclasses import dataclass, Field, field, InitVar
 from pathlib import Path
 from typing import Collection, Any
 
 from utils.console_formatting import colour_message, ConsoleEmphasis
 
 
+def set_default(value):
+    return set(value) if value else None
+
+@dataclass(eq=True, frozen=True)
 class ManifestFilterConditions:
     """Conditions to filter manifest objects by.
 
@@ -17,52 +22,101 @@ class ManifestFilterConditions:
         include_paths: node paths to be included.
         exclude_paths: node paths to be excluded.
     """
+    include_materializations: set[str] | None = field(init=False, default=None)
+    include_tags: set[str] | None = field(init=False, default=None)
+    include_packages: set[str] | None = field(init=False, default=None)
+    include_paths: set[Path] | None = field(init=False, default=None)
+    include_resource_types: set[str] | None = field(init=False, default=None)
+    exclude_materializations: set[str] | None = field(init=False, default=None)
+    exclude_tags: set[str] | None = field(init=False, default=None)
+    exclude_packages: set[str] | None = field(init=False, default=None)
+    exclude_paths: set[Path] | None = field(init=False, default=None)
+    exclude_resource_types: set[str] | None = field(init=False, default=None)
+    _include_materializations: InitVar[Collection[str] | None] = None  # NOSONAR
+    _include_tags: InitVar[Collection[str] | None] = None  # NOSONAR
+    _include_packages: InitVar[Collection[str] | None] = None  # NOSONAR
+    _include_paths: InitVar[Collection[Path] | None] = None  # NOSONAR
+    _include_resource_types: InitVar[Collection[str] | None] = None  # NOSONAR
+    _exclude_materializations: InitVar[Collection[str] | None] = None  # NOSONAR
+    _exclude_tags: InitVar[Collection[str] | None] = None  # NOSONAR
+    _exclude_packages: InitVar[Collection[str] | None] = None  # NOSONAR
+    _exclude_paths: InitVar[Collection[Path] | None] = None  # NOSONAR
+    _exclude_resource_types: InitVar[Collection[str] | None] = None  # NOSONAR
 
-    def __init__(
-        self,
-        include_materializations: Collection[str] | None = None,
-        include_tags: Collection[str] | None = None,
-        include_packages: Collection[str] | None = None,
-        include_paths: Collection[Path] | None = None,
-        include_resource_types: Collection[str] | None = None,
-        exclude_materializations: Collection[str] | None = None,
-        exclude_tags: Collection[str] | None = None,
-        exclude_packages: Collection[str] | None = None,
-        exclude_paths: Collection[Path] | None = None,
-        exclude_resource_types: Collection[str] | None = None,
-    ) -> None:
-        """Initialize the instance.
-
-        Args:
-            include_materializations: materialization types to be included. Only applicable to models.
-            exclude_materializations: materialization types to be excluded. Only applicable to models.
-            include_packages: dbt packages to be included.
-            exclude_packages: dbt packages to be excluded.
-            include_tags: tags to be included.
-            exclude_tags: tags to be excluded.
-            include_paths: paths to be included.
-            exclude_paths: paths to be excluded.
-            include_resource_types: resource types to be included.
-            exclude_resource_types: resource types to be excluded.
-        """
-        self.include_materializations = (
-            set(include_materializations) if include_materializations else None
-        )
-        self.include_tags = set(include_tags) if include_tags else None
-        self.include_packages = set(include_packages) if include_packages else None
-        self.include_paths = set(include_paths) if include_paths else None
-        self.include_resource_types = (
-            set(include_resource_types) if include_resource_types else None
-        )
-        self.exclude_materializations = (
-            set(exclude_materializations) if exclude_materializations else None
-        )
-        self.exclude_tags = set(exclude_tags) if exclude_tags else None
-        self.exclude_packages = set(exclude_packages) if exclude_packages else None
-        self.exclude_paths = set(exclude_paths) if exclude_paths else None
-        self.exclude_resource_types = (
-            set(exclude_resource_types) if exclude_resource_types else None
-        )
+    def __post_init__(
+            self,
+            _include_materializations: Collection[str] | None,
+            _include_tags: Collection[str] | None,
+            _include_packages: Collection[str] | None,
+            _include_paths: Collection[Path] | None,
+            _include_resource_types: Collection[str] | None,
+            _exclude_materializations: Collection[str] | None,
+            _exclude_tags: Collection[str] | None,
+            _exclude_packages: Collection[str] | None,
+            _exclude_paths: Collection[Path] | None,
+            _exclude_resource_types: Collection[str] | None,
+        ) -> None:
+        """Initialize the instance."""
+        if _include_materializations:
+            object.__setattr__(
+                self,
+                "include_materializations",
+                set(_include_materializations),
+            )
+        if _include_tags:
+            object.__setattr__(
+                self,
+                "include_tags",
+                set(_include_tags),
+            )
+        if _include_packages:
+            object.__setattr__(
+                self,
+                "include_packages",
+                set(_include_packages),
+            )
+        if _include_paths:
+            object.__setattr__(
+                self,
+                "include_paths",
+                set(_include_paths),
+            )
+        if _include_resource_types:
+            object.__setattr__(
+                self,
+                "include_resource_types",
+                set(_include_resource_types),
+            )
+        if _exclude_materializations:
+            object.__setattr__(
+                self,
+                "exclude_materializations",
+                set(_exclude_materializations),
+            )
+        if _exclude_tags:
+            object.__setattr__(
+                self,
+                "exclude_tags",
+                set(_exclude_tags),
+            )
+        if _exclude_packages:
+            object.__setattr__(
+                self,
+                "exclude_packages",
+                set(_exclude_packages),
+            )
+        if _exclude_paths:
+            object.__setattr__(
+                self,
+                "exclude_paths",
+                set(_exclude_paths),
+            )
+        if _exclude_resource_types:
+            object.__setattr__(
+                self,
+                "exclude_resource_types",
+                set(_exclude_resource_types),
+            )
 
     @property
     def summary(self) -> str:
@@ -71,11 +125,11 @@ class ManifestFilterConditions:
         excludes: list[str] = []
         if self.include_resource_types:
             includes.append(
-                f"resource types: {', '.join(sorted(path.as_posix() for path in self.include_resource_types))}"
+                f"resource types: {', '.join(sorted(self.include_resource_types))}"
             )
         if self.exclude_resource_types:
             excludes.append(
-                f"resource types: {', '.join(sorted(path.as_posix() for path in self.exclude_resource_types))}"
+                f"resource types: {', '.join(sorted(self.exclude_resource_types))}"
             )
         if self.include_materializations:
             includes.append(
@@ -106,24 +160,4 @@ class ManifestFilterConditions:
             + ("Including:\n\t" + "\n\t".join(includes) if includes else "")
             + ("\nExcluding:\n\t" + "\n\t".join(excludes) if excludes else ""),
             emphasis=ConsoleEmphasis.ITALIC,
-        )
-
-    def __eq__(self, other: Any) -> bool:
-        """Test for equality of ManifestFilterConditions instances."""
-        if not isinstance(other, ManifestFilterConditions):
-            return False
-        return all(
-            getattr(self, attr) == getattr(other, attr)
-            for attr in [
-                "include_resource_types",
-                "include_materializations",
-                "include_tags",
-                "include_packages",
-                "include_paths",
-                "exclude_resource_types",
-                "exclude_materializations",
-                "exclude_tags",
-                "exclude_packages",
-                "exclude_paths",
-            ]
         )

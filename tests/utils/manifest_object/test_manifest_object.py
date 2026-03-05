@@ -12,44 +12,6 @@ class ConcreteManifestObject(ManifestObject):
     pass
 
 
-def test_manifest_object_init():
-    instance = ConcreteManifestObject(
-        data={"key": "value"},
-        filter_conditions=ManifestFilterConditions(),
-    )
-    assert instance.data == {"key": "value"}
-    assert instance.filter_conditions == ManifestFilterConditions()
-
-
-@pytest.mark.parametrize(
-    argnames=["other", "expected"],
-    ids=["same data", "different data", "different type"],
-    argvalues=[
-        (
-            ConcreteManifestObject(
-                data={"key": "value"},
-                filter_conditions=ManifestFilterConditions(),
-            ),
-            True,
-        ),
-        (
-            ConcreteManifestObject(
-                data={"key": "different_value"},
-                filter_conditions=ManifestFilterConditions(),
-            ),
-            False,
-        ),
-        ("not a ConcreteManifestObject", False),
-    ],
-)
-def test_manifest_object_eq(other, expected):
-    instance = ConcreteManifestObject(
-        data={"key": "value"},
-        filter_conditions=ManifestFilterConditions(),
-    )
-    assert (instance == other) is expected
-
-
 @pytest.mark.parametrize(
     argnames=["description", "expected"],
     ids=["has description", "None", "empty string"],
@@ -200,8 +162,8 @@ def test_manifest_object_filter_by_package(
     instance = ConcreteManifestObject(
         data=data,
         filter_conditions=ManifestFilterConditions(
-            include_packages=include_packages,
-            exclude_packages=exclude_packages,
+            _include_packages=include_packages,
+            _exclude_packages=exclude_packages,
         ),
     )
     assert instance.filter_by_package is expected_return
@@ -308,8 +270,8 @@ def test_manifest_object_filter_nodes_by_path(
     instance = ConcreteManifestObject(
         data=data,
         filter_conditions=ManifestFilterConditions(
-            include_paths=include_paths,
-            exclude_paths=exclude_paths,
+            _include_paths=include_paths,
+            _exclude_paths=exclude_paths,
         ),
     )
     assert instance.filter_by_path is expected_return
@@ -406,8 +368,8 @@ def test_manifest_object_filter_nodes_by_resource_type(
     instance = ConcreteManifestObject(
         data=data,
         filter_conditions=ManifestFilterConditions(
-            include_resource_types=include_resource_types,
-            exclude_resource_types=exclude_resource_types,
+            _include_resource_types=include_resource_types,
+            _exclude_resource_types=exclude_resource_types,
         ),
     )
     assert instance.filter_by_resource_type is expected_return

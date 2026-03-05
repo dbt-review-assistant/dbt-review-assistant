@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Any
 
-from utils.manifest_object.node.model.column import ColumnLevelConstraint
+from utils.manifest_object.node.model.column import Constraint
 from utils.manifest_object.manifest_object import ManifestObject
 
 
@@ -11,9 +11,9 @@ class ManifestNode(ManifestObject, ABC):
         return self.config.get("enabled", True)
 
     @property
-    def constraints(self) -> tuple[ColumnLevelConstraint, ...]:
+    def constraints(self) -> tuple[Constraint, ...]:
         return tuple(
-            ColumnLevelConstraint(constraint_data)
+            Constraint(constraint_data)
             for constraint_data in self.data.get("constraints", [])
         )
 

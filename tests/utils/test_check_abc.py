@@ -98,16 +98,16 @@ def test_check_filter_conditions():
         mock_parse_args.return_value = mock_args
         instance = ConcreteCheck(False)
         assert instance.filter_conditions == ManifestFilterConditions(
-            include_resource_types=None,
-            include_materializations=["table"],
-            include_packages=["test_dbt_package"],
-            include_tags=["test_tag"],
-            include_paths=[Path("test/path/")],
-            exclude_resource_types=None,
-            exclude_materializations=["view"],
-            exclude_packages=["another_dbt_package"],
-            exclude_tags=["another_tag"],
-            exclude_paths=[Path("another/path/")],
+            _include_resource_types=None,
+            _include_materializations=["table"],
+            _include_packages=["test_dbt_package"],
+            _include_tags=["test_tag"],
+            _include_paths=[Path("test/path/")],
+            _exclude_resource_types=None,
+            _exclude_materializations=["view"],
+            _exclude_packages=["another_dbt_package"],
+            _exclude_tags=["another_tag"],
+            _exclude_paths=[Path("another/path/")],
         )
 
 

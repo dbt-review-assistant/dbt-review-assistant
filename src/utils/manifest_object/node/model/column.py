@@ -1,13 +1,11 @@
+from dataclasses import dataclass
+
 from utils.manifest_object.node.model.constraint import Constraint
 
 
-class ColumnLevelConstraint(Constraint):
-    pass
-
-
+@dataclass(eq=True, frozen=True)
 class ManifestModelColumn:
-    def __init__(self, data: dict):
-        self.data = data
+    data: dict
 
     @property
     def name(self) -> str:
@@ -22,9 +20,9 @@ class ManifestModelColumn:
         return self.data_type is not None
 
     @property
-    def constraints(self) -> tuple[ColumnLevelConstraint, ...]:
+    def constraints(self) -> tuple[Constraint, ...]:
         return tuple(
-            ColumnLevelConstraint(constraint_data)
+            Constraint(constraint_data)
             for constraint_data in self.data.get("constraints", [])
         )
 

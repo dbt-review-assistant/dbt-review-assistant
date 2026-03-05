@@ -50,18 +50,18 @@ class Check(ABC):
     def filter_conditions(self) -> ManifestFilterConditions:
         """Filter conditions for filtering objects from the manifest."""
         return ManifestFilterConditions(
-            include_materializations=getattr(
+            _include_materializations=getattr(
                 self.args, "include_materializations", None
             ),
-            include_tags=getattr(self.args, "include_tags", None),
-            include_packages=getattr(self.args, "include_packages", None),
-            include_paths=getattr(self.args, "include_node_paths", None),
-            exclude_materializations=getattr(
+            _include_tags=getattr(self.args, "include_tags", None),
+            _include_packages=getattr(self.args, "include_packages", None),
+            _include_paths=getattr(self.args, "include_node_paths", None),
+            _exclude_materializations=getattr(
                 self.args, "exclude_materializations", None
             ),
-            exclude_tags=getattr(self.args, "exclude_tags", None),
-            exclude_packages=getattr(self.args, "exclude_packages", None),
-            exclude_paths=getattr(self.args, "exclude_node_paths", None),
+            _exclude_tags=getattr(self.args, "exclude_tags", None),
+            _exclude_packages=getattr(self.args, "exclude_packages", None),
+            _exclude_paths=getattr(self.args, "exclude_node_paths", None),
         )
 
     @abstractmethod

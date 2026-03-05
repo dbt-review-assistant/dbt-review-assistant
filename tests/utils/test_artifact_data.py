@@ -116,7 +116,7 @@ def test_manifest_models(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_models(mock_get_json_artifact_data):
-    filters = ManifestFilterConditions(include_packages=["test_package"])
+    filters = ManifestFilterConditions(_include_packages=["test_package"])
     mock_data = {
         "nodes": {
             "test_model": {"resource_type": "model", "package_name": "test_package"},
@@ -382,7 +382,7 @@ def test_manifest_sources(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_sources(mock_get_json_artifact_data):
-    filters = ManifestFilterConditions(include_packages=["test_package"])
+    filters = ManifestFilterConditions(_include_packages=["test_package"])
     mock_data = {
         "sources": {
             "test_source": {"resource_type": "source", "package_name": "test_package"},
@@ -441,7 +441,7 @@ def test_manifest_macros(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_macros(mock_get_json_artifact_data):
-    filters = ManifestFilterConditions(include_packages=["test_package"])
+    filters = ManifestFilterConditions(_include_packages=["test_package"])
     mock_data = {
         "macros": {
             "test_macro": {"resource_type": "macro", "package_name": "test_package"},
