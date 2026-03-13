@@ -13,7 +13,9 @@ class Constraint:
             ConstraintType(constraint_type)
             return constraint_type
         except ValueError:
-            valid_constraint_types = "\n".join(constraint.value for constraint in ConstraintType.__members__.values())
+            valid_constraint_types = "\n".join(
+                constraint.value for constraint in ConstraintType.__members__.values()
+            )
             raise ValueError(
                 f"Unknown constraint type: {constraint_type}\nValid constraints: {valid_constraint_types}"
             )

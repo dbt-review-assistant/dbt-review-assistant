@@ -12,11 +12,11 @@ class ManifestModelColumn:
         return self.data["name"]
 
     @property
-    def data_type(self) -> str:
+    def data_type(self) -> str | None:
         return self.data.get("data_type")
 
     @property
-    def has_data_type(self) -> str:
+    def has_data_type(self) -> bool:
         return self.data_type is not None
 
     @property
@@ -27,7 +27,7 @@ class ManifestModelColumn:
         )
 
     @property
-    def description(self) -> str:
+    def description(self) -> str | None:
         return self.data.get("description")
 
     @property

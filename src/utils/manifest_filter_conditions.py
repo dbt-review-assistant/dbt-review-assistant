@@ -8,6 +8,7 @@ from utils.console_formatting import colour_message, ConsoleEmphasis
 def set_default(value):
     return set(value) if value else None
 
+
 @dataclass(eq=True, frozen=True)
 class ManifestFilterConditions:
     """Conditions to filter manifest objects by.
@@ -22,6 +23,7 @@ class ManifestFilterConditions:
         include_paths: node paths to be included.
         exclude_paths: node paths to be excluded.
     """
+
     include_materializations: set[str] | None = field(init=False, default=None)
     include_tags: set[str] | None = field(init=False, default=None)
     include_packages: set[str] | None = field(init=False, default=None)
@@ -44,18 +46,18 @@ class ManifestFilterConditions:
     _exclude_resource_types: InitVar[Collection[str] | None] = None  # NOSONAR
 
     def __post_init__(
-            self,
-            _include_materializations: Collection[str] | None,
-            _include_tags: Collection[str] | None,
-            _include_packages: Collection[str] | None,
-            _include_paths: Collection[Path] | None,
-            _include_resource_types: Collection[str] | None,
-            _exclude_materializations: Collection[str] | None,
-            _exclude_tags: Collection[str] | None,
-            _exclude_packages: Collection[str] | None,
-            _exclude_paths: Collection[Path] | None,
-            _exclude_resource_types: Collection[str] | None,
-        ) -> None:
+        self,
+        _include_materializations: Collection[str] | None,
+        _include_tags: Collection[str] | None,
+        _include_packages: Collection[str] | None,
+        _include_paths: Collection[Path] | None,
+        _include_resource_types: Collection[str] | None,
+        _exclude_materializations: Collection[str] | None,
+        _exclude_tags: Collection[str] | None,
+        _exclude_packages: Collection[str] | None,
+        _exclude_paths: Collection[Path] | None,
+        _exclude_resource_types: Collection[str] | None,
+    ) -> None:
         """Initialize the instance."""
         if _include_materializations:
             object.__setattr__(

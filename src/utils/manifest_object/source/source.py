@@ -52,7 +52,10 @@ class ManifestSource(ManifestObject):
             ]
         )
 
+
+
     def get_data_tests(self, manifest: "Manifest") -> set[str]:
+        # TODO - find singular tests here too
         return {
             test.generic_test_name
             for test in map(
@@ -61,32 +64,29 @@ class ManifestSource(ManifestObject):
             if test
         }
 
-    @staticmethod
     def has_required_data_tests(
-        data_tests: set[str],
+        self,
+        manifest: "Manifest",
         must_have_all_data_tests_from,
         must_have_any_data_test_from,
     ) -> bool:
-        return not any(
-            [
-                # No specific data_tests required
-                # TODO - accept singular tests here too
-                (
-                    not (must_have_all_data_tests_from or must_have_any_data_test_from)
-                    and not data_tests
-                ),
-                # Full set of data_tests required
-                (
-                    must_have_all_data_tests_from
-                    and not set(must_have_all_data_tests_from).issubset(data_tests)
-                ),
-                # At least one data_test from set required
-                (
-                    must_have_any_data_test_from
-                    and not set(must_have_any_data_test_from).intersection(data_tests)
-                ),
-            ]
-        )
+        data_tests = self.get_data_tests(manifest)
+        has_required_data_tests = bool(data_tests)
+        if (
+            must_have_all_data_tests_from is None
+            and must_have_any_data_test_from is None
+        ):
+            return has_required_data_tests
+        if must_have_all_data_tests_from is not None:
+            has_required_data_tests = bool(
+                set(must_have_all_data_tests_from).issubset(data_tests)
+            )
+        if must_have_any_data_test_from is not None:
+            has_required_data_tests = (
+                bool(set(must_have_any_data_test_from).intersection(data_tests))
+                and has_required_data_tests
+            )
+        return has_required_data_tests
 
     @property
     def columns(self) -> dict[str, ManifestSourceColumn]:

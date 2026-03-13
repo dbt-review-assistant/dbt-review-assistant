@@ -118,4 +118,3 @@ Excluding:
 )
 def test_manifest_filter_conditions_summary(kwargs, expected_summary):
     assert ManifestFilterConditions(**kwargs).summary == expected_summary
-

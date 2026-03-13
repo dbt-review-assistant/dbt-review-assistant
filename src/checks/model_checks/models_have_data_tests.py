@@ -34,7 +34,7 @@ class ModelsHaveDataTests(ManifestCheck):
             model.unique_id: model.get_data_tests(self.manifest)
             for model in self.manifest.in_scope_models
             if not model.has_required_data_tests(
-                data_tests=model.get_data_tests(self.manifest),
+                manifest=self.manifest,
                 must_have_all_data_tests_from=self.args.must_have_all_data_tests_from,
                 must_have_any_data_test_from=self.args.must_have_any_data_test_from,
             )

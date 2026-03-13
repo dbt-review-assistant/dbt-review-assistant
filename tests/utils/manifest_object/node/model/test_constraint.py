@@ -6,7 +6,6 @@ from _pytest.raises import RaisesExc
 from utils.manifest_object.node.model.constraint import Constraint
 
 
-
 @pytest.mark.parametrize(
     argnames=["data", "expected_raise", "expected_return"],
     ids=[
@@ -21,12 +20,19 @@ from utils.manifest_object.node.model.constraint import Constraint
         ),
         (
             {"type": "foo"},
-            pytest.raises(ValueError, match="Unknown constraint type: foo\nValid constraints: check\nnot_null\nunique\nprimary_key\nforeign_key\ncustom"),
+            pytest.raises(
+                ValueError,
+                match="Unknown constraint type: foo\nValid constraints: check\nnot_null\nunique\nprimary_key\nforeign_key\ncustom",
+            ),
             None,
         ),
     ],
 )
-def test_constraint_type(data: dict, expected_raise: does_not_raise | RaisesExc[BaseException], expected_return: str | None):
+def test_constraint_type(
+    data: dict,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
+    expected_return: str | None,
+):
     instance = Constraint(data)
     with expected_raise:
         assert instance.type == expected_return

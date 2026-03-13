@@ -36,7 +36,7 @@ class ModelsHaveConstraints(ManifestCheck):
         self.failures: dict[str, set[str]] = {
             model.unique_id: {constraint.type for constraint in model.constraints}
             for model in self.manifest.in_scope_models
-            if model.has_required_constraints(
+            if not model.has_required_constraints(
                 must_have_all_constraints_from=self.args.must_have_all_constraints_from,
                 must_have_any_constraint_from=self.args.must_have_any_constraint_from,
             )

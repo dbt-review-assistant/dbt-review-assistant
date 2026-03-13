@@ -30,7 +30,7 @@ class SourcesHaveDataTests(ManifestCheck):
             source.unique_id: source.get_data_tests(self.manifest)
             for source in self.manifest.in_scope_sources
             if not source.has_required_data_tests(
-                data_tests=source.get_data_tests(self.manifest),
+                manifest=self.manifest,
                 must_have_all_data_tests_from=self.args.must_have_all_data_tests_from,
                 must_have_any_data_test_from=self.args.must_have_any_data_test_from,
             )

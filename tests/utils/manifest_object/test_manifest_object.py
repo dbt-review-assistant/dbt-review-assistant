@@ -408,17 +408,17 @@ def test_manifest_object_is_in_scope(
             ConcreteManifestObject,
             "filter_by_resource_type",
             new_callable=PropertyMock(return_value=filter_by_resource_type),
-        ) as mock_filter_by_resource_type,
+        ),
         patch.object(
             ConcreteManifestObject,
             "filter_by_package",
             new_callable=PropertyMock(return_value=filter_by_package),
-        ) as mock_filter_by_package,
+        ),
         patch.object(
             ConcreteManifestObject,
             "filter_by_path",
             new_callable=PropertyMock(return_value=filter_by_path),
-        ) as mock_filter_by_path,
+        ),
     ):
         instance = ConcreteManifestObject({}, ManifestFilterConditions())
         assert instance.is_in_scope is expected_return

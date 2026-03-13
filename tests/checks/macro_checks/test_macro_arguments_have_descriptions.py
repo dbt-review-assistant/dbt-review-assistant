@@ -9,7 +9,6 @@ from checks.macro_checks.macro_arguments_have_descriptions import (
 )
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.source.source import ManifestSource
 
 
 @pytest.mark.parametrize(

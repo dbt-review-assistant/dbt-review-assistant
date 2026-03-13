@@ -35,8 +35,7 @@ class ModelColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
         eligible_models = {
             model.unique_id: model
             for model in self.manifest.in_scope_models
-            if model.enabled
-            and model.materialized != "ephemeral"
+            if model.enabled and model.materialized != "ephemeral"
         }
         self.manifest_items = {
             column_id: column.data_type

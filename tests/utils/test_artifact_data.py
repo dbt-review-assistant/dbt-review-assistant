@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 from contextlib import nullcontext as does_not_raise
-from typing import Iterable, Generator, Any
 from unittest.mock import patch, Mock
 
 from utils.artifact_data import (
@@ -13,17 +12,16 @@ from utils.artifact_data import (
 )
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.console_formatting import colour_message, ConsoleEmphasis
 import pytest
 
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.node.analysis import ManifestAnalysis
-from utils.manifest_object.node.function import ManifestFunction
+from utils.manifest_object.node.node import ManifestAnalysis
+from utils.manifest_object.node.node import ManifestFunction
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.model import ManifestModel
-from utils.manifest_object.node.seed import ManifestSeed
-from utils.manifest_object.node.singular_test import SingularTest
-from utils.manifest_object.node.snapshot import ManifestSnapshot
+from utils.manifest_object.node.node import ManifestSeed
+from utils.manifest_object.node.node import SingularTest
+from utils.manifest_object.node.node import ManifestSnapshot
 from utils.manifest_object.source.source import ManifestSource
 from utils.manifest_object.unit_test import UnitTest
 
@@ -191,8 +189,9 @@ def test_manifest_generic_tests(mock_get_json_artifact_data):
     filters = ManifestFilterConditions()
     mock_data = {
         "nodes": {
-            "test_test": {"resource_type": "test"},
-            "another_test": {"resource_type": "test"},
+            "test_test": {"resource_type": "test", "test_metadata": {"name": "test"}},
+            "another_test": {"resource_type": "test", "test_metadata": {"name": "test"}},
+            "singular_test": {"resource_type": "test"},
             "test_seed": {"resource_type": "seed"},
         },
         "sources": {},
@@ -200,11 +199,11 @@ def test_manifest_generic_tests(mock_get_json_artifact_data):
     }
     expected_tests = {
         "test_test": GenericTest(
-            data={"resource_type": "test"},
+            data={"resource_type": "test", "test_metadata": {"name": "test"}},
             filter_conditions=filters,
         ),
         "another_test": GenericTest(
-            data={"resource_type": "test"},
+            data={"resource_type": "test", "test_metadata": {"name": "test"}},
             filter_conditions=filters,
         ),
     }
@@ -303,8 +302,9 @@ def test_manifest_singular_tests(mock_get_json_artifact_data):
     filters = ManifestFilterConditions()
     mock_data = {
         "nodes": {
-            "test_singular_test": {"resource_type": "singular_test"},
-            "another_singular_test": {"resource_type": "singular_test"},
+            "test_singular_test": {"resource_type": "test"},
+            "another_singular_test": {"resource_type": "test"},
+            "generic_test": {"resource_type": "test", "test_metadata": {"name": "test"}},
             "test_seed": {"resource_type": "seed"},
         },
         "sources": {},
@@ -312,11 +312,11 @@ def test_manifest_singular_tests(mock_get_json_artifact_data):
     }
     expected_singular_tests = {
         "test_singular_test": SingularTest(
-            data={"resource_type": "singular_test"},
+            data={"resource_type": "test"},
             filter_conditions=filters,
         ),
         "another_singular_test": SingularTest(
-            data={"resource_type": "singular_test"},
+            data={"resource_type": "test"},
             filter_conditions=filters,
         ),
     }

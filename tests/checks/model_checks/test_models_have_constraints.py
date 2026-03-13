@@ -13,7 +13,7 @@ from utils.manifest_object.node.model.model import ManifestModel
     ids=[
         "two models with must_have_all_constraints_from",
         "two models, one without must_have_all_constraints_from, one with no constraints",
-        "two models with constraints, argument constraints=None",
+        "two models with constraints, argument must_have_all_constraints_from=None",
         "two models, one without constraints, argument must_have_all_constraints_from=None",
         "one model, passes must_have_all_constraints_from and must_have_any_constraint_from",
         "one model, fails must_have_all_constraints_from and must_have_any_constraint_from",

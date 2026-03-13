@@ -7,13 +7,13 @@ from functools import lru_cache
 
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.node.analysis import ManifestAnalysis
-from utils.manifest_object.node.function import ManifestFunction
+from utils.manifest_object.node.node import ManifestAnalysis
+from utils.manifest_object.node.node import ManifestFunction
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.model import ManifestModel
-from utils.manifest_object.node.seed import ManifestSeed
-from utils.manifest_object.node.singular_test import SingularTest
-from utils.manifest_object.node.snapshot import ManifestSnapshot
+from utils.manifest_object.node.node import ManifestSeed
+from utils.manifest_object.node.node import SingularTest
+from utils.manifest_object.node.node import ManifestSnapshot
 from utils.manifest_object.source.source import ManifestSource
 from utils.manifest_object.unit_test import UnitTest
 
@@ -80,6 +80,7 @@ class Manifest:
             )
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "test"
+            and node_data.get("test_metadata")
         }
 
     @property
@@ -119,7 +120,8 @@ class Manifest:
                 data=node_data, filter_conditions=self.filter_conditions
             )
             for node_id, node_data in self.nodes.items()
-            if node_data.get("resource_type") == "singular_test"
+            if node_data.get("resource_type") == "test"
+            and not node_data.get("test_metadata")
         }
 
     @property
