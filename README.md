@@ -269,7 +269,7 @@ regardless of which files are staged for commit.
 All checks rely on the data in the dbt `manifest.json` file, and some checks have an additional dependency on the dbt
 `catalog.json` file. As such, these files need to be refreshed whenever any change is made to the dbt project, otherwise
 `dbt-review-assistant` will not have the most up-to-date view of your project. `dbt-review-assistant` does not look at
-any SQL or YAML files in your project at all, or connect to you database, or even run any dbt commands - the manifest
+any SQL or YAML files in your project at all, or connect to your database, or even run any dbt commands - the manifest
 and catalog JSON files are its only source of truth.
 
 This table shows which checks require which dbt artifacts:
