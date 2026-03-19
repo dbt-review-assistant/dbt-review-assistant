@@ -105,6 +105,14 @@ class Check(ABC):
         )
         raise SystemExit(0)
 
+    @property
+    def manifest(self) -> Manifest:
+        """Manifest instance to check against."""
+        return Manifest(
+            manifest_dir=self.args.manifest_dir,
+            filter_conditions=self.filter_conditions,
+        )
+
 
 class ManifestCheck(Check, ABC):
     """Abstract base class for manifest-based checks.
@@ -119,13 +127,6 @@ class ManifestCheck(Check, ABC):
     def has_failures(self) -> bool:
         """Determine whether any entities failed the check."""
         return bool(self.failures)
-
-    @property
-    def manifest(self) -> Manifest:
-        return Manifest(
-            manifest_dir=self.args.manifest_dir,
-            filter_conditions=self.filter_conditions,
-        )
 
 
 class ManifestVsCatalogComparison(Check, ABC):
@@ -145,12 +146,6 @@ class ManifestVsCatalogComparison(Check, ABC):
         return bool(self.manifest_items != self.catalog_items)
 
     @property
-    def manifest(self) -> Manifest:
-        return Manifest(
-            manifest_dir=self.args.manifest_dir,
-            filter_conditions=self.filter_conditions,
-        )
-
-    @property
     def catalog(self) -> Catalog:
+        """Catalog instance to check against."""
         return Catalog(catalog_dir=self.args.catalog_dir)

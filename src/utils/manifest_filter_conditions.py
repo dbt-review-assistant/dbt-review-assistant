@@ -1,4 +1,6 @@
-from dataclasses import dataclass, Field, field, InitVar
+"""Class for filtering manifest objects."""
+
+from dataclasses import dataclass, field, InitVar
 from pathlib import Path
 from typing import Collection, Any
 

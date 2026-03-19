@@ -198,7 +198,7 @@ def test_manifest_check_has_failures(failures, expected_return):
         assert instance.has_failures is expected_return
 
 
-def test_manifest_check_manifest():
+def test_check_manifest():
     mock_args = Namespace(
         include_materializations=["table"],
         include_packages=["test_dbt_package"],
@@ -217,7 +217,7 @@ def test_manifest_check_manifest():
         ) as mock_manifest,
     ):
         mock_parse_args.return_value = mock_args
-        instance = ConcreteManifestCheck()
+        instance = ConcreteCheck()
         assert instance.manifest is mock_manifest_instance
         mock_manifest.assert_called_with(
             manifest_dir=instance.args.manifest_dir,

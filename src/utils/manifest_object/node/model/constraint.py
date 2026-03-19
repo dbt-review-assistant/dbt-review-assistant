@@ -1,13 +1,22 @@
+"""Classes representing constraints on objects from the manifest file."""
+
 from dataclasses import dataclass
 from enum import Enum
 
 
 @dataclass(eq=True, frozen=True)
 class Constraint:
+    """Represents a constraint on the manifest file.
+
+    Attributes:
+        data: dictionary of constraint data from the manifest fiel.
+    """
+
     data: dict
 
     @property
     def type(self) -> str:
+        """The type of the constraint."""
         constraint_type = self.data["type"]
         try:
             ConstraintType(constraint_type)
@@ -22,6 +31,8 @@ class Constraint:
 
 
 class ConstraintType(Enum):
+    """Enum for all valid constraint types."""
+
     CHECK = "check"
     NOT_NULL = "not_null"
     UNIQUE = "unique"
