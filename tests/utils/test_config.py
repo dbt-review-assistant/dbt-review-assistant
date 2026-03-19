@@ -346,16 +346,17 @@ def test_configure_checks(
         )
         assert result == e
         expected_warning_calls = []
+        filename = f".{PROJECT_NAME}.yaml"
         if expect_warning and config_data and extra_args:
             expected_warning_calls.append(
                 call(
-                    f"Check configuration will be read from {known_args.config_dir.absolute()}/.{PROJECT_NAME}.yaml, therefore the following extra CLI arguments will be ignored: ['--packages', 'test_dbt_package']"
+                    f"Check configuration will be read from {(known_args.config_dir / filename).absolute()}, therefore the following extra CLI arguments will be ignored: ['--packages', 'test_dbt_package']"
                 )
             )
         elif expect_warning:
             expected_warning_calls.append(
                 call(
-                    f"Check 'models-have-data-tests' not found in {known_args.config_dir.absolute()}/.{PROJECT_NAME}.yaml.\nRunning without arguments..."
+                    f"Check 'models-have-data-tests' not found in {(known_args.config_dir / filename).absolute()}.\nRunning without arguments..."
                 )
             )
         mock_warning.assert_has_calls(expected_warning_calls)
