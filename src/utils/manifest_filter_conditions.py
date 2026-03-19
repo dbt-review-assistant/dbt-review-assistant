@@ -20,6 +20,8 @@ class ManifestFilterConditions:
         exclude_tags: tags to be excluded.
         include_paths: node paths to be included.
         exclude_paths: node paths to be excluded.
+        include_name_patterns: node regex patterns to be included.
+        exclude_name_patterns: node regex patterns to be excluded.
     """
 
     include_materializations: set[str] | None = field(init=False, default=None)
@@ -27,21 +29,25 @@ class ManifestFilterConditions:
     include_packages: set[str] | None = field(init=False, default=None)
     include_paths: set[Path] | None = field(init=False, default=None)
     include_resource_types: set[str] | None = field(init=False, default=None)
+    include_name_patterns: set[str] | None = field(init=False, default=None)
     exclude_materializations: set[str] | None = field(init=False, default=None)
     exclude_tags: set[str] | None = field(init=False, default=None)
     exclude_packages: set[str] | None = field(init=False, default=None)
     exclude_paths: set[Path] | None = field(init=False, default=None)
     exclude_resource_types: set[str] | None = field(init=False, default=None)
+    exclude_name_patterns: set[str] | None = field(init=False, default=None)
     _include_materializations: InitVar[Collection[str] | None] = None  # NOSONAR
     _include_tags: InitVar[Collection[str] | None] = None  # NOSONAR
     _include_packages: InitVar[Collection[str] | None] = None  # NOSONAR
     _include_paths: InitVar[Collection[Path] | None] = None  # NOSONAR
     _include_resource_types: InitVar[Collection[str] | None] = None  # NOSONAR
+    _include_name_patterns: InitVar[Collection[str] | None] = None  # NOSONAR
     _exclude_materializations: InitVar[Collection[str] | None] = None  # NOSONAR
     _exclude_tags: InitVar[Collection[str] | None] = None  # NOSONAR
     _exclude_packages: InitVar[Collection[str] | None] = None  # NOSONAR
     _exclude_paths: InitVar[Collection[Path] | None] = None  # NOSONAR
     _exclude_resource_types: InitVar[Collection[str] | None] = None  # NOSONAR
+    _exclude_name_patterns: InitVar[Collection[str] | None] = None  # NOSONAR
 
     def __post_init__(
         self,
@@ -50,11 +56,13 @@ class ManifestFilterConditions:
         _include_packages: Collection[str] | None,
         _include_paths: Collection[Path] | None,
         _include_resource_types: Collection[str] | None,
+        _include_name_patterns: Collection[str] | None,
         _exclude_materializations: Collection[str] | None,
         _exclude_tags: Collection[str] | None,
         _exclude_packages: Collection[str] | None,
         _exclude_paths: Collection[Path] | None,
         _exclude_resource_types: Collection[str] | None,
+        _exclude_name_patterns: Collection[str] | None,
     ) -> None:
         """Initialize the instance."""
         if _include_materializations:
@@ -87,6 +95,12 @@ class ManifestFilterConditions:
                 "include_resource_types",
                 set(_include_resource_types),
             )
+        if _include_name_patterns:
+            object.__setattr__(
+                self,
+                "include_name_patterns",
+                set(_include_name_patterns),
+            )
         if _exclude_materializations:
             object.__setattr__(
                 self,
@@ -117,6 +131,12 @@ class ManifestFilterConditions:
                 "exclude_resource_types",
                 set(_exclude_resource_types),
             )
+        if _exclude_name_patterns:
+            object.__setattr__(
+                self,
+                "exclude_name_patterns",
+                set(_exclude_name_patterns),
+            )
 
     @property
     def summary(self) -> str:
@@ -143,6 +163,10 @@ class ManifestFilterConditions:
             includes.append(
                 f"paths: {', '.join(sorted(path.as_posix() for path in self.include_paths))}"
             )
+        if self.include_name_patterns:
+            includes.append(
+                f"name patterns: {', '.join(sorted(self.include_name_patterns))}"
+            )
         if self.exclude_materializations:
             excludes.append(
                 f"materialized: {', '.join(sorted(self.exclude_materializations))}"
@@ -154,6 +178,10 @@ class ManifestFilterConditions:
         if self.exclude_paths:
             excludes.append(
                 f"paths: {', '.join(sorted(path.as_posix() for path in self.exclude_paths))}"
+            )
+        if self.exclude_name_patterns:
+            excludes.append(
+                f"name patterns: {', '.join(sorted(self.exclude_name_patterns))}"
             )
         return colour_message(
             ""

@@ -61,10 +61,12 @@ def test_models_have_properties_file_perform_checks(
             "include_tags",
             "include_packages",
             "include_node_paths",
+            "include_name_patterns",
             "exclude_materializations",
             "exclude_tags",
             "exclude_packages",
             "exclude_node_paths",
+            "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
         mock_in_scope_models.assert_called()

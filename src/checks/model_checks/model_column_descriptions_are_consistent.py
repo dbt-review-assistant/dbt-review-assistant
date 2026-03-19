@@ -23,10 +23,12 @@ class ModelColumnsDescriptionsAreConsistent(ManifestCheck):
         "include_tags",
         "include_packages",
         "include_node_paths",
+        "include_name_patterns",
         "exclude_materializations",
         "exclude_tags",
         "exclude_packages",
         "exclude_node_paths",
+        "exclude_name_patterns",
     ]
 
     def perform_check(self) -> None:

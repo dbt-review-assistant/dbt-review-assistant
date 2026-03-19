@@ -7,6 +7,7 @@ from utils.check_failure_messages import (
     manifest_vs_catalog_column_type_mismatch_message,
     object_missing_attribute_message,
     object_missing_values_from_set_message,
+    object_name_does_not_match_pattern,
 )
 
 
@@ -287,3 +288,35 @@ def test_inconsistent_column_descriptions_message(
 )
 def test_object_missing_values_from_set_message(kwargs: dict, expected_return: str):
     assert expected_return == object_missing_values_from_set_message(**kwargs)
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "One model doesn't match",
+        "Two sources don't match",
+    ],
+    argnames=["kwargs", "expected_return"],
+    argvalues=[
+        (
+            {
+                "objects": {"test_model"},
+                "object_type": "model",
+                "name_must_match_pattern": "another_model",
+            },
+            "The following model names do not match the regex pattern 'another_model':\n"
+            " - test_model",
+        ),
+        (
+            {
+                "objects": {"test_source", "one_more_source"},
+                "object_type": "source",
+                "name_must_match_pattern": "another_source",
+            },
+            "The following source names do not match the regex pattern 'another_source':\n"
+            " - one_more_source\n"
+            " - test_source",
+        ),
+    ],
+)
+def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
+    assert object_name_does_not_match_pattern(**kwargs) == expected_return

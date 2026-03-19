@@ -1,5 +1,6 @@
 """Classes representing objects in the manifest file."""
 
+import re
 from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,8 +13,34 @@ if TYPE_CHECKING:
     from utils.artifact_data import Manifest
 
 
+class HasName(Protocol):
+    """Protocol for objects implementing the name property."""
+
+    @property
+    def name(self) -> str:
+        """The name of the object."""
+        ...
+
+
+class HasNameMixin(ABC):
+    """Mixin for objects with name property."""
+
+    def name_matches_regex(self, regex_pattern: str) -> bool:
+        """Whether the object name matches a given regex pattern.
+
+        Args:
+            regex_pattern: the regex pattern to match against the object name.
+
+        Returns:
+            True if the object name matches a given regex pattern.
+        """
+        pattern = re.compile(regex_pattern)
+        name = cast(HasName, self).name
+        return bool(pattern.search(name))
+
+
 @dataclass(eq=True, frozen=True)
-class ManifestObject(ABC):
+class ManifestObject(HasNameMixin, ABC):
     """Abstract base class representing objects in the manifest file.
 
     Attributes:
@@ -43,6 +70,28 @@ class ManifestObject(ABC):
     def package_name(self) -> str | None:
         """The package name of the object."""
         return self.data.get("package_name")
+
+    @property
+    def name(self) -> str:
+        """The name of the object."""
+        return self.data["name"]
+
+    @property
+    def filter_by_name_pattern(self) -> bool:
+        """Whether the object is considered in scope based on name pattern."""
+        return (
+            self.filter_conditions.include_name_patterns is None
+            or any(
+                self.name_matches_regex(pattern)
+                for pattern in self.filter_conditions.include_name_patterns
+            )
+        ) and (
+            self.filter_conditions.exclude_name_patterns is None
+            or all(
+                not self.name_matches_regex(pattern)
+                for pattern in self.filter_conditions.exclude_name_patterns
+            )
+        )
 
     @property
     def filter_by_package(self) -> bool:
@@ -91,6 +140,7 @@ class ManifestObject(ABC):
                 self.filter_by_resource_type,
                 self.filter_by_package,
                 self.filter_by_path,
+                self.filter_by_name_pattern,
             ]
         )
 
@@ -204,7 +254,7 @@ class HasUniqueId(Protocol):
 
 
 @dataclass(eq=True, frozen=True)
-class ManifestColumn:
+class ManifestColumn(HasNameMixin):
     """Represents a column in the manifest file.
 
     Attributes:
@@ -265,11 +315,11 @@ class DataTestableMixin(ABC):
         """
         unique_id = cast(HasUniqueId, self).unique_id
         generic_tests = {
-            test.generic_test_name
+            test.name
             for test in map(
                 manifest.generic_tests.get, manifest.child_map.get(unique_id, [])
             )
-            if test is not None and test.generic_test_name is not None
+            if test is not None and test.name is not None
         }
         singular_tests = {
             test.unique_id

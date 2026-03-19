@@ -46,33 +46,6 @@ def test_macro_arguments(data: dict, expected_return: list[MacroArgument]):
 
 @pytest.mark.parametrize(
     ids=[
-        "Has name",
-        "No name",
-        "None name",
-    ],
-    argnames=["data", "expected_return"],
-    argvalues=[
-        (
-            {"name": "test_macro"},
-            "test_macro",
-        ),
-        (
-            {},
-            None,
-        ),
-        (
-            {"type": None},
-            None,
-        ),
-    ],
-)
-def test_macro_argument_name(data: dict, expected_return: str | None):
-    instance = MacroArgument(data)
-    assert instance.name == expected_return
-
-
-@pytest.mark.parametrize(
-    ids=[
         "Has type",
         "No type",
         "None type",

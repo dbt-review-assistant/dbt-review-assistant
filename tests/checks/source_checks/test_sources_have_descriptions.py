@@ -70,9 +70,11 @@ def test_sources_have_descriptions_perform_checks(
             "include_tags",
             "include_packages",
             "include_node_paths",
+            "include_name_patterns",
             "exclude_tags",
             "exclude_packages",
             "exclude_node_paths",
+            "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
         mock_in_scope_sources.assert_called_once()

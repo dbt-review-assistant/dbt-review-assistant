@@ -9,6 +9,9 @@ from checks.macro_checks.macro_arguments_have_types import (
 from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
     MacroArgumentsMatchManifestVsSql as MacroArgumentsMatchManifestVsSql,
 )
+from checks.macro_checks.macro_names_must_match_pattern import (
+    MacroNamesMatchPattern as MacroNamesMatchPattern,
+)
 from checks.macro_checks.macros_have_descriptions import (
     MacrosHaveDescriptions as MacrosHaveDescriptions,
 )
@@ -18,6 +21,9 @@ from checks.model_checks.model_column_descriptions_are_consistent import (
 from checks.model_checks.model_column_names_match_manifest_vs_catalog import (
     ModelColumnNamesMatchManifestVsCatalog as ModelColumnNamesMatchManifestVsCatalog,
 )
+from checks.model_checks.model_column_names_must_match_pattern import (
+    ModelColumnNamesMatchPattern as ModelColumnNamesMatchPattern,
+)
 from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
     ModelColumnTypesMatchManifestVsCatalog as ModelColumnTypesMatchManifestVsCatalog,
 )
@@ -26,6 +32,9 @@ from checks.model_checks.model_columns_have_descriptions import (
 )
 from checks.model_checks.model_columns_have_types import (
     ModelColumnsHaveTypes as ModelColumnsHaveTypes,
+)
+from checks.model_checks.model_names_must_match_pattern import (
+    ModelNamesMatchPattern as ModelNamesMatchPattern,
 )
 from checks.model_checks.models_have_constraints import (
     ModelsHaveConstraints as ModelsHaveConstraints,
@@ -75,9 +84,12 @@ ALL_CHECKS = (
     ModelsHavePropertiesFile,
     ModelsHaveDataTests,
     ModelsHaveUnitTests,
+    ModelNamesMatchPattern,
+    ModelColumnNamesMatchPattern,
     MacroArgumentsHaveDescriptions,
     MacroArgumentsHaveTypes,
     MacroArgumentsMatchManifestVsSql,
+    MacroNamesMatchPattern,
     ModelColumnsHaveDescriptions,
     ModelColumnNamesMatchManifestVsCatalog,
     SourcesHaveDescriptions,
