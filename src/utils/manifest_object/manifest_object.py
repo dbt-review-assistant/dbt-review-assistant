@@ -3,7 +3,8 @@
 from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol, cast, TYPE_CHECKING, Collection
+from typing import TYPE_CHECKING, Any, Collection, Protocol, cast
+
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.model.constraint import Constraint
 

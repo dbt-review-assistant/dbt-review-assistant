@@ -1,7 +1,7 @@
 """Check if models have at least one unit test."""
 
-from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
+from utils.check_failure_messages import object_missing_attribute_message
 
 
 class ModelsHaveUnitTests(ManifestCheck):

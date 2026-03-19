@@ -5,7 +5,7 @@ import pytest
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.model.constraint import Constraint
 from utils.manifest_object.node.model.contract import Contract
-from utils.manifest_object.node.model.model import ManifestModel, ManifestColumn
+from utils.manifest_object.node.model.model import ManifestColumn, ManifestModel
 
 
 @pytest.mark.parametrize(

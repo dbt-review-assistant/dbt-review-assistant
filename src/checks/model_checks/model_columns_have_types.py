@@ -1,7 +1,7 @@
 """Check if model columns have types."""
 
-from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
+from utils.check_failure_messages import object_missing_attribute_message
 
 
 class ModelColumnsHaveTypes(ManifestCheck):

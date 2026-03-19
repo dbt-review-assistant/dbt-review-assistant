@@ -5,14 +5,14 @@ from abc import ABC, abstractmethod
 from argparse import Namespace
 from typing import Collection
 
+from utils.artifact_data import Catalog, Manifest
 from utils.check_arg_parser import CheckArgParser
-from utils.artifact_data import Manifest, Catalog
-from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.console_formatting import (
+    ConsoleEmphasis,
     check_status_header,
     colour_message,
-    ConsoleEmphasis,
 )
+from utils.manifest_filter_conditions import ManifestFilterConditions
 
 
 class Check(ABC):

@@ -7,7 +7,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from checks import ALL_CHECKS_MAP
-from utils.config import load_config, configure_checks
+from utils.config import configure_checks, load_config
 from utils.console_formatting import (
     check_status_header,
 )

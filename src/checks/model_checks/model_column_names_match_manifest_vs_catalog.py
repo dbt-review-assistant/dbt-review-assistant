@@ -1,9 +1,9 @@
 """Check if the model column names match between the manifest and the catalog."""
 
+from utils.check_abc import ManifestVsCatalogComparison
 from utils.check_failure_messages import (
     manifest_vs_catalog_column_name_mismatch_message,
 )
-from utils.check_abc import ManifestVsCatalogComparison
 
 
 class ModelColumnNamesMatchManifestVsCatalog(ManifestVsCatalogComparison):

@@ -4,7 +4,7 @@ import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence, Type, Any, Callable
+from typing import Any, Callable, Sequence, Type
 
 
 class RequiredArgumentMissing(Exception):

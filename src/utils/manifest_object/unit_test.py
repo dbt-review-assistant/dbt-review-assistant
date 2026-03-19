@@ -1,9 +1,9 @@
 """Classes representing unit tests from the manifest file."""
 
 from utils.manifest_object.manifest_object import (
+    HasPatchPathMixin,
     ManifestObject,
     TaggableMixin,
-    HasPatchPathMixin,
 )
 
 

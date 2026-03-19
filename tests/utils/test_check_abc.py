@@ -1,12 +1,11 @@
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
-from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.check_abc import Check, ManifestCheck, ManifestVsCatalogComparison
-
+from utils.manifest_filter_conditions import ManifestFilterConditions
 
 ADDITIONAL_ARGUMENTS = [
     "include_materializations",

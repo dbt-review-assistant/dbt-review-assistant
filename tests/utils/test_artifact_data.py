@@ -1,28 +1,30 @@
 import json
-from pathlib import Path
 from contextlib import nullcontext as does_not_raise
-from unittest.mock import patch, Mock
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
 
 from utils.artifact_data import (
-    get_json_artifact_data,
-    Manifest,
-    Catalog,
-    MANIFEST_FILE_NAME,
     CATALOG_FILE_NAME,
+    MANIFEST_FILE_NAME,
+    Catalog,
+    Manifest,
+    get_json_artifact_data,
 )
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_filter_conditions import ManifestFilterConditions
-import pytest
-
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.node.node import ManifestAnalysis
-from utils.manifest_object.node.node import ManifestFunction
+from utils.manifest_object.manifest_object import ManifestSource
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.model import ManifestModel
-from utils.manifest_object.node.node import ManifestSeed
-from utils.manifest_object.node.node import SingularTest
-from utils.manifest_object.node.node import ManifestSnapshot
-from utils.manifest_object.manifest_object import ManifestSource
+from utils.manifest_object.node.node import (
+    ManifestAnalysis,
+    ManifestFunction,
+    ManifestSeed,
+    ManifestSnapshot,
+    SingularTest,
+)
 from utils.manifest_object.unit_test import UnitTest
 
 

@@ -1,20 +1,22 @@
 """Utilities for fetching dbt artifact data."""
 
 import json
-from pathlib import Path
-from typing import Any, Generator, TYPE_CHECKING
 from functools import lru_cache
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Generator
 
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.node.node import ManifestAnalysis
-from utils.manifest_object.node.node import ManifestFunction
+from utils.manifest_object.manifest_object import ManifestSource
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.model import ManifestModel
-from utils.manifest_object.node.node import ManifestSeed
-from utils.manifest_object.node.node import SingularTest
-from utils.manifest_object.node.node import ManifestSnapshot
-from utils.manifest_object.manifest_object import ManifestSource
+from utils.manifest_object.node.node import (
+    ManifestAnalysis,
+    ManifestFunction,
+    ManifestSeed,
+    ManifestSnapshot,
+    SingularTest,
+)
 from utils.manifest_object.unit_test import UnitTest
 
 if TYPE_CHECKING:

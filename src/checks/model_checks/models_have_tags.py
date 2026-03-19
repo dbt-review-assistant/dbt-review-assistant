@@ -1,9 +1,9 @@
 """CHeck if models have a description."""
 
+from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import (
     object_missing_values_from_set_message,
 )
-from utils.check_abc import ManifestCheck
 
 
 class ModelsHaveTags(ManifestCheck):

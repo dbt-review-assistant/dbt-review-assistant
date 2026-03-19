@@ -1,7 +1,8 @@
-import pytest
 from pathlib import Path
 
-from utils.console_formatting import colour_message, ConsoleEmphasis
+import pytest
+
+from utils.console_formatting import ConsoleEmphasis, colour_message
 from utils.manifest_filter_conditions import ManifestFilterConditions
 
 

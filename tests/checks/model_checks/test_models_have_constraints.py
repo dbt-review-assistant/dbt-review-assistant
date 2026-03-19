@@ -1,6 +1,6 @@
 import sys
-from typing import Iterable, Collection
-from unittest.mock import patch, Mock, PropertyMock
+from typing import Collection, Iterable
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 

@@ -1,14 +1,14 @@
 import logging
+import re
 from argparse import Namespace
 from contextlib import nullcontext
 from pathlib import Path
-import re
-from unittest.mock import patch, call
+from unittest.mock import call, patch
 
 import pytest
 from jsonschema import ValidationError
 
-from utils.config import load_config, configure_checks, PROJECT_NAME
+from utils.config import PROJECT_NAME, configure_checks, load_config
 
 VALID_MANIFEST = """
 global_arguments:

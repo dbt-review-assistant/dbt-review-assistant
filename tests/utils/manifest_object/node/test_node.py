@@ -5,10 +5,10 @@ import pytest
 
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.manifest_object import (
-    ManifestObject,
-    TaggableMixin,
     ConfigurableMixin,
     HasPatchPathMixin,
+    ManifestObject,
+    TaggableMixin,
 )
 from utils.manifest_object.node.node import ManifestNode
 

@@ -1,7 +1,7 @@
 import pytest
 
 from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.manifest_object.macro import MacroArgument, Macro
+from utils.manifest_object.macro import Macro, MacroArgument
 
 
 def test_macro_macro_sql():

@@ -1,6 +1,6 @@
 """Classes representing models from the manifest file."""
 
-from typing import Collection, TYPE_CHECKING
+from typing import TYPE_CHECKING, Collection
 
 from utils.manifest_object.manifest_object import DataTestableMixin, ManifestColumn
 from utils.manifest_object.node.model.constraint import Constraint

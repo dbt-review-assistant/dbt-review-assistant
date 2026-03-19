@@ -1,14 +1,14 @@
 from pathlib import Path
-from unittest.mock import patch, PropertyMock, Mock
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.manifest_object import (
-    ManifestObject,
     DataTestableMixin,
-    ManifestColumn,
     HasColumnsMixin,
+    ManifestColumn,
+    ManifestObject,
 )
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.constraint import Constraint

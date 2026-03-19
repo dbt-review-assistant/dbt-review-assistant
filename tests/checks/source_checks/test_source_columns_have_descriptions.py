@@ -1,6 +1,6 @@
 import sys
 from typing import Iterable
-from unittest.mock import patch, Mock, PropertyMock
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 
@@ -8,8 +8,8 @@ from checks.source_checks.source_columns_have_descriptions import (
     SourceColumnsHaveDescriptions,
 )
 from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.manifest_object.node.model.model import ManifestModel
 from utils.manifest_object.manifest_object import ManifestSource
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(

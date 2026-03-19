@@ -1,9 +1,9 @@
 """Classes representing macro objects in the manifest file."""
 
 from dataclasses import dataclass
-from typing import Generator, Any
+from typing import Any, Generator
 
-from utils.manifest_object.manifest_object import ManifestObject, HasPatchPathMixin
+from utils.manifest_object.manifest_object import HasPatchPathMixin, ManifestObject
 
 
 @dataclass(frozen=True, eq=True)

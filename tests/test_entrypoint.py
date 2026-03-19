@@ -1,18 +1,18 @@
 import logging
+import re
 import sys
 from argparse import Namespace
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
-import re
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
 from checks.entrypoint import (
-    run_check,
+    UnknownCheck,
     entrypoint,
     parse_cli_entrypoint_args,
-    UnknownCheck,
+    run_check,
 )
 from utils.console_formatting import check_status_header
 

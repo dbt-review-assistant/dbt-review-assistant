@@ -1,8 +1,8 @@
 """Methods for compiling formatted failure console messages."""
 
-from typing import Collection, Any
+from typing import Any, Collection
 
-from prettytable import PrettyTable, HRuleStyle
+from prettytable import HRuleStyle, PrettyTable
 
 PRETTY_TABLE_KWARGS: dict[str, Any] = {
     "max_table_width": 80,

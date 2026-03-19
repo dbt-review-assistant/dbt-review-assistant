@@ -1,6 +1,6 @@
 import pytest
 
-from utils.catalog_object.catalog_table import CatalogTable, CatalogColumn
+from utils.catalog_object.catalog_table import CatalogColumn, CatalogTable
 
 
 def test_catalog_column_type():

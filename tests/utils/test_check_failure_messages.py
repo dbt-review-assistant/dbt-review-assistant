@@ -1,11 +1,11 @@
 import pytest
 
 from utils.check_failure_messages import (
+    inconsistent_column_descriptions_message,
     macro_argument_mismatch_manifest_vs_sql,
     manifest_vs_catalog_column_name_mismatch_message,
-    object_missing_attribute_message,
     manifest_vs_catalog_column_type_mismatch_message,
-    inconsistent_column_descriptions_message,
+    object_missing_attribute_message,
     object_missing_values_from_set_message,
 )
 

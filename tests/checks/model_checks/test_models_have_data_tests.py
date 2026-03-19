@@ -1,6 +1,6 @@
 import sys
 from typing import Collection
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 

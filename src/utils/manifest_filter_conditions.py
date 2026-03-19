@@ -1,10 +1,10 @@
 """Class for filtering manifest objects."""
 
-from dataclasses import dataclass, field, InitVar
+from dataclasses import InitVar, dataclass, field
 from pathlib import Path
-from typing import Collection, Any
+from typing import Any, Collection
 
-from utils.console_formatting import colour_message, ConsoleEmphasis
+from utils.console_formatting import ConsoleEmphasis, colour_message
 
 
 @dataclass(eq=True, frozen=True)

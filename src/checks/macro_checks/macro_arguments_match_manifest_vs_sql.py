@@ -2,9 +2,8 @@
 
 from jinja2 import Environment
 from jinja2.ext import Extension
-from jinja2.nodes import Expr
+from jinja2.nodes import Expr, Name
 from jinja2.nodes import Macro as JinjaMacro
-from jinja2.nodes import Name
 from jinja2.parser import Parser
 
 from utils.check_abc import ManifestCheck

@@ -1,15 +1,16 @@
 import sys
-from typing import Iterable
-from unittest.mock import Mock, patch, PropertyMock
 from contextlib import nullcontext as does_not_raise
+from typing import Iterable
+from unittest.mock import Mock, PropertyMock, patch
+
 import pytest
 from _pytest.raises import RaisesExc
 from jinja2 import Environment, TemplateSyntaxError
 from jinja2.nodes import Const
 
 from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
-    MacroArgumentsMatchManifestVsSql,
     Jinja2TestMacroExtension,
+    MacroArgumentsMatchManifestVsSql,
     get_macro_args_from_sql_code,
 )
 from utils.manifest_filter_conditions import ManifestFilterConditions

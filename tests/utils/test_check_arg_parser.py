@@ -1,7 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from unittest.mock import patch, call, ANY, _Call
+from unittest.mock import ANY, _Call, call, patch
 
 import pytest
 

@@ -1,9 +1,9 @@
 """Check if model columns have descriptions."""
 
+from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import (
     inconsistent_column_descriptions_message,
 )
-from utils.check_abc import ManifestCheck
 
 
 class ModelColumnsDescriptionsAreConsistent(ManifestCheck):
