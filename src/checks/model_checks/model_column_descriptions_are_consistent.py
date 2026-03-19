@@ -1,13 +1,12 @@
 """Check if model columns have descriptions."""
 
+from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import (
     inconsistent_column_descriptions_message,
 )
-from utils.check_abc import Check
-from utils.artifact_data import get_models_from_manifest
 
 
-class ModelColumnsDescriptionsAreConsistent(Check):
+class ModelColumnsDescriptionsAreConsistent(ManifestCheck):
     """Check if column descriptions are consistent across different models.
 
     Attributes:
@@ -33,18 +32,15 @@ class ModelColumnsDescriptionsAreConsistent(Check):
     def perform_check(self) -> None:
         """Execute the check logic."""
         all_descriptions: dict[str, list[dict[str, str]]] = {}
-        models = get_models_from_manifest(
-            manifest_dir=self.args.manifest_dir,
-            filter_conditions=self.filter_conditions,
-        )
+        models = self.manifest.in_scope_models
         for model in models:
-            for column in model.get("columns", {"_": {}}).values():
-                if not all_descriptions.get(column["name"]):
-                    all_descriptions[column["name"]] = []
-                all_descriptions[column["name"]].append(
+            for column in model.columns.values():
+                if not all_descriptions.get(column.name):
+                    all_descriptions[column.name] = []
+                all_descriptions[column.name].append(
                     {
-                        "description": column.get("description"),
-                        "model": model["unique_id"],
+                        "description": column.description if column.description else "",
+                        "model": model.unique_id,
                     }
                 )
         self.descriptions = {
@@ -64,7 +60,3 @@ class ModelColumnsDescriptionsAreConsistent(Check):
         return inconsistent_column_descriptions_message(
             descriptions=self.descriptions,
         )
-
-
-if __name__ == "__main__":
-    ModelColumnsDescriptionsAreConsistent()

@@ -1,8 +1,7 @@
 """Check if model columns have descriptions."""
 
-from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_models_from_manifest
+from utils.check_failure_messages import object_missing_attribute_message
 
 
 class ModelColumnsHaveDescriptions(ManifestCheck):
@@ -28,13 +27,10 @@ class ModelColumnsHaveDescriptions(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            f"{node['unique_id']}.{column['name']}"
-            for node in get_models_from_manifest(
-                manifest_dir=self.args.manifest_dir,
-                filter_conditions=self.filter_conditions,
-            )
-            for column in node.get("columns", {"_": {}}).values()
-            if not column.get("description")
+            column_id
+            for model in self.manifest.in_scope_models
+            for column_id, column in model.columns.items()
+            if not column.description
         }
 
     @property
@@ -45,7 +41,3 @@ class ModelColumnsHaveDescriptions(ManifestCheck):
             object_type="model column",
             attribute_type="description",
         )
-
-
-if __name__ == "__main__":
-    ModelColumnsHaveDescriptions()

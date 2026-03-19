@@ -1,8 +1,8 @@
 """Methods for compiling formatted failure console messages."""
 
-from typing import Collection, Any
+from typing import Any, Collection
 
-from prettytable import PrettyTable, HRuleStyle
+from prettytable import HRuleStyle, PrettyTable
 
 PRETTY_TABLE_KWARGS: dict[str, Any] = {
     "max_table_width": 80,
@@ -65,7 +65,7 @@ def manifest_vs_catalog_column_name_mismatch_message(
 
 
 def manifest_vs_catalog_column_type_mismatch_message(
-    manifest_columns: dict[str, str], catalog_columns: dict[str, str]
+    manifest_columns: dict[str, str | None], catalog_columns: dict[str, str]
 ):
     """Summarise check failures when manifest column types mismatch between manifest and catalog.
 

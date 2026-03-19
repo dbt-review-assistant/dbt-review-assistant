@@ -1,11 +1,11 @@
 import pytest
 
 from utils.check_failure_messages import (
+    inconsistent_column_descriptions_message,
     macro_argument_mismatch_manifest_vs_sql,
     manifest_vs_catalog_column_name_mismatch_message,
-    object_missing_attribute_message,
     manifest_vs_catalog_column_type_mismatch_message,
-    inconsistent_column_descriptions_message,
+    object_missing_attribute_message,
     object_missing_values_from_set_message,
 )
 
@@ -102,7 +102,7 @@ def test_macro_argument_mismatch_manifest_vs_sql(kwargs, expected_return):
         ),
         (
             {
-                "manifest_columns": {"column_1", "column_2"},
+                "manifest_columns": {"column_1", "column_2", "column_4"},
                 "catalog_columns": {"column_1", "column_2", "column_3"},
             },
             """There are mismatches between the column names found in manifest.json vs. catalog.json:
@@ -110,6 +110,8 @@ def test_macro_argument_mismatch_manifest_vs_sql(kwargs, expected_return):
 |       Catalog columns        |       Manifest columns       |
 +------------------------------+------------------------------+
 |           column_3           |           MISSING            |
++------------------------------+------------------------------+
+|           MISSING            |           column_4           |
 +------------------------------+------------------------------+""",
         ),
     ],
@@ -139,7 +141,11 @@ def test_manifest_vs_catalog_column_name_mismatch_message(kwargs, expected_retur
         ),
         (
             {
-                "manifest_columns": {"column_1": "INT64", "column_2": "INT64"},
+                "manifest_columns": {
+                    "column_1": "INT64",
+                    "column_2": "INT64",
+                    "column_4": "INT64",
+                },
                 "catalog_columns": {
                     "column_1": "INT64",
                     "column_2": "STRING",
@@ -153,6 +159,8 @@ def test_manifest_vs_catalog_column_name_mismatch_message(kwargs, expected_retur
 |       column_2: STRING       |       column_2: INT64        |
 +------------------------------+------------------------------+
 |       column_3: INT64        |           MISSING            |
++------------------------------+------------------------------+
+|           MISSING            |       column_4: INT64        |
 +------------------------------+------------------------------+""",
         ),
     ],

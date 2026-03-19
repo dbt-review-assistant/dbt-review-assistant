@@ -1,18 +1,18 @@
 import logging
+import re
 import sys
 from argparse import Namespace
-from contextlib import nullcontext
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
-import re
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
 from checks.entrypoint import (
-    run_check,
+    UnknownCheck,
     entrypoint,
     parse_cli_entrypoint_args,
-    UnknownCheck,
+    run_check,
 )
 from utils.console_formatting import check_status_header
 
@@ -22,8 +22,15 @@ from utils.console_formatting import check_status_header
         "unknown check",
         "check passes",
         "check fails",
+        "check does not raise anything",
     ],
-    argnames=["arguments", "side_effect", "expected_result"],
+    argnames=[
+        "arguments",
+        "side_effect",
+        "expected_raise",
+        "expected_result",
+        "should_log_error",
+    ],
     argvalues=[
         (
             [
@@ -33,6 +40,8 @@ from utils.console_formatting import check_status_header
             ],
             None,
             pytest.raises(UnknownCheck, match="Unknown check not-a-real-check-id"),
+            None,
+            True,
         ),
         (
             [
@@ -41,7 +50,9 @@ from utils.console_formatting import check_status_header
                 "path/to/project",
             ],
             SystemExit(0),
-            nullcontext(True),
+            does_not_raise(),
+            True,
+            False,
         ),
         (
             [
@@ -50,24 +61,43 @@ from utils.console_formatting import check_status_header
                 "path/to/project",
             ],
             SystemExit("test error"),
-            nullcontext(False),
+            does_not_raise(),
+            False,
+            True,
+        ),
+        (
+            [
+                "test-check",
+                "--project-dir",
+                "path/to/project",
+            ],
+            None,
+            does_not_raise(),
+            True,
+            False,
         ),
     ],
 )
 def test_run_check(
-    arguments: list[str], side_effect: SystemExit | None, expected_result
+    arguments: list[str],
+    side_effect: SystemExit | None,
+    expected_raise,
+    expected_result,
+    should_log_error,
 ):
     mock_check = Mock(side_effect=side_effect)
     with (
-        expected_result as e,
+        expected_raise,
         patch("checks.entrypoint.ALL_CHECKS_MAP", {"test-check": mock_check}),
         patch.object(logging, "error") as mock_logging_error,
     ):
-        assert e == run_check(arguments)
+        result = run_check(arguments)
         mock_check.assert_called()
-        if not e and side_effect:
+        if should_log_error and side_effect is not None:
             mock_logging_error.assert_called_with(side_effect.code)
         assert sys.argv == arguments
+    if expected_result:
+        assert expected_result == result
 
 
 @pytest.mark.parametrize(

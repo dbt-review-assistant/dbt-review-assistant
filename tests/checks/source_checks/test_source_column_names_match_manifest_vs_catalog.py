@@ -1,12 +1,15 @@
 import sys
 from typing import Iterable
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
     SourceColumnNamesMatchManifestVsCatalog,
 )
+from utils.catalog_object.catalog_table import CatalogTable
+from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_object.manifest_object import ManifestSource
 
 
 @pytest.mark.parametrize(
@@ -33,15 +36,15 @@ from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
                     },
                 },
             ],
-            [
-                {
+            {
+                "test_source": {
                     "unique_id": "test_source",
                     "columns": {
                         "column_1": {},
                         "column_2": {},
                     },
                 },
-            ],
+            },
             {"test_source.column_1", "test_source.column_2"},
             {"test_source.column_1", "test_source.column_2"},
         ),
@@ -64,22 +67,22 @@ from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
                     },
                 },
             ],
-            [
-                {
+            {
+                "test_source": {
                     "unique_id": "test_source",
                     "columns": {
                         "column_1": {},
                         "column_2": {},
                     },
                 },
-                {
+                "another_source": {
                     "unique_id": "another_source",
                     "columns": {
                         "column_3": {},
                         "column_4": {},
                     },
                 },
-            ],
+            },
             {
                 "test_source.column_1",
                 "test_source.column_2",
@@ -104,15 +107,15 @@ from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
                     },
                 },
             ],
-            [
-                {
+            {
+                "test_source": {
                     "unique_id": "test_source",
                     "columns": {
                         "column_1": {},
                         "column_2": {},
                     },
                 },
-            ],
+            },
             set(),
             set(),
         ),
@@ -120,7 +123,7 @@ from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
 )
 def test_source_column_names_match_manifest_vs_catalog_perform_checks(
     manifest_sources: Iterable[dict[str, str]],
-    catalog_nodes: list[dict[str, str]],
+    catalog_nodes: dict[str, dict[str, str]],
     expected_manifest_items: set[str],
     expected_catalog_items: set[str],
     tmpdir,
@@ -128,17 +131,31 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
     with (
         patch.object(sys, "argv", return_value=[]),
         patch.object(SourceColumnNamesMatchManifestVsCatalog, "__call__"),
-        patch(
-            "checks.source_checks.source_column_names_match_manifest_vs_catalog.get_sources_from_manifest",
-            return_value=manifest_sources,
-        ) as mock_get_sources_from_manifest,
-        patch(
-            "checks.source_checks.source_column_names_match_manifest_vs_catalog.get_json_artifact_data",
-            return_value={
-                "sources": {node["unique_id"]: node for node in catalog_nodes}
-            },
-        ) as mock_get_json_artifact_data,
+        patch.object(
+            SourceColumnNamesMatchManifestVsCatalog,
+            "manifest",
+            new_callable=PropertyMock,
+        ) as mock_manifest,
+        patch.object(
+            SourceColumnNamesMatchManifestVsCatalog,
+            "catalog",
+            new_callable=PropertyMock,
+        ) as mock_catalog,
     ):
+        mock_in_scope_sources = PropertyMock(
+            return_value=[
+                ManifestSource(source_data, ManifestFilterConditions())
+                for source_data in manifest_sources
+            ]
+        )
+        type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
+        mock_catalog_sources = PropertyMock(
+            return_value={
+                source_id: CatalogTable(source_data)
+                for source_id, source_data in catalog_nodes.items()
+            }
+        )
+        type(mock_catalog.return_value).sources = mock_catalog_sources
         instance = SourceColumnNamesMatchManifestVsCatalog()
         instance.perform_check()
         assert instance.check_name == "source-column-names-match-manifest-vs-catalog"
@@ -152,13 +169,8 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
         ]
         assert instance.catalog_items == expected_catalog_items
         assert instance.manifest_items == expected_manifest_items
-        mock_get_json_artifact_data.assert_called_once_with(
-            instance.args.manifest_dir / "catalog.json",
-        )
-        mock_get_sources_from_manifest.assert_called_once_with(
-            manifest_dir=instance.args.manifest_dir,
-            filter_conditions=instance.filter_conditions,
-        )
+        mock_catalog_sources.assert_called_once()
+        mock_in_scope_sources.assert_called_once()
 
 
 def test_source_column_names_match_manifest_vs_catalog_failure_message():

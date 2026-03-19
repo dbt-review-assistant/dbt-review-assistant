@@ -1,11 +1,11 @@
 import pytest
 
 from utils.console_formatting import (
-    colour_message,
-    check_status_header,
-    ConsoleTextColour,
     ConsoleBackgroundColour,
     ConsoleEmphasis,
+    ConsoleTextColour,
+    check_status_header,
+    colour_message,
 )
 
 

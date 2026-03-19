@@ -4,7 +4,7 @@ import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence, Type, Any, Callable
+from typing import Any, Callable, Sequence, Type
 
 
 class RequiredArgumentMissing(Exception):
@@ -133,6 +133,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
+        name="include_node_paths",
+        help="List of resource paths to include. Nodes outside of these paths will be ignored.",
+        type=Path,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
         name="exclude_materializations",
         help="List of materialization types to exclude. Models with these materialization types will be ignored."
         " Supersedes the 'include_materializations' argument.",
@@ -155,14 +163,6 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         help="List of tags to exclude. Nodes that have any of these tags will be ignored."
         " Supersedes the 'include_tags' argument.",
         type=str,
-        nargs="+",
-        required=False,
-        default=None,
-    ),
-    CliArgument(
-        name="include_node_paths",
-        help="List of node paths to include. Nodes not under one of these paths will be ignored.",
-        type=Path,
         nargs="+",
         required=False,
         default=None,

@@ -5,13 +5,14 @@ from abc import ABC, abstractmethod
 from argparse import Namespace
 from typing import Collection
 
+from utils.artifact_data import Catalog, Manifest
 from utils.check_arg_parser import CheckArgParser
-from utils.artifact_data import ManifestFilterConditions
 from utils.console_formatting import (
+    ConsoleEmphasis,
     check_status_header,
     colour_message,
-    ConsoleEmphasis,
 )
+from utils.manifest_filter_conditions import ManifestFilterConditions
 
 
 class Check(ABC):
@@ -49,18 +50,18 @@ class Check(ABC):
     def filter_conditions(self) -> ManifestFilterConditions:
         """Filter conditions for filtering objects from the manifest."""
         return ManifestFilterConditions(
-            include_materializations=getattr(
+            _include_materializations=getattr(
                 self.args, "include_materializations", None
             ),
-            include_tags=getattr(self.args, "include_tags", None),
-            include_packages=getattr(self.args, "include_packages", None),
-            include_node_paths=getattr(self.args, "include_node_paths", None),
-            exclude_materializations=getattr(
+            _include_tags=getattr(self.args, "include_tags", None),
+            _include_packages=getattr(self.args, "include_packages", None),
+            _include_paths=getattr(self.args, "include_node_paths", None),
+            _exclude_materializations=getattr(
                 self.args, "exclude_materializations", None
             ),
-            exclude_tags=getattr(self.args, "exclude_tags", None),
-            exclude_packages=getattr(self.args, "exclude_packages", None),
-            exclude_node_paths=getattr(self.args, "exclude_node_paths", None),
+            _exclude_tags=getattr(self.args, "exclude_tags", None),
+            _exclude_packages=getattr(self.args, "exclude_packages", None),
+            _exclude_paths=getattr(self.args, "exclude_node_paths", None),
         )
 
     @abstractmethod
@@ -104,6 +105,14 @@ class Check(ABC):
         )
         raise SystemExit(0)
 
+    @property
+    def manifest(self) -> Manifest:
+        """Manifest instance to check against."""
+        return Manifest(
+            manifest_dir=self.args.manifest_dir,
+            filter_conditions=self.filter_conditions,
+        )
+
 
 class ManifestCheck(Check, ABC):
     """Abstract base class for manifest-based checks.
@@ -128,10 +137,15 @@ class ManifestVsCatalogComparison(Check, ABC):
         catalog_items: Collection of catalog items for comparison
     """
 
-    manifest_items: set[str] | dict[str, str]
+    manifest_items: set[str] | dict[str, str | None]
     catalog_items: set[str] | dict[str, str]
 
     @property
     def has_failures(self) -> bool:
         """Determine whether any entities failed the check."""
         return bool(self.manifest_items != self.catalog_items)
+
+    @property
+    def catalog(self) -> Catalog:
+        """Catalog instance to check against."""
+        return Catalog(catalog_dir=self.args.catalog_dir)

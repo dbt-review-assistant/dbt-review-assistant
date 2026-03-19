@@ -1,8 +1,7 @@
 """Check if macro arguments have data types."""
 
-from utils.check_failure_messages import object_missing_attribute_message
 from utils.check_abc import ManifestCheck
-from utils.artifact_data import get_macros_from_manifest
+from utils.check_failure_messages import object_missing_attribute_message
 
 
 class MacroArgumentsHaveTypes(ManifestCheck):
@@ -23,15 +22,11 @@ class MacroArgumentsHaveTypes(ManifestCheck):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        macros = get_macros_from_manifest(
-            manifest_dir=self.args.manifest_dir,
-            filter_conditions=self.filter_conditions,
-        )
         self.failures = {
-            f"{node['unique_id']}.{argument['name']}"
-            for node in macros
-            for argument in node.get("arguments", [])
-            if not argument.get("type", False)
+            f"{macro.unique_id}.{argument.name}"
+            for macro in self.manifest.in_scope_macros
+            for argument in macro.arguments
+            if not argument.type
         }
 
     @property
@@ -42,7 +37,3 @@ class MacroArgumentsHaveTypes(ManifestCheck):
             object_type="macro argument",
             attribute_type="type",
         )
-
-
-if __name__ == "__main__":
-    MacroArgumentsHaveTypes()

@@ -1,7 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from unittest.mock import patch, call, ANY, _Call
+from unittest.mock import ANY, _Call, call, patch
 
 import pytest
 
@@ -81,9 +81,11 @@ def test_dbt_pre_commit_hooks_argument_parser_post_init():
                 "include_packages",
                 "include_materializations",
                 "include_tags",
+                "include_node_paths",
                 "exclude_packages",
                 "exclude_materializations",
                 "exclude_tags",
+                "exclude_node_paths",
             ],
             [
                 call(

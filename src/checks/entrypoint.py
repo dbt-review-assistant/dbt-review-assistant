@@ -7,7 +7,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from checks import ALL_CHECKS_MAP
-from utils.config import load_config, configure_checks
+from utils.config import configure_checks, load_config
 from utils.console_formatting import (
     check_status_header,
 )
@@ -40,12 +40,12 @@ def run_check(arguments: list[str]) -> bool:
         raise UnknownCheck(f"Unknown check {check_id}")
     try:
         check()
-        return True
     except SystemExit as e:
         if e.code == 0:
             return True
         logging.error(e.code)
         return False
+    return True
 
 
 def parse_cli_entrypoint_args() -> tuple[Namespace, list[str]]:
@@ -109,7 +109,3 @@ def entrypoint() -> None:
         )
     )
     raise SystemExit(0)
-
-
-if __name__ == "__main__":
-    entrypoint()
