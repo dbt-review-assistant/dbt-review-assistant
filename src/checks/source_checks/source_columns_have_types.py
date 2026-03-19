@@ -39,7 +39,3 @@ class SourceColumnsHaveTypes(ManifestCheck):
             object_type="source column",
             attribute_type="data_type",
         )
-
-
-if __name__ == "__main__":
-    SourceColumnsHaveTypes()

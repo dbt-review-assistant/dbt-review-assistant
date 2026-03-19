@@ -149,7 +149,7 @@ class ConcreteManifestCheck(ManifestCheck):
     sql_args: None | set = None
     check_name: str = "test-concrete-check"
     additional_arguments = ADDITIONAL_ARGUMENTS
-    failures: bool = False
+    failures: set = set()
 
     def __init__(self, failures=None) -> None:
         """Add __init__ method for helping with test setup."""
@@ -299,3 +299,42 @@ def test_manifest_vs_catalog_comparison_check_catalog():
         mock_catalog.assert_called_with(
             catalog_dir=instance.args.catalog_dir,
         )
+
+
+@pytest.mark.parametrize(
+    ids=["has failures", "no failures"],
+    argnames=["manifest_items", "catalog_items", "expected_return"],
+    argvalues=[
+        (
+            {"test"},
+            {"test"},
+            False,
+        ),
+        (
+            {"test"},
+            {"test_test"},
+            True,
+        ),
+    ],
+)
+def test_manifest_vs_catalog_comparison_has_failures(
+    manifest_items, catalog_items, expected_return
+):
+    mock_args = Namespace(
+        include_materializations=["table"],
+        include_packages=["test_dbt_package"],
+        include_tags=["test_tag"],
+        exclude_materializations=["view"],
+        exclude_packages=["another_dbt_package"],
+        exclude_tags=["another_tag"],
+    )
+    with (
+        patch.object(Check, "parse_args") as mock_parse_args,
+        patch.object(Check, "__call__"),
+    ):
+        mock_parse_args.return_value = mock_args
+        instance = ConcreteManifestVsCatalogComparison(
+            manifest_items=manifest_items,
+            catalog_items=catalog_items,
+        )
+        assert instance.has_failures is expected_return

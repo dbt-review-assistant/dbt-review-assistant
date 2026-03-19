@@ -41,7 +41,3 @@ class ModelColumnsHaveTypes(ManifestCheck):
             object_type="model column",
             attribute_type="data_type",
         )
-
-
-if __name__ == "__main__":
-    ModelColumnsHaveTypes()

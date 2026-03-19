@@ -65,7 +65,7 @@ def manifest_vs_catalog_column_name_mismatch_message(
 
 
 def manifest_vs_catalog_column_type_mismatch_message(
-    manifest_columns: dict[str, str], catalog_columns: dict[str, str]
+    manifest_columns: dict[str, str | None], catalog_columns: dict[str, str]
 ):
     """Summarise check failures when manifest column types mismatch between manifest and catalog.
 

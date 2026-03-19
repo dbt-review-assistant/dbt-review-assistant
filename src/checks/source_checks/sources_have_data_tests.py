@@ -46,7 +46,3 @@ class SourcesHaveDataTests(ManifestCheck):
             must_have_all_from=self.args.must_have_all_data_tests_from,
             must_have_any_from=self.args.must_have_any_data_test_from,
         )
-
-
-if __name__ == "__main__":
-    SourcesHaveDataTests()

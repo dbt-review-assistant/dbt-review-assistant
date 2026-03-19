@@ -14,7 +14,7 @@ from utils.manifest_object.node.model.model import ManifestModel
 from utils.manifest_object.node.node import ManifestSeed
 from utils.manifest_object.node.node import SingularTest
 from utils.manifest_object.node.node import ManifestSnapshot
-from utils.manifest_object.source.source import ManifestSource
+from utils.manifest_object.manifest_object import ManifestSource
 from utils.manifest_object.unit_test import UnitTest
 
 if TYPE_CHECKING:
@@ -140,7 +140,7 @@ class Manifest:
             source_id: ManifestSource(
                 source_data, filter_conditions=self.filter_conditions
             )
-            for source_id, source_data in self.data.get("sources").items()
+            for source_id, source_data in self.data.get("sources", {}).items()
         }
 
     @property
@@ -151,7 +151,7 @@ class Manifest:
     def macros(self) -> dict[str, Macro]:
         return {
             macro_id: Macro(macro_data, filter_conditions=self.filter_conditions)
-            for macro_id, macro_data in self.data.get("macros").items()
+            for macro_id, macro_data in self.data.get("macros", {}).items()
         }
 
     @property
@@ -164,11 +164,11 @@ class Manifest:
             unit_test_id: UnitTest(
                 unit_test_data, filter_conditions=self.filter_conditions
             )
-            for unit_test_id, unit_test_data in self.data.get("unit_tests").items()
+            for unit_test_id, unit_test_data in self.data.get("unit_tests", {}).items()
         }
 
     @property
-    def child_map(self) -> dict[str, list[str] | None]:
+    def child_map(self) -> dict[str, list[str]]:
         return self.data.get("child_map", {})
 
 

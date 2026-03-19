@@ -1,9 +1,11 @@
 import sys
 from typing import Iterable
 from unittest.mock import Mock, patch, PropertyMock
-
+from contextlib import nullcontext as does_not_raise
 import pytest
-from jinja2 import Environment
+from _pytest.raises import RaisesExc
+from jinja2 import Environment, TemplateSyntaxError
+from jinja2.nodes import Const
 
 from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
     MacroArgumentsMatchManifestVsSql,
@@ -20,6 +22,7 @@ from utils.manifest_object.macro import Macro as ManifestMacro
         "one arg",
         "two args",
         "another unrelated macro in the same file",
+        "empty file",
     ],
     argnames=("macro", "expected_args"),
     argvalues=(
@@ -51,6 +54,13 @@ from utils.manifest_object.macro import Macro as ManifestMacro
             },
             {"test_arg"},
         ),
+        (
+            {
+                "unique_id": "test_macro",
+                "macro_sql": "",
+            },
+            set(),
+        ),
     ),
 )
 def test_get_macro_args_from_sql_code(macro: dict[str, str], expected_args: set[str]):
@@ -66,40 +76,71 @@ def test_get_macro_args_from_sql_code(macro: dict[str, str], expected_args: set[
         "generic test with no arguments",
         "macro with no arguments",
         "default argument",
+        "non-default argument follows default argument",
     ],
-    argnames=("template_text", "expected_name", "expected_args"),
+    argnames=(
+        "template_text",
+        "expected_name",
+        "expected_args",
+        "expected_raise",
+        "expected_defaults",
+    ),
     argvalues=(
         (
             "{% test test_name(test_arg_1, test_arg_2) %}test body{% endtest %}",
             "test_test_name",
             ["test_arg_1", "test_arg_2"],
+            does_not_raise(),
+            [],
         ),
         (
             "{% test another_test_name() %}test body{% endtest %}",
             "test_another_test_name",
+            [],
+            does_not_raise(),
             [],
         ),
         (
             "{% macro test_macro() %}test body{% endmacro %}",
             "test_macro",
             [],
+            does_not_raise(),
+            [],
         ),
         (
             "{% macro test_macro(default=none) %}test body{% endmacro %}",
             "test_macro",
             ["default"],
+            does_not_raise(),
+            [Const(None)],
+        ),
+        (
+            "{% macro test_macro(default=none, non_default) %}test body{% endmacro %}",
+            "test_macro",
+            ["default"],
+            pytest.raises(
+                TemplateSyntaxError,
+                match="non-default argument follows default argument",
+            ),
+            None,
         ),
     ),
 )
 def test_test_jinja2_macro_extension_parse(
-    template_text: str, expected_name: str, expected_args: list[str]
+    template_text: str,
+    expected_name: str,
+    expected_args: list[str],
+    expected_raise: does_not_raise | RaisesExc[BaseException],
+    expected_defaults: list[str] | None,
 ):
-    env = Environment()
-    env.add_extension(Jinja2TestMacroExtension)
-    result = env.parse(template_text)
-    test = result.body[0]
-    assert getattr(test, "name") == expected_name
-    assert [arg.name for arg in getattr(test, "args", [])] == expected_args
+    with expected_raise:
+        env = Environment()
+        env.add_extension(Jinja2TestMacroExtension)
+        result = env.parse(template_text)
+        test = result.body[0]
+        assert getattr(test, "name") == expected_name
+        assert [arg.name for arg in getattr(test, "args", [])] == expected_args
+        assert [arg for arg in getattr(test, "defaults", [])] == expected_defaults
 
 
 @pytest.mark.parametrize(

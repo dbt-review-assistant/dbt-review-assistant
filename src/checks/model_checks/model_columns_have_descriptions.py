@@ -41,7 +41,3 @@ class ModelColumnsHaveDescriptions(ManifestCheck):
             object_type="model column",
             attribute_type="description",
         )
-
-
-if __name__ == "__main__":
-    ModelColumnsHaveDescriptions()

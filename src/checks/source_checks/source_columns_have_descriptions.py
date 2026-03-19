@@ -39,7 +39,3 @@ class SourceColumnsHaveDescriptions(ManifestCheck):
             object_type="source column",
             attribute_type="description",
         )
-
-
-if __name__ == "__main__":
-    SourceColumnsHaveDescriptions()

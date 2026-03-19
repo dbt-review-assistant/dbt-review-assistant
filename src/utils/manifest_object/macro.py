@@ -1,33 +1,27 @@
-from typing import Generator
+from dataclasses import dataclass
+from typing import Generator, Any
 
-from utils.manifest_object.manifest_object import ManifestObject
+from utils.manifest_object.manifest_object import ManifestObject, HasPatchPathMixin
 
 
+@dataclass(frozen=True, eq=True)
 class MacroArgument:
-    def __init__(self, data: dict):
-        self.data = data
+    data: dict[str, Any]
 
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         return self.data.get("name")
 
     @property
     def type(self) -> str | None:
-        return self.data.get("name")
+        return self.data.get("type")
 
     @property
     def description(self) -> str | None:
         return self.data.get("description")
 
 
-class Macro(ManifestObject):
-    def filter_by_resource_type(self) -> bool:
-        return self.data.get("resource_type") == "macro"
-
-    @property
-    def patch_path(self) -> str:
-        return self.data["patch_path"]
-
+class Macro(ManifestObject, HasPatchPathMixin):
     @property
     def arguments(self) -> Generator[MacroArgument, None, None]:
         return (

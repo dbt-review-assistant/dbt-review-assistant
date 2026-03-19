@@ -54,7 +54,3 @@ class SourceColumnNamesMatchManifestVsCatalog(ManifestVsCatalogComparison):
             manifest_columns=self.manifest_items,
             catalog_columns=self.catalog_items,
         )
-
-
-if __name__ == "__main__":
-    SourceColumnNamesMatchManifestVsCatalog()

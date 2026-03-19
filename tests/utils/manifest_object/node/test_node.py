@@ -4,7 +4,12 @@ from unittest.mock import PropertyMock, patch
 import pytest
 
 from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.manifest_object.manifest_object import ManifestObject, TaggableMixin, ConfigurableMixin, HasPatchPathMixin
+from utils.manifest_object.manifest_object import (
+    ManifestObject,
+    TaggableMixin,
+    ConfigurableMixin,
+    HasPatchPathMixin,
+)
 from utils.manifest_object.node.node import ManifestNode
 
 
@@ -170,14 +175,8 @@ class ConcreteConfigurableNode(ConfigurableMixin, ManifestObject):
             {"config": {"enabled": True}},
             {"enabled": True},
         ),
-        (
-            {},
-            {}
-        ),
-        (
-            {"config": None},
-            {}
-        ),
+        ({}, {}),
+        ({"config": None}, {}),
     ],
 )
 def test_configurable_mixin_config(data: dict, expected_return: bool):
@@ -192,18 +191,12 @@ def test_configurable_mixin_config(data: dict, expected_return: bool):
         "Disabled",
     ],
     argvalues=[
-        (
-            {"config": {"enabled": True}},
-            True
-        ),
-        (
-            {"config": {"enabled": False}},
-            False
-        ),
+        ({"config": {"enabled": True}}, True),
+        ({"config": {"enabled": False}}, False),
     ],
 )
-def test_manifest_node_enabled(data: dict, expected_return: bool):
-    instance = ConcreteManifestNode(data, ManifestFilterConditions())
+def test_configurable_mixin_enabled(data: dict, expected_return: bool):
+    instance = ConcreteConfigurableNode(data, ManifestFilterConditions())
     assert instance.enabled == expected_return
 
 
@@ -211,9 +204,31 @@ class ConcreteHasPatchPathNode(HasPatchPathMixin, ManifestObject):
     pass
 
 
-def test_manifest_node_patch_path():
-    instance = ConcreteHasPatchPathNode({"patch_path": "path/to/model.sql"}, ManifestFilterConditions())
-    assert instance.patch_path == Path("path/to/model.sql")
+@pytest.mark.parametrize(
+    ids=[
+        "Has patch path",
+        "No patch path",
+        "None patch path",
+    ],
+    argnames=["data", "expected_return"],
+    argvalues=[
+        (
+            {"patch_path": "path/to/model.sql"},
+            Path("path/to/model.sql"),
+        ),
+        (
+            {},
+            None,
+        ),
+        (
+            {"patch_path": None},
+            None,
+        ),
+    ],
+)
+def test_has_patch_path_patch_path(data: dict, expected_return: Path | None):
+    instance = ConcreteHasPatchPathNode(data, ManifestFilterConditions())
+    assert instance.patch_path == expected_return
 
 
 @pytest.mark.parametrize(
@@ -226,30 +241,14 @@ def test_manifest_node_patch_path():
         "Tags property missing",
     ],
     argvalues=[
+        ({"tags": ["tag1", "tag2"]}, {"tag1", "tag2"}),
+        ({"config": {"tags": ["tag1", "tag2"]}}, {"tag1", "tag2"}),
         (
-            {"tags": ["tag1", "tag2"]},
-            {"tag1", "tag2"}
+            {"tags": ["tag1", "tag2"], "config": {"tags": ["tag3", "tag4"]}},
+            {"tag1", "tag2", "tag3", "tag4"},
         ),
-        (
-            {"config": {"tags": ["tag1", "tag2"]}},
-            {"tag1", "tag2"}
-        ),
-        (
-            {
-                "tags": ["tag1", "tag2"],
-                "config": {"tags": ["tag3", "tag4"]}},
-            {"tag1", "tag2", "tag3", "tag4"}
-        ),
-        (
-            {
-                "tags": [],
-                "config": {"tags": []}},
-            set()
-        ),
-        (
-            {},
-            set()
-        ),
+        ({"tags": [], "config": {"tags": []}}, set()),
+        ({}, set()),
     ],
 )
 def test_taggable_mixin_tags(data: dict, expected_return: set[str]):

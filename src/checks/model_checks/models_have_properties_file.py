@@ -40,7 +40,3 @@ class ModelsHavePropertiesFile(ManifestCheck):
             object_type="model",
             attribute_type="properties YAML file",
         )
-
-
-if __name__ == "__main__":
-    ModelsHavePropertiesFile()

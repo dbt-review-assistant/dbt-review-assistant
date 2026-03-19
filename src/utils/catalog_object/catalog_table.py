@@ -1,9 +1,10 @@
+from dataclasses import dataclass
 from typing import Any
 
 
+@dataclass(frozen=True, eq=True)
 class CatalogColumn:
-    def __init__(self, data: dict) -> None:
-        self.data = data
+    data: dict[str, Any]
 
     @property
     def type(self) -> str:
@@ -22,12 +23,9 @@ class CatalogColumn:
         return self.data.get("comment")
 
 
+@dataclass(frozen=True, eq=True)
 class CatalogTable:
-    def __init__(self, data: dict) -> None:
-        self.data = data
-
-    def __eq__(self, other: "CatalogTable") -> bool:
-        return isinstance(other, CatalogTable) and self.data == other.data
+    data: dict[str, Any]
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -52,7 +50,7 @@ class CatalogTable:
         return self.metadata.get("comment")
 
     @property
-    def type(self) -> str:
+    def type(self) -> str | None:
         return self.metadata.get("type")
 
     @property

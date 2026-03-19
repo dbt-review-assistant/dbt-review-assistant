@@ -136,7 +136,7 @@ class ManifestVsCatalogComparison(Check, ABC):
         catalog_items: Collection of catalog items for comparison
     """
 
-    manifest_items: set[str] | dict[str, str]
+    manifest_items: set[str] | dict[str, str | None]
     catalog_items: set[str] | dict[str, str]
 
     @property

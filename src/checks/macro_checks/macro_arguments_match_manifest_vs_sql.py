@@ -46,10 +46,6 @@ class Jinja2TestMacroExtension(Extension):
                 parser.stream.expect("comma")
             arg = parser.parse_assign_target(name_only=True)
             arg.set_ctx("param")
-            if parser.stream.skip_if("assign"):
-                defaults.append(parser.parse_expression())
-            elif defaults:
-                parser.fail("non-default argument follows default argument")
             args.append(arg)
         parser.stream.expect("rparen")
         body = parser.parse_statements(("name:endtest",), drop_needle=True)
@@ -106,10 +102,10 @@ class MacroArgumentsMatchManifestVsSql(ManifestCheck):
         sql_args = set()
         manifest_args = set()
         for macro in macros:
-            for arg in get_macro_args_from_sql_code(macro):
-                sql_args.add(f"{macro.unique_id}.{arg}")
-            for arg in macro.arguments:
-                manifest_args.add(f"{macro.unique_id}.{arg.name}")
+            for sql_arg in get_macro_args_from_sql_code(macro):
+                sql_args.add(f"{macro.unique_id}.{sql_arg}")
+            for manifest_arg in macro.arguments:
+                manifest_args.add(f"{macro.unique_id}.{manifest_arg.name}")
         self.manifest_args = manifest_args
         self.sql_args = sql_args
 
@@ -124,7 +120,3 @@ class MacroArgumentsMatchManifestVsSql(ManifestCheck):
         return macro_argument_mismatch_manifest_vs_sql(
             sql_args=self.sql_args, manifest_args=self.manifest_args
         )
-
-
-if __name__ == "__main__":
-    MacroArgumentsMatchManifestVsSql()

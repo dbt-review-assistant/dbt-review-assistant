@@ -55,7 +55,3 @@ class ModelsHaveContracts(ManifestCheck):
             object_type="model",
             attribute_type="contract",
         )
-
-
-if __name__ == "__main__":
-    ModelsHaveContracts()

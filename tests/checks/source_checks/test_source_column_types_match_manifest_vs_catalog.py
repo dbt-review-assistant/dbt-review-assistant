@@ -9,7 +9,7 @@ from checks.source_checks.source_column_types_match_manifest_vs_catalog import (
 )
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.manifest_object.source.source import ManifestSource
+from utils.manifest_object.manifest_object import ManifestSource
 
 
 @pytest.mark.parametrize(

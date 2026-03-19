@@ -16,7 +16,7 @@ class SourceColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
         additional_arguments: arguments required in addition to the global arguments
     """
 
-    manifest_items: dict[str, str] = {}
+    manifest_items: dict[str, str | None] = {}
     catalog_items: dict[str, str] = {}
     check_name: str = "source-column-types-match-manifest-vs-catalog"
     additional_arguments = [
@@ -54,7 +54,3 @@ class SourceColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
             manifest_columns=self.manifest_items,
             catalog_columns=self.catalog_items,
         )
-
-
-if __name__ == "__main__":
-    SourceColumnTypesMatchManifestVsCatalog()

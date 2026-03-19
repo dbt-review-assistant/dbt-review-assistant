@@ -22,7 +22,7 @@ from utils.manifest_object.node.model.model import ManifestModel
 from utils.manifest_object.node.node import ManifestSeed
 from utils.manifest_object.node.node import SingularTest
 from utils.manifest_object.node.node import ManifestSnapshot
-from utils.manifest_object.source.source import ManifestSource
+from utils.manifest_object.manifest_object import ManifestSource
 from utils.manifest_object.unit_test import UnitTest
 
 
@@ -190,7 +190,10 @@ def test_manifest_generic_tests(mock_get_json_artifact_data):
     mock_data = {
         "nodes": {
             "test_test": {"resource_type": "test", "test_metadata": {"name": "test"}},
-            "another_test": {"resource_type": "test", "test_metadata": {"name": "test"}},
+            "another_test": {
+                "resource_type": "test",
+                "test_metadata": {"name": "test"},
+            },
             "singular_test": {"resource_type": "test"},
             "test_seed": {"resource_type": "seed"},
         },
@@ -304,7 +307,10 @@ def test_manifest_singular_tests(mock_get_json_artifact_data):
         "nodes": {
             "test_singular_test": {"resource_type": "test"},
             "another_singular_test": {"resource_type": "test"},
-            "generic_test": {"resource_type": "test", "test_metadata": {"name": "test"}},
+            "generic_test": {
+                "resource_type": "test",
+                "test_metadata": {"name": "test"},
+            },
             "test_seed": {"resource_type": "seed"},
         },
         "sources": {},

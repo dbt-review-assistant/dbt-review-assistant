@@ -82,18 +82,25 @@ def test_manifest_filter_conditions_post_init(kwargs, expected_attributes):
                     Path("test/model/path"),
                     Path("test/another/path"),
                 },
+                "_include_resource_types": {
+                    "model",
+                    "seed",
+                },
                 "_exclude_materializations": ("ephemeral", "incremental"),
                 "_exclude_packages": ["one_more_dbt_project"],
                 "_exclude_tags": {"one_more_tag"},
                 "_exclude_paths": {Path("test/one/more/path")},
+                "_exclude_resource_types": {"snapshot"},
             },
             colour_message(
                 """Including:
+	resource types: model, seed
 	materialized: table, view
 	tags: another_tag, test_tag
 	packages: another_dbt_project, test_dbt_project
 	paths: test/another/path, test/model/path
 Excluding:
+	resource types: snapshot
 	materialized: ephemeral, incremental
 	tags: one_more_tag
 	packages: one_more_dbt_project
@@ -107,10 +114,12 @@ Excluding:
                 "_include_packages": None,
                 "_include_tags": None,
                 "_include_paths": None,
+                "_include_resource_types": None,
                 "_exclude_materializations": [],
                 "_exclude_packages": set(),
                 "_exclude_tags": None,
                 "_exclude_paths": None,
+                "_exclude_resource_types": None,
             },
             colour_message("", emphasis=ConsoleEmphasis.ITALIC),
         ),

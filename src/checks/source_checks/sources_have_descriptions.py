@@ -38,7 +38,3 @@ class SourcesHaveDescriptions(ManifestCheck):
             object_type="source",
             attribute_type="description",
         )
-
-
-if __name__ == "__main__":
-    SourcesHaveDescriptions()

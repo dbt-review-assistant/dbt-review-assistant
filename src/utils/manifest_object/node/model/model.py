@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Collection
+from typing import Collection, TYPE_CHECKING
 
-from utils.manifest_object.node.model.column import ManifestModelColumn
+from utils.manifest_object.manifest_object import DataTestableMixin, ManifestColumn
 from utils.manifest_object.node.model.constraint import Constraint
 from utils.manifest_object.node.model.contract import Contract
 from utils.manifest_object.node.node import ManifestNode
@@ -9,11 +9,11 @@ if TYPE_CHECKING:
     from utils.artifact_data import Manifest
 
 
-class ManifestModel(ManifestNode):
+class ManifestModel(ManifestNode, DataTestableMixin):
     @property
-    def columns(self) -> dict[str, ManifestModelColumn]:
+    def columns(self) -> dict[str, ManifestColumn]:
         return {
-            f"{self.unique_id}.{column_name}": ManifestModelColumn(column_data)
+            f"{self.unique_id}.{column_name}": ManifestColumn(column_data)
             for column_name, column_data in self.data.get("columns", {}).items()
         }
 
@@ -32,7 +32,7 @@ class ManifestModel(ManifestNode):
         return None
 
     @property
-    def materialized(self) -> str:
+    def materialized(self) -> str | None:
         return self.config.get("materialized")
 
     @property
@@ -89,44 +89,3 @@ class ManifestModel(ManifestNode):
             if unit_test:
                 return True
         return False
-
-    def get_data_tests(self, manifest: "Manifest") -> set[str]:
-        generic_tests = {
-            test.generic_test_name
-            for test in map(
-                manifest.generic_tests.get, manifest.child_map.get(self.unique_id, [])
-            )
-            if test
-        }
-        singular_tests = {
-            test.unique_id
-            for test in map(
-                manifest.singular_tests.get, manifest.child_map.get(self.unique_id, [])
-            )
-            if test
-        }
-        return generic_tests.union(singular_tests)
-
-    def has_required_data_tests(
-        self,
-        manifest: "Manifest",
-        must_have_all_data_tests_from,
-        must_have_any_data_test_from,
-    ) -> bool:
-        data_tests = self.get_data_tests(manifest)
-        has_required_data_tests = bool(data_tests)
-        if (
-            must_have_all_data_tests_from is None
-            and must_have_any_data_test_from is None
-        ):
-            return has_required_data_tests
-        if must_have_all_data_tests_from is not None:
-            has_required_data_tests = bool(
-                set(must_have_all_data_tests_from).issubset(data_tests)
-            )
-        if must_have_any_data_test_from is not None:
-            has_required_data_tests = (
-                bool(set(must_have_any_data_test_from).intersection(data_tests))
-                and has_required_data_tests
-            )
-        return has_required_data_tests

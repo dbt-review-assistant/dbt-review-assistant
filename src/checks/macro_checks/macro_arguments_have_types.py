@@ -37,7 +37,3 @@ class MacroArgumentsHaveTypes(ManifestCheck):
             object_type="macro argument",
             attribute_type="type",
         )
-
-
-if __name__ == "__main__":
-    MacroArgumentsHaveTypes()

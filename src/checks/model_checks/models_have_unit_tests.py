@@ -40,7 +40,3 @@ class ModelsHaveUnitTests(ManifestCheck):
             object_type="model",
             attribute_type="unit test",
         )
-
-
-if __name__ == "__main__":
-    ModelsHaveUnitTests()

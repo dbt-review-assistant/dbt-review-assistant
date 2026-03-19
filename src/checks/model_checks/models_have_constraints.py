@@ -52,7 +52,3 @@ class ModelsHaveConstraints(ManifestCheck):
             must_have_all_from=self.args.must_have_all_constraints_from,
             must_have_any_from=self.args.must_have_any_constraint_from,
         )
-
-
-if __name__ == "__main__":
-    ModelsHaveConstraints()

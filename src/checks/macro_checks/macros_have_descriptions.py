@@ -36,7 +36,3 @@ class MacrosHaveDescriptions(ManifestCheck):
             object_type="macro",
             attribute_type="description",
         )
-
-
-if __name__ == "__main__":
-    MacrosHaveDescriptions()

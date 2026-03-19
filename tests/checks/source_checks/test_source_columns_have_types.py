@@ -6,7 +6,7 @@ import pytest
 
 from checks.source_checks.source_columns_have_types import SourceColumnsHaveTypes
 from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.manifest_object.source.source import ManifestSource
+from utils.manifest_object.manifest_object import ManifestSource
 
 
 @pytest.mark.parametrize(

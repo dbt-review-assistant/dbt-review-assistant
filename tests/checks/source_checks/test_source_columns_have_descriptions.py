@@ -9,7 +9,7 @@ from checks.source_checks.source_columns_have_descriptions import (
 )
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.model.model import ManifestModel
-from utils.manifest_object.source.source import ManifestSource
+from utils.manifest_object.manifest_object import ManifestSource
 
 
 @pytest.mark.parametrize(

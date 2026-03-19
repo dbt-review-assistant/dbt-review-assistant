@@ -1,7 +1,9 @@
+import logging
 from argparse import Namespace
 from contextlib import nullcontext
 from pathlib import Path
 import re
+from unittest.mock import patch, call
 
 import pytest
 from jsonschema import ValidationError
@@ -118,8 +120,15 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
         "check not in config",
         "all without config file",
         "one check with no config",
+        "config data and extra args",
     ],
-    argnames=["config_data", "known_args", "extra_args", "expected_return"],
+    argnames=[
+        "config_data",
+        "known_args",
+        "extra_args",
+        "expected_return",
+        "expect_warning",
+    ],
     argvalues=[
         (
             {
@@ -162,6 +171,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
                     ]
                 ]
             ),
+            None,
         ),
         (
             {
@@ -215,6 +225,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
                     ],
                 ]
             ),
+            None,
         ),
         (
             {
@@ -253,6 +264,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
                     ]
                 ]
             ),
+            True,
         ),
         (
             None,
@@ -264,6 +276,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
             pytest.raises(
                 RuntimeError, match="Check id 'all-checks' requires a config file."
             ),
+            None,
         ),
         (
             None,
@@ -275,14 +288,74 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
             nullcontext(
                 [["models-have-descriptions", "--packages", "test_dbt_package"]]
             ),
+            None,
+        ),
+        (
+            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        "path/to/project",
+                        "--include-packages",
+                        "test_dbt_package",
+                    ],
+                },
+                "per_check_arguments": [
+                    {
+                        "check_id": "models-have-descriptions",
+                    },
+                    {
+                        "arguments": [
+                            "--constraints",
+                            "primary_key",
+                            "--include-materializations",
+                            "view",
+                        ],
+                        "check_id": "models-have-constraints",
+                    },
+                ],
+            },
+            Namespace(
+                config_dir=Path("path/to/project"),
+                check_id="models-have-descriptions",
+            ),
+            ["--packages", "test_dbt_package"],
+            nullcontext(
+                [
+                    [
+                        "models-have-descriptions",
+                        "--project-dir",
+                        "path/to/project",
+                        "--include-packages",
+                        "test_dbt_package",
+                    ]
+                ]
+            ),
+            True,
         ),
     ],
 )
-def test_configure_checks(config_data, known_args, extra_args, expected_return):
-    with expected_return as e:
+def test_configure_checks(
+    config_data, known_args, extra_args, expected_return, expect_warning
+):
+    with expected_return as e, patch.object(logging, "warning") as mock_warning:
         result = configure_checks(
             config_data=config_data,
             known_args=known_args,
             extra_args=extra_args,
         )
         assert result == e
+        expected_warning_calls = []
+        if expect_warning and config_data and extra_args:
+            expected_warning_calls.append(
+                call(
+                    f"Check configuration will be read from {known_args.config_dir.absolute()}/.{PROJECT_NAME}.yaml, therefore the following extra CLI arguments will be ignored: ['--packages', 'test_dbt_package']"
+                )
+            )
+        elif expect_warning:
+            expected_warning_calls.append(
+                call(
+                    f"Check 'models-have-data-tests' not found in {known_args.config_dir.absolute()}/.{PROJECT_NAME}.yaml.\nRunning without arguments..."
+                )
+            )
+        mock_warning.assert_has_calls(expected_warning_calls)

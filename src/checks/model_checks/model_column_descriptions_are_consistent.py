@@ -39,7 +39,7 @@ class ModelColumnsDescriptionsAreConsistent(ManifestCheck):
                     all_descriptions[column.name] = []
                 all_descriptions[column.name].append(
                     {
-                        "description": column.description,
+                        "description": column.description if column.description else "",
                         "model": model.unique_id,
                     }
                 )
@@ -60,7 +60,3 @@ class ModelColumnsDescriptionsAreConsistent(ManifestCheck):
         return inconsistent_column_descriptions_message(
             descriptions=self.descriptions,
         )
-
-
-if __name__ == "__main__":
-    ModelColumnsDescriptionsAreConsistent()

@@ -37,7 +37,3 @@ class MacroArgumentsHaveDescriptions(ManifestCheck):
             object_type="macro argument",
             attribute_type="description",
         )
-
-
-if __name__ == "__main__":
-    MacroArgumentsHaveDescriptions()

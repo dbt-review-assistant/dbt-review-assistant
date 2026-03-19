@@ -5,10 +5,6 @@ from typing import Collection, Any
 from utils.console_formatting import colour_message, ConsoleEmphasis
 
 
-def set_default(value):
-    return set(value) if value else None
-
-
 @dataclass(eq=True, frozen=True)
 class ManifestFilterConditions:
     """Conditions to filter manifest objects by.
