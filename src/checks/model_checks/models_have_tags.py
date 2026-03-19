@@ -1,4 +1,4 @@
-"""CHeck if models have a description."""
+"""Check if models have a description."""
 
 from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import (
@@ -7,7 +7,7 @@ from utils.check_failure_messages import (
 
 
 class ModelsHaveTags(ManifestCheck):
-    """CHeck if models have tags.
+    """Check if models have tags.
 
     Attributes:
         check_name: name of the check

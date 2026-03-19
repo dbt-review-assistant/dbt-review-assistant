@@ -1,4 +1,4 @@
-"""CHeck if models have a description."""
+"""Check if models have a description."""
 
 from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import object_name_does_not_match_pattern
