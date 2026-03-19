@@ -56,7 +56,7 @@ included in this check
 - `macro-arguments-have-descriptions`: Check if macro arguments have descriptions
 - `macro-arguments-match-manifest-vs-sql`: Check if macro arguments match between the manifest.json and the macro SQL
   code
-- `macro-names-match-pattern`: Check if model names match a regex pattern
+- `macro-names-match-pattern`: Check if macro names match a regex pattern
 
 ## Installing as a stand-alone package
 
