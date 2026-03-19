@@ -78,6 +78,133 @@ def test_manifest_object_package_name(package_name, expected):
     assert instance.package_name == expected
 
 
+def test_manifest_object_name():
+    instance = ConcreteManifestObject(
+        {"name": "test_macro"}, filter_conditions=ManifestFilterConditions()
+    )
+    assert instance.name == "test_macro"
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "regex_pattern", "expected"],
+    ids=[
+        "match",
+        "no match",
+    ],
+    argvalues=[
+        (
+            {"name": "my_test_model"},
+            "my_[a-z]*_model",
+            True,
+        ),
+        (
+            {"name": "another_model"},
+            "my_[a-z]*_model",
+            False,
+        ),
+    ],
+)
+def test_manifest_object_name_matches_regex(
+    data: dict, regex_pattern: str, expected: bool
+):
+    instance = ConcreteManifestObject(
+        data=data,
+        filter_conditions=ManifestFilterConditions(),
+    )
+    assert instance.name_matches_regex(regex_pattern) == expected
+
+
+@pytest.mark.parametrize(
+    argnames=[
+        "data",
+        "include_name_patterns",
+        "exclude_name_patterns",
+        "expected_return",
+    ],
+    ids=[
+        "Explicitly included",
+        "Not explicitly included",
+        "Explicitly excluded",
+        "Not explicitly excluded",
+        "Explicitly included, with exclude condition",
+        "Explicitly excluded, with include condition",
+        "Both explicitly included and explicitly excluded - exclude should take precedence",
+    ],
+    argvalues=[
+        (
+            {
+                "name": "included_model",
+            },
+            ["included_[a-z]*", "another_model"],
+            None,
+            True,
+        ),
+        (
+            {
+                "name": "excluded_model",
+            },
+            ["included_[a-z]*"],
+            None,
+            False,
+        ),
+        (
+            {
+                "name": "excluded_model",
+            },
+            None,
+            ["excluded_[a-z]*", "another_model"],
+            False,
+        ),
+        (
+            {
+                "name": "included_model",
+            },
+            None,
+            ["excluded_[a-z]*"],
+            True,
+        ),
+        (
+            {
+                "name": "included_model",
+            },
+            ["included_[a-z]*"],
+            ["excluded_[a-z]*"],
+            True,
+        ),
+        (
+            {
+                "name": "excluded_model",
+            },
+            ["included_[a-z]*"],
+            ["excluded_[a-z]*"],
+            False,
+        ),
+        (
+            {
+                "name": "excluded_model",
+            },
+            ["excluded_[a-z]*"],
+            ["excluded_[a-z]*"],
+            False,
+        ),
+    ],
+)
+def test_manifest_object_filter_by_name_pattern(
+    data: dict,
+    include_name_patterns: list[str],
+    exclude_name_patterns: list[str],
+    expected_return: bool,
+):
+    instance = ConcreteManifestObject(
+        data=data,
+        filter_conditions=ManifestFilterConditions(
+            _include_name_patterns=include_name_patterns,
+            _exclude_name_patterns=exclude_name_patterns,
+        ),
+    )
+    assert instance.filter_by_name_pattern is expected_return
+
+
 @pytest.mark.parametrize(
     argnames=[
         "data",

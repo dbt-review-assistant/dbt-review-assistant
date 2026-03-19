@@ -19,10 +19,12 @@ from utils.manifest_filter_conditions import ManifestFilterConditions
                     Path("test/model/path"),
                     Path("test/another/path"),
                 },
+                "_include_name_patterns": ["test_model", "another_model"],
                 "_exclude_materializations": ("ephemeral", "incremental"),
                 "_exclude_packages": ["one_more_dbt_project"],
                 "_exclude_tags": {"one_more_tag"},
                 "_exclude_paths": {Path("test/one/more/path")},
+                "_exclude_name_patterns": ["excluded_model", "another_excluded_model"],
             },
             {
                 "include_materializations": {"table", "view"},
@@ -32,10 +34,12 @@ from utils.manifest_filter_conditions import ManifestFilterConditions
                     Path("test/model/path"),
                     Path("test/another/path"),
                 },
+                "include_name_patterns": {"test_model", "another_model"},
                 "exclude_materializations": {"ephemeral", "incremental"},
                 "exclude_packages": {"one_more_dbt_project"},
                 "exclude_tags": {"one_more_tag"},
                 "exclude_paths": {Path("test/one/more/path")},
+                "exclude_name_patterns": {"excluded_model", "another_excluded_model"},
             },
         ),
         (
@@ -87,11 +91,13 @@ def test_manifest_filter_conditions_post_init(kwargs, expected_attributes):
                     "model",
                     "seed",
                 },
+                "_include_name_patterns": {"test_model"},
                 "_exclude_materializations": ("ephemeral", "incremental"),
                 "_exclude_packages": ["one_more_dbt_project"],
                 "_exclude_tags": {"one_more_tag"},
                 "_exclude_paths": {Path("test/one/more/path")},
                 "_exclude_resource_types": {"snapshot"},
+                "_exclude_name_patterns": {"another_model"},
             },
             colour_message(
                 """Including:
@@ -100,12 +106,14 @@ def test_manifest_filter_conditions_post_init(kwargs, expected_attributes):
 	tags: another_tag, test_tag
 	packages: another_dbt_project, test_dbt_project
 	paths: test/another/path, test/model/path
+	name patterns: test_model
 Excluding:
 	resource types: snapshot
 	materialized: ephemeral, incremental
 	tags: one_more_tag
 	packages: one_more_dbt_project
-	paths: test/one/more/path""",
+	paths: test/one/more/path
+	name patterns: another_model""",
                 emphasis=ConsoleEmphasis.ITALIC,
             ),
         ),
@@ -116,11 +124,13 @@ Excluding:
                 "_include_tags": None,
                 "_include_paths": None,
                 "_include_resource_types": None,
+                "_include_name_patterns": None,
                 "_exclude_materializations": [],
                 "_exclude_packages": set(),
                 "_exclude_tags": None,
                 "_exclude_paths": None,
                 "_exclude_resource_types": None,
+                "_exclude_name_patterns": None,
             },
             colour_message("", emphasis=ConsoleEmphasis.ITALIC),
         ),

@@ -68,8 +68,10 @@ def test_macros_have_descriptions_perform_checks(
         assert instance.additional_arguments == [
             "include_packages",
             "include_tags",
+            "include_name_patterns",
             "exclude_packages",
             "exclude_tags",
+            "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
         mock_in_scope_macros.assert_called_once()

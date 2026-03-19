@@ -34,6 +34,9 @@ hooks:
   the catalog.json
 - `model-column-descriptions-are-consistent`: Check if all instances of a column have the same description across
   different models
+- `model-names-match-pattern`: Check if model names match a regex pattern
+- `model-column-names-match-pattern`: Check if model column names match a regex pattern. Only documented columns will be
+included in this check
 
 ### Source checks:
 
@@ -53,6 +56,7 @@ hooks:
 - `macro-arguments-have-descriptions`: Check if macro arguments have descriptions
 - `macro-arguments-match-manifest-vs-sql`: Check if macro arguments match between the manifest.json and the macro SQL
   code
+- `macro-names-match-pattern`: Check if model names match a regex pattern
 
 ## Installing as a stand-alone package
 
@@ -103,7 +107,7 @@ will be considered in-scope for the check(s).
 `--include-tags`: Optional - list of tags to include nodes by. Only nodes having at least one of these tags will
 be considered in-scope for the check(s).
 
-`--exclude-packages`: Optional - list of tags to exclude nodes by. Nodes which have at least one of these tags will be
+`--exclude-tags`: Optional - list of tags to exclude nodes by. Nodes which have at least one of these tags will be
 considered out-of-scope for the check(s).
 
 `--include-node-paths`: Optional - list of node paths to include nodes by. Nodes not under any of these paths will be
@@ -111,6 +115,12 @@ considered out-of-scope for the check(s).
 
 `--exclude-node-paths`: Optional - list of node paths to exclude nodes by. Nodes under any of these paths will be
 considered out-of-scope for the check(s).
+
+`--include-name-patterns`: Optional - list of name regex patterns to include nodes by. Nodes names not matching any of
+these regex patterns will be considered out-of-scope for the check(s).
+
+`--exclude-name-patterns`: Optional - list of name regex patterns to exclude nodes by. Nodes names matching any of
+these regex patterns will be considered out-of-scope for the check(s).
 
 `--must-have-all-constraints-from`: Optional - List of constraint names, from which objects must have the full set.
 
@@ -123,6 +133,8 @@ considered out-of-scope for the check(s).
 `--must-have-all-tags-from`: Optional - List of tags, from which objects must have the full set.
 
 `--must-have-any-tag-from`: Optional - List of tags, from which objects must have at least one value.
+
+`--name-must-match-pattern`: Optional - Regex pattern to match object names against.
 
 ### Running checks individually
 
@@ -271,6 +283,8 @@ This table shows which checks require which dbt artifacts:
 | `models-have-data-tests`                        | ✅        | ❌       |
 | `models-have-unit-tests`                        | ✅        | ❌       |
 | `models-have-properties-file`                   | ✅        | ❌       |
+| `model-names-match-pattern`                     | ✅        | ❌       |
+| `model-column-names-match-pattern`              | ✅        | ❌       |
 | `model-columns-have-descriptions`               | ✅        | ❌       |
 | `model-columns-have-types`                      | ✅        | ❌       |
 | `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
@@ -286,6 +300,7 @@ This table shows which checks require which dbt artifacts:
 | `macro-arguments-have-descriptions`             | ✅        | ❌       |
 | `macro-arguments-have-types`                    | ✅        | ❌       |
 | `macro-arguments-match-manifest-vs-sql`         | ✅        | ❌       |
+| `macro-names-match-pattern`                     | ✅        | ❌       |
 
 These JSON files are typically in the `.gitignore`, so they are not tracked in git, and are often cleaned up when
 running `dbt clean`, so knowing how to generate them is important.

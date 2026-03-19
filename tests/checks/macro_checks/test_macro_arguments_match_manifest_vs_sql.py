@@ -225,8 +225,10 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
         assert instance.additional_arguments == [
             "include_packages",
             "include_tags",
+            "include_name_patterns",
             "exclude_packages",
             "exclude_tags",
+            "exclude_name_patterns",
         ]
         assert instance.sql_args == expected_sql_args
         assert instance.manifest_args == expected_manifest_args

@@ -164,10 +164,12 @@ def test_model_column_types_match_manifest_vs_catalog_perform_checks(
             "include_tags",
             "include_packages",
             "include_node_paths",
+            "include_name_patterns",
             "exclude_materializations",
             "exclude_tags",
             "exclude_packages",
             "exclude_node_paths",
+            "exclude_name_patterns",
         ]
         assert instance.catalog_items == expected_catalog_items
         assert instance.manifest_items == expected_manifest_items

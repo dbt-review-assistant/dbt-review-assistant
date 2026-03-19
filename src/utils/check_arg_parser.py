@@ -102,9 +102,16 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
     ),
     CliArgument(
         name="must_have_any_tag_from",
-        help="List of values, from which objects must at least one value.",
+        help="List of values, from which objects must have at least one value.",
         type=str,
         nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
+        name="name_must_match_pattern",
+        help="Regex pattern which object name must match.",
+        type=str,
         required=False,
         default=None,
     ),
@@ -141,6 +148,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
+        name="include_name_patterns",
+        help="List of name regex patterns to include. Nodes with names not matching any of these regex patterns ignored.",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
         name="exclude_materializations",
         help="List of materialization types to exclude. Models with these materialization types will be ignored."
         " Supersedes the 'include_materializations' argument.",
@@ -171,6 +186,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         name="exclude_node_paths",
         help="List of node paths to exclude. Nodes under one of these paths will be ignored.",
         type=Path,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
+        name="exclude_name_patterns",
+        help="List of name regex patterns to exclude. Nodes with names matching any of these regex patterns ignored.",
+        type=str,
         nargs="+",
         required=False,
         default=None,

@@ -34,11 +34,38 @@
   pass_filenames: false
   types_or: [sql, yaml]
 
+- id: model-names-match-pattern
+  name: model-names-match-pattern
+  description: >
+    Check if model names match a regex pattern
+  entry: dbt-review-assistant model-names-match-pattern
+  language: python
+  pass_filenames: false
+  types_or: [sql, yaml]
+
+- id: model-column-names-match-pattern
+  name: model-column-names-match-pattern
+  description: >
+    Check if model column names match a regex pattern
+  entry: dbt-review-assistant model-column-names-match-pattern
+  language: python
+  pass_filenames: false
+  types_or: [sql, yaml]
+
 - id: macros-have-descriptions
   name: macros-have-descriptions
   description: >
     Check if macros have descriptions
   entry: dbt-review-assistant macros-have-descriptions
+  language: python
+  pass_filenames: false
+  types_or: [sql, yaml]
+
+- id: macro-names-match-pattern
+  name: macro-names-match-pattern
+  description: >
+    Check if macro names match a regex pattern
+  entry: dbt-review-assistant macro-names-match-pattern
   language: python
   pass_filenames: false
   types_or: [sql, yaml]

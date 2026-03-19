@@ -56,12 +56,14 @@ class Check(ABC):
             _include_tags=getattr(self.args, "include_tags", None),
             _include_packages=getattr(self.args, "include_packages", None),
             _include_paths=getattr(self.args, "include_node_paths", None),
+            _include_name_patterns=getattr(self.args, "include_name_patterns", None),
             _exclude_materializations=getattr(
                 self.args, "exclude_materializations", None
             ),
             _exclude_tags=getattr(self.args, "exclude_tags", None),
             _exclude_packages=getattr(self.args, "exclude_packages", None),
             _exclude_paths=getattr(self.args, "exclude_node_paths", None),
+            _exclude_name_patterns=getattr(self.args, "exclude_name_patterns", None),
         )
 
     @abstractmethod

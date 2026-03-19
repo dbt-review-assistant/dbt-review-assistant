@@ -202,3 +202,24 @@ def object_missing_values_from_set_message(
         f"The following {object_type}s do not have{' the required' if must_have_all_from or must_have_any_from else ''}"
         f" {attribute_type}s:\n{table}"
     )
+
+
+def object_name_does_not_match_pattern(
+    objects: Collection[str],
+    object_type: str,
+    name_must_match_pattern: str,
+):
+    """Summarise check failures when an object name does not match a goven pattern.
+
+    Args:
+        objects: objects which have failed the check, with the set of actual values
+        object_type: Type of object being checked
+        name_must_match_pattern: pattern object names must match
+    Returns:
+        string summarising the check failures
+    """
+    join_string = "\n - "
+    return (
+        f"The following {object_type} names do not match the regex pattern '{name_must_match_pattern}'"
+        f":\n - {join_string.join(sorted(objects))}"
+    )
