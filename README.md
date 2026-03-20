@@ -22,7 +22,7 @@ hooks:
   or from which they must have at least one tag
 - `models-have-contracts`: Check if models have contracts enabled
 - `models-have-constraints`: Check if models have constraints configured
-- `models-have-data-tests`: Check if models have data tests
+- `models-have-data-tests`: Check if models have data tests (generic or singular tests)
 - `models-have-unit-tests`: Check if models have unit tests
 - `models-have-properties-file`: Check if models have a
   corresponding [properties YAML file](https://docs.getdbt.com/reference/define-properties)
@@ -41,7 +41,7 @@ included in this check
 ### Source checks:
 
 - `sources-have-descriptions`: Check if sources have descriptions
-- `sources-have-data-tests`: Check if sources have data tests
+- `sources-have-data-tests`: Check if sources have data tests (generic or singular tests)
 - `source-columns-have-descriptions`: Check if source columns have descriptions
 - `source-columns-have-types`: Check if source columns have data types documented
 - `source-column-names-match-manifest-vs-catalog`: Check if source column names match between the manifest.json and the
@@ -126,9 +126,11 @@ these regex patterns will be considered out-of-scope for the check(s).
 
 `--must-have-any-constraint-from`: Optional - List of constraint names, from which objects must have at least one value.
 
-`--must-have-all-data-tests-from`: Optional - List of data test names, from which objects must have the full set.
+`--must-have-all-data-tests-from`: Optional - List of data test names, from which objects must have the full set. This
+option can include generic test or singular tests.
 
-`--must-have-any-data-test-from`: Optional - List of data test names, from which objects must have at least one value.
+`--must-have-any-data-test-from`: Optional - List of data test names, from which objects must have at least one value. This
+option can include generic test or singular tests.
 
 `--must-have-all-tags-from`: Optional - List of tags, from which objects must have the full set.
 
