@@ -322,7 +322,7 @@ class DataTestableMixin(ABC):
             if test is not None and test.name is not None
         }
         singular_tests = {
-            test.unique_id
+            test.name
             for test in map(
                 manifest.singular_tests.get, manifest.child_map.get(unique_id, [])
             )

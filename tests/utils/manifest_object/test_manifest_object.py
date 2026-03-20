@@ -793,11 +793,11 @@ class ConcreteDataTestableNode(DataTestableMixin, ManifestObject):
             {},
             {
                 "singular_test": SingularTest(
-                    {"unique_id": "singular_test"},
+                    {"name": "singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
                 "another_singular_test": SingularTest(
-                    {"unique_id": "another_singular_test"},
+                    {"name": "another_singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
             },
@@ -812,11 +812,11 @@ class ConcreteDataTestableNode(DataTestableMixin, ManifestObject):
             {},
             {
                 "singular_test": SingularTest(
-                    {"unique_id": "singular_test"},
+                    {"name": "singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
                 "another_singular_test": SingularTest(
-                    {"unique_id": "another_singular_test"},
+                    {"name": "another_singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
             },
@@ -1056,7 +1056,7 @@ def test_data_testable_mixin_get_data_tests(
             {},
             {
                 "singular_test": SingularTest(
-                    {"unique_id": "singular_test"},
+                    {"name": "singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
             },
