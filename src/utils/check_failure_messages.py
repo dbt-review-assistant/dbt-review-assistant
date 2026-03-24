@@ -242,7 +242,7 @@ def object_attribute_value_not_in_set(
     join_string = "\n - "
     failures = join_string.join(
         f"{instance} - {materialization}"
-        for instance, materialization in objects.items()
+        for instance, materialization in sorted(objects.items())
     )
     return (
         f"The following {object_type}s do not have one of the required {attribute_type}s ({','.join(allowed_values)})"

@@ -350,8 +350,8 @@ def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
             },
             "The following models do not have one of the required materializations "
             "(view,table):\n"
-            " - test_model - ephemeral\n"
-            " - another_model - incremental",
+            " - another_model - incremental\n"
+            " - test_model - ephemeral",
         ),
     ],
 )
