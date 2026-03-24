@@ -245,6 +245,6 @@ def object_attribute_value_not_in_set(
         for instance, materialization in sorted(objects.items())
     )
     return (
-        f"The following {object_type}s do not have one of the required {attribute_type}s ({','.join(allowed_values)})"
+        f"The following {object_type}s do not have one of the required {attribute_type}s ({','.join(sorted(allowed_values))})"
         f":\n - {failures}"
     )

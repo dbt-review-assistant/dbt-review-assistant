@@ -338,7 +338,7 @@ def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
                 "allowed_values": {"table", "view"},
             },
             "The following models do not have one of the required materializations "
-            "(view,table):\n"
+            "(table,view):\n"
             " - test_model - ephemeral",
         ),
         (
@@ -349,7 +349,7 @@ def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
                 "allowed_values": {"table", "view"},
             },
             "The following models do not have one of the required materializations "
-            "(view,table):\n"
+            "(table,view):\n"
             " - another_model - incremental\n"
             " - test_model - ephemeral",
         ),
