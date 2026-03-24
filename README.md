@@ -238,10 +238,8 @@ repos:
     rev: <latest tag>
     hooks:
       - id: all-models-have-descriptions
-        pass_filenames: false
         args: [ "--include-packages", "my_dbt_project" ]
       - id: all-models-have-constraints
-        pass_filenames: false
         args: [
           "--must-have-all-constraints-from",
           "primary_key",
@@ -255,22 +253,6 @@ Note that the recommended option is to use the single entry version, because thi
 by allowing `dbt-review-assistant` to cache data in memory between checks. Running checks individually forces them to be
 run in
 separate environments, so they cannot share cached data.
-
-### Using `pass_filenames`
-
-pre-commit hooks have an option called `pass_filenames`, which defaults to true. This instructs pre-commit to pass all
-filenames that are staged for commit into the hook entry command as positional arguments.
-
-`dbt-review-assistant` does not support `pass_filenames: true`, and so all hooks will come with `pass_filenames: false`
-by default, and it should not be overridden. Be aware that if using these hooks with `repo: local`, this will change the
-default value back to `pass_filenames: false`, so all examples here explicitly include the correct setting, even though
-it is not always strictly necessary.
-
-Disabling `pass_filenames` for hooks is a deliberate design choice, which greatly simplifies how the tool works.
-Although it can be helpful to only run checks on files that have changed, this is very complicated to do correctly in
-practice, due to the complex dependencies between files within dbt projects. A more 'slim' option might be developed as
-a future improvement, but for now the entire project is checked (unless nodes are excluded by specific arguments),
-regardless of which files are staged for commit.
 
 ### Refreshing dbt artifacts
 
@@ -333,6 +315,7 @@ installed entries to your existing pre-commit configuration, before the checks:
 repos:
   - repo: local
     hooks:
+      # for any checks requiring the manifest.json
       - id: refresh-manifest
         name: Refresh dbt Manifest
         entry: dbt parse
@@ -343,8 +326,12 @@ repos:
           "./my_dbt_project"
         ]
         language: python
-        pass_filenames: false
+        pass_filenames: true
+        require_serial: true
         types_or: [sql,yaml]
+        files: "my_dbt_project/"
+        exclude: "(my_dbt_project/target/|my_dbt_project/dbt_packages/)"
+      # for any checks requiring the catalog.json
       - id: refresh-catalog
         name: Refresh dbt Catalog
         entry: dbt docs generate
@@ -356,8 +343,11 @@ repos:
           "--no-compile"
         ]
         language: python
-        pass_filenames: false
+        pass_filenames: true
+        require_serial: true
         types_or: [sql,yaml]
+        files: "my_dbt_project/"
+        exclude: "(my_dbt_project/target/|my_dbt_project/dbt_packages/)"
   - repo: https://github.com/sambloom92/dbt-review-assistant
     rev: <latest tag>
     hooks:
