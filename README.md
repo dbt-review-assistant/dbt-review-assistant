@@ -12,7 +12,7 @@ Maintaining dbt projects can be challenging, especially when the projects get la
 contributors. `dbt-review-assistant` aims to help developers and reviewers to focus on what matters, by taking care of
 the most boring checklist items automatically.
 
-There are 21 checks available in this package, which are available as both standalone CLI commands or as pre-commit
+Below are all the checks available in this package, which are available as both standalone CLI commands or as pre-commit
 hooks:
 
 ### Model checks:
@@ -27,6 +27,7 @@ hooks:
 - `models-have-properties-file`: Check if models have a
   corresponding [properties YAML file](https://docs.getdbt.com/reference/define-properties)
 - `models-have-columns`: Check if a model has columns listed in a [properties YAML file](https://docs.getdbt.com/reference/define-properties).
+- `models-have-specific-materialization`: Check if models are materialized with one of a set of allowed materializations
 - `model-columns-have-descriptions`: Check if model columns have descriptions. Models without columns listed at all
 will always pass this check, so it's recommend to run `models-have-columns` as a complementary check.
 - `model-columns-have-types`: Check if model columns have data types documented. Models without columns listed at all
@@ -143,6 +144,8 @@ option can include generic test or singular tests.
 `--must-have-any-tag-from`: Optional - List of tags, from which objects must have at least one value.
 
 `--name-must-match-pattern`: Optional - Regex pattern to match object names against.
+
+`--must-be-materialized-as-one-of`: Optional - Specific materialization names from which models must use one
 
 ### Running checks individually
 

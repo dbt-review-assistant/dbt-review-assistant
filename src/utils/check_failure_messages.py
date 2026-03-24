@@ -209,7 +209,7 @@ def object_name_does_not_match_pattern(
     object_type: str,
     name_must_match_pattern: str,
 ):
-    """Summarise check failures when an object name does not match a goven pattern.
+    """Summarise check failures when an object name does not match a given pattern.
 
     Args:
         objects: objects which have failed the check, with the set of actual values
@@ -222,4 +222,29 @@ def object_name_does_not_match_pattern(
     return (
         f"The following {object_type} names do not match the regex pattern '{name_must_match_pattern}'"
         f":\n - {join_string.join(sorted(objects))}"
+    )
+
+
+def object_attribute_value_not_in_set(
+    objects: dict[str, str | None],
+    object_type: str,
+    attribute_type: str,
+    allowed_values: set[str],
+) -> str:
+    """Summarise check failures when objects attribute values are not in an allowed set.
+
+    Args:
+        objects: dicts mapping failed object names to their attribute values.
+        object_type: Type of object being checked.
+        attribute_type: Type of attribute being checked.
+        allowed_values: set of allowed values.
+    """
+    join_string = "\n - "
+    failures = join_string.join(
+        f"{instance} - {materialization}"
+        for instance, materialization in objects.items()
+    )
+    return (
+        f"The following {object_type}s do not have one of the required {attribute_type}s ({','.join(allowed_values)})"
+        f":\n - {failures}"
     )
