@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -72,7 +73,6 @@ def test_model_column_descriptions_are_consistent_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelColumnsDescriptionsAreConsistent, "__call__"),
         patch.object(
             ModelColumnsDescriptionsAreConsistent, "manifest", new_callable=PropertyMock
@@ -85,7 +85,7 @@ def test_model_column_descriptions_are_consistent_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelColumnsDescriptionsAreConsistent()
+        instance = ModelColumnsDescriptionsAreConsistent(Namespace())
         instance.perform_check()
         assert instance.check_name == "model-column-descriptions-are-consistent"
         assert instance.additional_arguments == [
@@ -130,23 +130,21 @@ def test_model_column_descriptions_are_consistent_has_failures(
         patch.object(
             ModelColumnsDescriptionsAreConsistent, "descriptions", descriptions
         ),
-        patch.object(ModelColumnsDescriptionsAreConsistent, "parse_args"),
         patch.object(ModelColumnsDescriptionsAreConsistent, "__call__"),
     ):
-        instance = ModelColumnsDescriptionsAreConsistent()
+        instance = ModelColumnsDescriptionsAreConsistent(Namespace())
         assert expected_result is instance.has_failures
 
 
 def test_model_column_descriptions_are_consistent_failure_message():
     with (
         patch.object(ModelColumnsDescriptionsAreConsistent, "descriptions"),
-        patch.object(ModelColumnsDescriptionsAreConsistent, "parse_args"),
         patch.object(ModelColumnsDescriptionsAreConsistent, "__call__"),
         patch(
             "checks.model_checks.model_column_descriptions_are_consistent.inconsistent_column_descriptions_message"
         ) as mock_inconsistent_column_descriptions_message,
     ):
-        instance = ModelColumnsDescriptionsAreConsistent()
+        instance = ModelColumnsDescriptionsAreConsistent(Namespace())
         mock_inconsistent_column_descriptions_message.return_value = Mock()
         result = instance.failure_message
         mock_inconsistent_column_descriptions_message.assert_called_with(

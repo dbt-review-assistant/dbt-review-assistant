@@ -26,8 +26,11 @@ hooks:
 - `models-have-unit-tests`: Check if models have unit tests
 - `models-have-properties-file`: Check if models have a
   corresponding [properties YAML file](https://docs.getdbt.com/reference/define-properties)
-- `model-columns-have-descriptions`: Check if model columns have descriptions
-- `model-columns-have-types`: Check if model columns have data types documented
+- `models-have-columns`: Check if a model has columns listed in a [properties YAML file](https://docs.getdbt.com/reference/define-properties).
+- `model-columns-have-descriptions`: Check if model columns have descriptions. Models without columns listed at all
+will always pass this check, so it's recommend to run `models-have-columns` as a complementary check.
+- `model-columns-have-types`: Check if model columns have data types documented. Models without columns listed at all
+will always pass this check, so it's recommend to run `models-have-columns` as a complementary check.
 - `model-column-names-match-manifest-vs-catalog`: Check if model column names match between the manifest.json and the
   catalog.json
 - `model-column-types-match-manifest-vs-catalog`: Check if model column data types match between the manifest.json and
@@ -42,8 +45,11 @@ included in this check
 
 - `sources-have-descriptions`: Check if sources have descriptions
 - `sources-have-data-tests`: Check if sources have data tests (generic or singular tests)
-- `source-columns-have-descriptions`: Check if source columns have descriptions
-- `source-columns-have-types`: Check if source columns have data types documented
+- `sources-have-columns`: Check if sources have columns listed
+- `source-columns-have-descriptions`: Check if source columns have descriptions. Sources without columns listed at all
+will always pass this check, so it's recommend to run `sources-have-columns` as a complementary check.
+- `source-columns-have-types`: Check if source columns have data types documented. Sources without columns listed at all
+will always pass this check, so it's recommend to run `sources-have-columns` as a complementary check.
 - `source-column-names-match-manifest-vs-catalog`: Check if source column names match between the manifest.json and the
   catalog.json
 - `source-column-types-match-manifest-vs-catalog`: Check if source column data types match between the manifest.json and

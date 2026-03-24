@@ -1,7 +1,8 @@
 """Classes representing objects in the manifest file."""
 
+import logging
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Collection, Protocol, cast
@@ -75,6 +76,31 @@ class ManifestObject(HasNameMixin, ABC):
     def name(self) -> str:
         """The name of the object."""
         return self.data["name"]
+
+    @property
+    def original_file_path(self) -> Path | None:
+        """The original filepath of the object."""
+        filepath = self.data.get("original_file_path")
+        return Path(filepath) if filepath else None
+
+    def is_included_by_original_or_patch_path(
+        self, filepaths: Collection[Path]
+    ) -> bool:
+        """Whether this object should be included.
+
+        Takes into consideration the original filepath, and also the patch path.
+        If either are included in filepaths then it is included.
+
+        Args:
+            filepaths: Collection of Paths representing the files to include.
+
+        Returns:
+            True if the object should be included.
+        """
+        return (
+            self.original_file_path in filepaths
+            or getattr(self, "patch_path", None) in filepaths
+        )
 
     @property
     def filter_by_name_pattern(self) -> bool:
@@ -166,6 +192,15 @@ class HasData(Protocol):
     data: dict[str, Any]
 
 
+class HasPackageName(Protocol):
+    """Protocol for objects that have the data attribute."""
+
+    @property
+    def package_name(self) -> str | None:
+        """The package name of the object."""
+        ...
+
+
 class ConfigurableMixin(ABC):
     """Mixin for objects which can have config in the manifest."""
 
@@ -180,7 +215,7 @@ class ConfigurableMixin(ABC):
         return self.config.get("enabled", True)
 
 
-class HasPatchPathMixin(ABC):
+class HasPatchPathMixin(ABC, HasPackageName):
     """Mixin for objects which have the patch_path property."""
 
     @property
@@ -191,8 +226,9 @@ class HasPatchPathMixin(ABC):
         """
         data = cast(HasData, self).data
         path = data.get("patch_path")
-        if isinstance(path, str):
-            return Path(path)
+        package_name = cast(HasPackageName, self).package_name
+        if isinstance(path, str) and package_name and path.startswith(package_name):
+            return Path(path.replace(f"{package_name}://", ""))
         return None
 
 

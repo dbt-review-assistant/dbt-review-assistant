@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Collection
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -89,7 +90,6 @@ def test_models_have_tags_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveTags, "__call__"),
         patch.object(
             ModelsHaveTags, "manifest", new_callable=PropertyMock
@@ -102,7 +102,7 @@ def test_models_have_tags_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelsHaveTags()
+        instance = ModelsHaveTags(Namespace())
         instance.args.must_have_all_tags_from = must_have_all_tags_from
         instance.args.must_have_any_tag_from = must_have_any_tag_from
         instance.perform_check()
@@ -127,13 +127,16 @@ def test_models_have_tags_perform_checks(
 def test_models_have_tags_failure_message():
     with (
         patch.object(ModelsHaveTags, "failures"),
-        patch.object(ModelsHaveTags, "parse_args"),
         patch.object(ModelsHaveTags, "__call__"),
         patch(
             "checks.model_checks.models_have_tags.object_missing_values_from_set_message"
         ) as mock_object_missing_values_from_set_message,
     ):
-        instance = ModelsHaveTags()
+        namespace = Namespace(
+            must_have_all_tags_from=Mock(),
+            must_have_any_tag_from=Mock(),
+        )
+        instance = ModelsHaveTags(namespace)
         instance.args.tags = Mock()
         mock_object_missing_values_from_set_message.return_value = Mock()
         result = instance.failure_message
@@ -141,7 +144,7 @@ def test_models_have_tags_failure_message():
             objects=instance.failures,
             object_type="model",
             attribute_type="tag",
-            must_have_all_from=instance.args.must_have_all_tags_from,
-            must_have_any_from=instance.args.must_have_any_tag_from,
+            must_have_all_from=namespace.must_have_all_tags_from,
+            must_have_any_from=namespace.must_have_any_tag_from,
         )
         assert result is mock_object_missing_values_from_set_message.return_value

@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Collection, Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -204,7 +205,6 @@ def test_models_have_constraints_perform_check(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveConstraints, "__call__"),
         patch.object(
             ModelsHaveConstraints, "manifest", new_callable=PropertyMock
@@ -217,7 +217,7 @@ def test_models_have_constraints_perform_check(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelsHaveConstraints()
+        instance = ModelsHaveConstraints(Namespace())
         instance.args.must_have_all_constraints_from = must_have_all_constraints_from
         instance.args.must_have_any_constraint_from = must_have_any_constraint_from
         instance.perform_check()
@@ -243,13 +243,16 @@ def test_models_have_constraints_perform_check(
 def test_models_have_constraints_failure_message():
     with (
         patch.object(ModelsHaveConstraints, "failures"),
-        patch.object(ModelsHaveConstraints, "parse_args"),
         patch.object(ModelsHaveConstraints, "__call__"),
         patch(
             "checks.model_checks.models_have_constraints.object_missing_values_from_set_message"
         ) as mock_object_missing_values_from_set_message,
     ):
-        instance = ModelsHaveConstraints()
+        namespace = Namespace(
+            must_have_all_constraints_from=Mock(),
+            must_have_any_constraint_from=Mock(),
+        )
+        instance = ModelsHaveConstraints(namespace)
         instance.args.constraints = Mock()
         mock_object_missing_values_from_set_message.return_value = Mock()
         result = instance.failure_message
@@ -257,7 +260,7 @@ def test_models_have_constraints_failure_message():
             objects=instance.failures,
             object_type="model",
             attribute_type="constraint",
-            must_have_all_from=instance.args.must_have_all_constraints_from,
-            must_have_any_from=instance.args.must_have_any_constraint_from,
+            must_have_all_from=namespace.must_have_all_constraints_from,
+            must_have_any_from=namespace.must_have_any_constraint_from,
         )
         assert result is mock_object_missing_values_from_set_message.return_value

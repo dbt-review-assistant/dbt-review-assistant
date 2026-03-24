@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from contextlib import nullcontext as does_not_raise
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
@@ -206,7 +207,6 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(MacroArgumentsMatchManifestVsSql, "__call__"),
         patch.object(
             MacroArgumentsMatchManifestVsSql, "manifest", new_callable=PropertyMock
@@ -219,7 +219,7 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
-        instance = MacroArgumentsMatchManifestVsSql()
+        instance = MacroArgumentsMatchManifestVsSql(Namespace())
         instance.perform_check()
         assert instance.check_name == "macro-arguments-match-manifest-vs-sql"
         assert instance.additional_arguments == [
@@ -254,10 +254,9 @@ def test_macro_arguments_match_manifest_vs_sql_has_failures(
     with (
         patch.object(MacroArgumentsMatchManifestVsSql, "sql_args", sql_args),
         patch.object(MacroArgumentsMatchManifestVsSql, "manifest_args", manifest_args),
-        patch.object(MacroArgumentsMatchManifestVsSql, "parse_args"),
         patch.object(MacroArgumentsMatchManifestVsSql, "__call__"),
     ):
-        instance = MacroArgumentsMatchManifestVsSql()
+        instance = MacroArgumentsMatchManifestVsSql(Namespace())
         assert expected_result is instance.has_failures
 
 
@@ -265,13 +264,12 @@ def test_macro_arguments_match_manifest_vs_sql_failure_message():
     with (
         patch.object(MacroArgumentsMatchManifestVsSql, "sql_args"),
         patch.object(MacroArgumentsMatchManifestVsSql, "manifest_args"),
-        patch.object(MacroArgumentsMatchManifestVsSql, "parse_args"),
         patch.object(MacroArgumentsMatchManifestVsSql, "__call__"),
         patch(
             "checks.macro_checks.macro_arguments_match_manifest_vs_sql.macro_argument_mismatch_manifest_vs_sql"
         ) as mock_macro_argument_mismatch_manifest_vs_sql,
     ):
-        instance = MacroArgumentsMatchManifestVsSql()
+        instance = MacroArgumentsMatchManifestVsSql(Namespace())
         mock_macro_argument_mismatch_manifest_vs_sql.return_value = Mock()
         result = instance.failure_message
         mock_macro_argument_mismatch_manifest_vs_sql.assert_called_with(

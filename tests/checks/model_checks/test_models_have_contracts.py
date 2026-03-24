@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -112,7 +113,6 @@ def test_models_have_contracts_perform_check(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveContracts, "__call__"),
         patch.object(
             ModelsHaveContracts, "manifest", new_callable=PropertyMock
@@ -125,7 +125,7 @@ def test_models_have_contracts_perform_check(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelsHaveContracts()
+        instance = ModelsHaveContracts(Namespace())
         instance.perform_check()
         assert instance.check_name == "models-have-contracts"
         assert instance.additional_arguments == [
@@ -147,13 +147,12 @@ def test_models_have_contracts_perform_check(
 def test_models_have_contracts_failure_message():
     with (
         patch.object(ModelsHaveContracts, "failures"),
-        patch.object(ModelsHaveContracts, "parse_args"),
         patch.object(ModelsHaveContracts, "__call__"),
         patch(
             "checks.model_checks.models_have_contracts.object_missing_attribute_message"
         ) as mock_object_missing_attribute_message,
     ):
-        instance = ModelsHaveContracts()
+        instance = ModelsHaveContracts(Namespace())
         mock_object_missing_attribute_message.return_value = Mock()
         result = instance.failure_message
         mock_object_missing_attribute_message.assert_called_with(

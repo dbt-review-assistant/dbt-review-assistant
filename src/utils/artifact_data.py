@@ -1,9 +1,10 @@
 """Utilities for fetching dbt artifact data."""
 
 import json
+import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any, Collection, Generator
 
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_object.macro import Macro
@@ -67,16 +68,21 @@ class Manifest:
     """Represents the data in the dbt manifest.json file."""
 
     def __init__(
-        self, manifest_dir: Path, filter_conditions: "ManifestFilterConditions"
+        self,
+        manifest_dir: Path,
+        filter_conditions: "ManifestFilterConditions",
+        filepaths: Collection[Path] | None = None,
     ):
         """Initialise the instance.
 
         Args:
             manifest_dir: directory where the manifest.json file is located.
             filter_conditions: A ManifestFilterConditions object to filter nodes by.
+            filepaths: Collection of Path objects representing the files to include.
         """
         self.data = get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)
         self.filter_conditions = filter_conditions
+        self.filepaths = set(filepaths) if filepaths else None
 
     @property
     def nodes(self) -> dict[str, dict[str, Any]]:
@@ -110,7 +116,12 @@ class Manifest:
             ManifestModel object for each model present in the manifest,
             after filtering.
         """
-        return (model for model in self.models.values() if model.is_in_scope)
+        for model in self.models.values():
+            if model.is_in_scope and (
+                not self.filepaths
+                or model.is_included_by_original_or_patch_path(self.filepaths)
+            ):
+                yield model
 
     def get_model(self, model_id: str) -> ManifestModel | None:
         """Get a model from the manifest by looking up by unique ID.
@@ -236,7 +247,12 @@ class Manifest:
         Yields:
             ManifestSource objects, after filtering.
         """
-        return (source for source in self.sources.values() if source.is_in_scope)
+        for source in self.sources.values():
+            if source.is_in_scope and (
+                not self.filepaths
+                or source.is_included_by_original_or_patch_path(self.filepaths)
+            ):
+                yield source
 
     @property
     def macros(self) -> dict[str, Macro]:
@@ -257,7 +273,12 @@ class Manifest:
         Yields:
             Macro instances, after filtering.
         """
-        return (macro for macro in self.macros.values() if macro.is_in_scope)
+        for macro in self.macros.values():
+            if macro.is_in_scope and (
+                not self.filepaths
+                or macro.is_included_by_original_or_patch_path(self.filepaths)
+            ):
+                yield macro
 
     @property
     def unit_tests(self) -> dict[str, UnitTest]:

@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -53,7 +54,6 @@ def test_model_names_match_pattern_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelNamesMatchPattern, "__call__"),
         patch.object(
             ModelNamesMatchPattern, "manifest", new_callable=PropertyMock
@@ -66,7 +66,7 @@ def test_model_names_match_pattern_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelNamesMatchPattern()
+        instance = ModelNamesMatchPattern(Namespace())
         instance.args.name_must_match_pattern = pattern
         instance.perform_check()
         assert instance.check_name == "model-names-match-pattern"
@@ -88,13 +88,12 @@ def test_model_names_match_pattern_perform_checks(
 def test_model_names_match_pattern_failure_message():
     with (
         patch.object(ModelNamesMatchPattern, "failures"),
-        patch.object(ModelNamesMatchPattern, "parse_args"),
         patch.object(ModelNamesMatchPattern, "__call__"),
         patch(
             "checks.model_checks.model_names_must_match_pattern.object_name_does_not_match_pattern"
         ) as mock_object_name_does_not_match_pattern,
     ):
-        instance = ModelNamesMatchPattern()
+        instance = ModelNamesMatchPattern(Namespace())
         pattern = "test_pattern"
         instance.args.name_must_match_pattern = pattern
         mock_object_name_does_not_match_pattern.return_value = Mock()

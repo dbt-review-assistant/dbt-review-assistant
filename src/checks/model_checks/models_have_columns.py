@@ -1,28 +1,29 @@
-"""Check if model names match a regex pattern."""
+"""CHeck if models have columns listed in the manifest."""
 
 from utils.check_abc import ManifestCheck
-from utils.check_failure_messages import object_name_does_not_match_pattern
+from utils.check_failure_messages import object_missing_attribute_message
 
 
-class ModelNamesMatchPattern(ManifestCheck):
-    """Check if model names match a regex pattern.
+class ModelsHaveColumns(ManifestCheck):
+    """CHeck if model has columns listed the manifest.
 
     Attributes:
         check_name: name of the check
         additional_arguments: arguments required in addition to the global arguments
     """
 
-    check_name: str = "model-names-match-pattern"
+    check_name: str = "models-have-columns"
     additional_arguments = [
         "include_materializations",
         "include_tags",
         "include_packages",
         "include_node_paths",
+        "include_name_patterns",
         "exclude_materializations",
         "exclude_tags",
         "exclude_packages",
         "exclude_node_paths",
-        "name_must_match_pattern",
+        "exclude_name_patterns",
     ]
 
     def perform_check(self) -> None:
@@ -30,14 +31,14 @@ class ModelNamesMatchPattern(ManifestCheck):
         self.failures = {
             model.unique_id
             for model in self.manifest.in_scope_models
-            if not model.name_matches_regex(self.args.name_must_match_pattern)
+            if not model.columns
         }
 
     @property
     def failure_message(self) -> str:
         """Compile a failure log message."""
-        return object_name_does_not_match_pattern(
-            objects=self.failures,
+        return object_missing_attribute_message(
+            missing_attributes=self.failures,
             object_type="model",
-            name_must_match_pattern=self.args.name_must_match_pattern,
+            attribute_type="column",
         )

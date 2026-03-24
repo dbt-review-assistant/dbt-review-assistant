@@ -1,4 +1,6 @@
 import sys
+from argparse import Namespace
+from pathlib import Path
 from typing import Collection
 from unittest.mock import Mock, patch
 
@@ -251,11 +253,10 @@ def test_models_have_data_tests_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveDataTests, "__call__"),
         patch("utils.artifact_data.get_json_artifact_data", return_value=manifest_data),
     ):
-        instance = ModelsHaveDataTests()
+        instance = ModelsHaveDataTests(Namespace(manifest_dir=Path(".")))
         instance.args.must_have_all_data_tests_from = must_have_all_data_tests_from
         instance.args.must_have_any_data_test_from = must_have_any_data_test_from
         instance.perform_check()
@@ -280,13 +281,16 @@ def test_models_have_data_tests_perform_checks(
 def test_models_have_data_tests_failure_message():
     with (
         patch.object(ModelsHaveDataTests, "failures"),
-        patch.object(ModelsHaveDataTests, "parse_args"),
         patch.object(ModelsHaveDataTests, "__call__"),
         patch(
             "checks.model_checks.models_have_data_tests.object_missing_values_from_set_message"
         ) as mock_object_missing_values_from_set_message,
     ):
-        instance = ModelsHaveDataTests()
+        namespace = Namespace(
+            must_have_all_data_tests_from=Mock(),
+            must_have_any_data_test_from=Mock(),
+        )
+        instance = ModelsHaveDataTests(namespace)
         instance.args.data_tests = Mock()
         mock_object_missing_values_from_set_message.return_value = Mock()
         result = instance.failure_message
@@ -294,7 +298,7 @@ def test_models_have_data_tests_failure_message():
             objects=instance.failures,
             object_type="model",
             attribute_type="data test",
-            must_have_all_from=instance.args.must_have_all_data_tests_from,
-            must_have_any_from=instance.args.must_have_any_data_test_from,
+            must_have_all_from=namespace.must_have_all_data_tests_from,
+            must_have_any_from=namespace.must_have_any_data_test_from,
         )
         assert result is mock_object_missing_values_from_set_message.return_value

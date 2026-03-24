@@ -213,7 +213,10 @@ class ConcreteHasPatchPathNode(HasPatchPathMixin, ManifestObject):
     argnames=["data", "expected_return"],
     argvalues=[
         (
-            {"patch_path": "path/to/model.sql"},
+            {
+                "package_name": "test_package",
+                "patch_path": "test_package://path/to/model.sql",
+            },
             Path("path/to/model.sql"),
         ),
         (
@@ -221,7 +224,7 @@ class ConcreteHasPatchPathNode(HasPatchPathMixin, ManifestObject):
             None,
         ),
         (
-            {"patch_path": None},
+            {"package_name": "test_package", "patch_path": None},
             None,
         ),
     ],

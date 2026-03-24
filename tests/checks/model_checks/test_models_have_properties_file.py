@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -18,16 +19,29 @@ from utils.manifest_object.node.model.model import ManifestModel
     argvalues=[
         (
             [
-                {"unique_id": "test_model", "patch_path": "path/to/properties.yml"},
-                {"unique_id": "another_model", "patch_path": "path/to/properties.yml"},
+                {
+                    "unique_id": "test_model",
+                    "patch_path": "test_project://path/to/properties.yml",
+                    "package_name": "test_project",
+                },
+                {
+                    "unique_id": "another_model",
+                    "patch_path": "test_project://path/to/properties.yml",
+                    "package_name": "test_project",
+                },
             ],
             set(),
         ),
         (
             [
-                {"unique_id": "test_model", "patch_path": "path/to/properties.yml"},
+                {
+                    "unique_id": "test_model",
+                    "patch_path": "test_project://path/to/properties.yml",
+                    "package_name": "test_project",
+                },
                 {
                     "unique_id": "another_model",
+                    "package_name": "test_project",
                 },
             ],
             {"another_model"},
@@ -40,7 +54,6 @@ def test_models_have_properties_file_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHavePropertiesFile, "__call__"),
         patch.object(
             ModelsHavePropertiesFile, "manifest", new_callable=PropertyMock
@@ -53,7 +66,7 @@ def test_models_have_properties_file_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelsHavePropertiesFile()
+        instance = ModelsHavePropertiesFile(Namespace())
         instance.perform_check()
         assert instance.check_name == "models-have-properties-file"
         assert instance.additional_arguments == [
@@ -75,13 +88,12 @@ def test_models_have_properties_file_perform_checks(
 def test_models_have_properties_file_failure_message():
     with (
         patch.object(ModelsHavePropertiesFile, "failures"),
-        patch.object(ModelsHavePropertiesFile, "parse_args"),
         patch.object(ModelsHavePropertiesFile, "__call__"),
         patch(
             "checks.model_checks.models_have_properties_file.object_missing_attribute_message"
         ) as mock_object_missing_attribute_message,
     ):
-        instance = ModelsHavePropertiesFile()
+        instance = ModelsHavePropertiesFile(Namespace())
         mock_object_missing_attribute_message.return_value = Mock()
         result = instance.failure_message
         mock_object_missing_attribute_message.assert_called_with(

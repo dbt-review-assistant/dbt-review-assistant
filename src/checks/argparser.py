@@ -1,16 +1,93 @@
-"""Argument parsing utilities."""
+"""Argument parser utilities."""
 
 import argparse
-import sys
-from dataclasses import dataclass, field
+from argparse import Namespace
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Sequence, Type
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Type
+
+if TYPE_CHECKING:
+    from utils.check_abc import Check
 
 
-class RequiredArgumentMissing(Exception):
-    """Exception raised when a required argument is missing."""
+def parse_cli_entrypoint_args(
+    argv: list[str], allowed_checks: Iterable[Type["Check"]]
+) -> Namespace:
+    """Parse CLI arguments for the entrypoint script.
 
-    pass
+    Returns:
+        Namespace of parsed CLI arguments
+    """
+    main_parser = argparse.ArgumentParser(
+        prog="dbt-review-assistant",
+        description="Please choose a check to run, or input 'all-checks' to run every check specified in the config file.",
+    )
+    subparsers = main_parser.add_subparsers()
+    all_checks_parser = subparsers.add_parser(
+        "all-checks",
+        help="Run all checks",
+        prog="all-checks",
+    )
+    all_checks_parser.set_defaults(check_id="all-checks")
+    for check in allowed_checks:
+        check_parser = subparsers.add_parser(
+            check.check_name,
+        )
+        check_parser.set_defaults(check_id=check.check_name)
+        for argument in UNIVERSAL_ARGUMENTS:
+            check_parser.add_argument(
+                argument.cli_name,
+                type=argument.type,
+                help=argument.help,
+                nargs=argument.nargs,
+                required=argument.required,
+                default=argument.default,
+            )
+        for argument in ADDITIONAL_ARGUMENTS:
+            if argument.name in check.additional_arguments:
+                check_parser.add_argument(
+                    argument.cli_name,
+                    type=argument.type,
+                    help=argument.help,
+                    nargs=argument.nargs,
+                    required=argument.required,
+                    default=argument.default,
+                )
+        check_parser.add_argument(
+            "-c",
+            "--config-dir",
+            dest="config_dir",
+            help="Path to the directory where the config file is located.",
+            type=Path,
+        )
+        check_parser.add_argument(
+            "--files",
+            "-f",
+            nargs="*",
+            help="filepaths passed to the check.",
+            type=Path,
+        )
+    all_checks_parser.add_argument(
+        "-c",
+        "--config-dir",
+        dest="config_dir",
+        help="Path to the directory where the config file is located.",
+        type=Path,
+    )
+    all_checks_parser.add_argument(
+        dest="files",
+        nargs="*",
+        help="filepaths passed to the check.",
+        type=Path,
+    )
+    args = main_parser.parse_args(argv)
+    if not getattr(args, "project_dir", None):
+        args.project_dir = Path.cwd()
+    if not getattr(args, "manifest_dir", None):
+        args.manifest_dir = args.project_dir / "target"
+    if not getattr(args, "catalog_dir", None):
+        args.catalog_dir = args.manifest_dir
+    return args
 
 
 @dataclass
@@ -39,12 +116,30 @@ class CliArgument:
         return f"--{self.name.replace('_', '-')}"
 
 
+def get_absolute_path(raw_path: str) -> Path:
+    """Convert a raw path to an absolute path.
+
+    Relative paths are appended to the current working directory
+
+    Args:
+        raw_path: an unconverted path. Can be either relative or absolute.
+
+    Returns:
+        an absolute path.
+    """
+    path = Path(raw_path)
+    if path.is_absolute():
+        return path
+    return (Path.cwd() / path).resolve()
+
+
 UNIVERSAL_ARGUMENTS: tuple[CliArgument, ...] = (
     CliArgument(
         name="project_dir",
         help="Path to the dbt project directory where the dbt_project.yml file is located."
         "Defaults to the current directory.",
-        type=Path,
+        type=get_absolute_path,
+        default=Path.cwd().resolve(),
     ),
     CliArgument(
         name="manifest_dir",
@@ -199,56 +294,3 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
 )
-ARGUMENTS_DICT = {arg.name: arg for arg in UNIVERSAL_ARGUMENTS + ADDITIONAL_ARGUMENTS}
-
-
-@dataclass
-class CheckArgParser:
-    """Argument parser for checks.
-
-    Attributes:
-        program_name: Name of the check
-        additional_arguments: Additional arguments,
-            on top of the standard global arguments
-        parser: an argparse.ArgumentParser instance
-    """
-
-    program_name: str
-    additional_arguments: Sequence[str] = field(default_factory=list)
-    parser: argparse.ArgumentParser = field(init=False)
-
-    def __post_init__(self) -> None:
-        """Post initialization."""
-        self.parser = argparse.ArgumentParser(prog=self.program_name)
-        self.add_arguments()
-
-    def add_arguments(self) -> None:
-        """Add arguments to the parser."""
-        arguments = list(UNIVERSAL_ARGUMENTS) + [
-            ARGUMENTS_DICT[additional_argument]
-            for additional_argument in self.additional_arguments
-        ]
-        for argument in arguments:
-            self.parser.add_argument(
-                argument.cli_name,
-                type=argument.type,
-                help=argument.help,
-                nargs=argument.nargs,
-                required=argument.required,
-                default=argument.default,
-            )
-
-    def parse_args(self) -> argparse.Namespace:
-        """Parse CLI arguments.
-
-        Returns:
-            an argparse.Namespace instance
-        """
-        args = self.parser.parse_args(sys.argv[1:])
-        if not getattr(args, "project_dir"):
-            args.project_dir = Path.cwd()
-        if not getattr(args, "manifest_dir"):
-            args.manifest_dir = args.project_dir / "target"
-        if not getattr(args, "catalog_dir"):
-            args.catalog_dir = args.manifest_dir
-        return args

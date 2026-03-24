@@ -6,7 +6,6 @@ from argparse import Namespace
 from typing import Collection
 
 from utils.artifact_data import Catalog, Manifest
-from utils.check_arg_parser import CheckArgParser
 from utils.console_formatting import (
     ConsoleEmphasis,
     check_status_header,
@@ -22,29 +21,13 @@ class Check(ABC):
         args: check arguments
     """
 
-    def __init__(self) -> None:
+    check_name: str
+    additional_arguments: list[str]
+
+    def __init__(self, args: Namespace) -> None:
         """Initialise and call the instance."""
-        self.args: Namespace = self.parse_args()
+        self.args: Namespace = args
         self()
-
-    def parse_args(self) -> Namespace:
-        """Parse command line arguments."""
-        return CheckArgParser(
-            program_name=self.check_name,
-            additional_arguments=self.additional_arguments,
-        ).parse_args()
-
-    @property
-    @abstractmethod
-    def check_name(self) -> str:
-        """Name of the check."""
-        ...
-
-    @property
-    @abstractmethod
-    def additional_arguments(self) -> list[str]:
-        """Arguments required in addition to the global arguments."""
-        ...
 
     @property
     def filter_conditions(self) -> ManifestFilterConditions:
@@ -99,13 +82,12 @@ class Check(ABC):
         )
         self.perform_check()
         if self.has_failures:
-            raise SystemExit(
+            logging.error(
                 f"{check_status_header(f'{self.check_name}: FAIL', False)}\n\n{self.failure_message}\n\n{80 * '_'}\n"
             )
         logging.info(
             f"{check_status_header(f'{self.check_name}: PASS', True)}\n\n{80 * '_'}\n"
         )
-        raise SystemExit(0)
 
     @property
     def manifest(self) -> Manifest:
@@ -113,6 +95,7 @@ class Check(ABC):
         return Manifest(
             manifest_dir=self.args.manifest_dir,
             filter_conditions=self.filter_conditions,
+            filepaths=getattr(self.args, "files", None),
         )
 
 

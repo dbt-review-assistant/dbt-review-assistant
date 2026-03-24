@@ -1,81 +1,39 @@
 """Entrypoint for the CLI."""
 
-import argparse
 import logging
 import sys
 from argparse import Namespace
 from pathlib import Path
+from typing import Generator, Iterable
 
-from checks import ALL_CHECKS_MAP
+from checks import ALL_CHECKS, ALL_CHECKS_MAP
+from checks.argparser import parse_cli_entrypoint_args
 from utils.config import configure_checks, load_config
 from utils.console_formatting import (
     check_status_header,
 )
 
 
-class UnknownCheck(Exception):
-    """Exception raised when an unknown check is found."""
+def convert_to_paths_relative_to_project_dir(
+    raw_paths: Iterable[Path], project_dir: Path
+) -> Generator[Path, None, None]:
+    """Convert a raw path to a path relative to the project directory.
 
-    pass
-
-
-def run_check(arguments: list[str]) -> bool:
-    """Run a check script.
+    Paths not in the sub-path of the project directory will not be yielded.
 
     Args:
-        arguments: list script arguments
+        raw_paths: The raw paths to convert.
+        project_dir: The project directory absolute path.
 
-    Returns:
-        check result as a boolean
-
-    Raises:
-        UnknownCheck: if check_id is not recognised
-        SystemExit: with the result of the check
+    Yields:
+        Paths relative to the project directory.
     """
-    check_id = arguments[0]
-    sys.argv = arguments
-    try:
-        check = ALL_CHECKS_MAP[check_id]
-    except KeyError:
-        raise UnknownCheck(f"Unknown check {check_id}")
-    try:
-        check()
-    except SystemExit as e:
-        if e.code == 0:
-            return True
-        logging.error(e.code)
-        return False
-    return True
-
-
-def parse_cli_entrypoint_args() -> tuple[Namespace, list[str]]:
-    """Parse CLI arguments for the entrypoint script.
-
-    This argument parser only accepts 'check_id' and 'config_dir'.
-    Additional arguments are returned as a list for individual hooks
-    to use, unless check_id=='all', in which case they are ignored.
-
-    Returns:
-        Namespace of parsed CLI arguments and list of additional arguments
-    """
-    valid_check_ids = list(ALL_CHECKS_MAP.keys())
-    parser = argparse.ArgumentParser(
-        prog="dbt-review-assistant",
-        description="Please choose a check to run, or input 'all-checks' to run every check specified in the config file.",
-    )
-    parser.add_argument(
-        dest="check_id",
-        help="name of the check to execute",
-        choices=valid_check_ids + ["all-checks"],
-    )
-    parser.add_argument(
-        "-c",
-        "--config-dir",
-        dest="config_dir",
-        help="Path to the directory where the config file is located.",
-        type=Path,
-    )
-    return parser.parse_known_args(sys.argv[1:])
+    for raw_path in raw_paths:
+        abs_path = raw_path if raw_path.is_absolute() else Path.cwd() / raw_path
+        try:
+            yield abs_path.relative_to(project_dir)
+        except ValueError:
+            pass
 
 
 def entrypoint() -> None:
@@ -86,16 +44,22 @@ def entrypoint() -> None:
     Raises:
         SystemExit: with the overall status of all checks
     """
-    known_args, extra_args = parse_cli_entrypoint_args()
     logging.basicConfig(format="%(message)s", level=logging.INFO)
-    config_data = load_config(known_args.config_dir) if known_args.config_dir else None
+    cli_args = parse_cli_entrypoint_args(sys.argv[1:], ALL_CHECKS)
+    config_data = load_config(cli_args.config_dir) if cli_args.config_dir else None
     all_check_arguments = configure_checks(
-        config_data=config_data, known_args=known_args, extra_args=extra_args
+        config_data=config_data,
+        cli_args=cli_args,
+        allowed_checks=ALL_CHECKS,
     )
-    failed_hooks = sum(
-        0 if run_check(check_arguments) else 1
-        for check_arguments in all_check_arguments
-    )
+    for check_args in all_check_arguments:
+        if check_args.files:
+            check_args.files = list(
+                convert_to_paths_relative_to_project_dir(
+                    check_args.files, check_args.project_dir
+                )
+            )
+    failed_hooks = count_failures(all_check_arguments)
     if failed_hooks:
         raise SystemExit(
             check_status_header(
@@ -109,3 +73,19 @@ def entrypoint() -> None:
         )
     )
     raise SystemExit(0)
+
+
+def count_failures(all_check_arguments: Iterable[Namespace]) -> int:
+    """Run each check and compute the sum of check failures.
+
+    Args:
+        all_check_arguments: The arguments passed to the checks.
+
+    Returns:
+        total number of failed checks.
+    """
+    failures = 0
+    for check_arguments in all_check_arguments:
+        result = ALL_CHECKS_MAP[check_arguments.check_id](check_arguments).has_failures
+        failures += 0 if result else 1
+    return failures

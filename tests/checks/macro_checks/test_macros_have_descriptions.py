@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -50,7 +51,6 @@ def test_macros_have_descriptions_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(MacrosHaveDescriptions, "__call__"),
         patch.object(
             MacrosHaveDescriptions, "manifest", new_callable=PropertyMock
@@ -62,7 +62,7 @@ def test_macros_have_descriptions_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
-        instance = MacrosHaveDescriptions()
+        instance = MacrosHaveDescriptions(Namespace())
         instance.perform_check()
         assert instance.check_name == "macros-have-descriptions"
         assert instance.additional_arguments == [
@@ -80,13 +80,12 @@ def test_macros_have_descriptions_perform_checks(
 def test_macros_have_descriptions_failure_message():
     with (
         patch.object(MacrosHaveDescriptions, "failures"),
-        patch.object(MacrosHaveDescriptions, "parse_args"),
         patch.object(MacrosHaveDescriptions, "__call__"),
         patch(
             "checks.macro_checks.macros_have_descriptions.object_missing_attribute_message"
         ) as mock_object_missing_attribute_message,
     ):
-        instance = MacrosHaveDescriptions()
+        instance = MacrosHaveDescriptions(Namespace())
         mock_object_missing_attribute_message.return_value = Mock()
         result = instance.failure_message
         mock_object_missing_attribute_message.assert_called_with(

@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -53,7 +54,6 @@ def test_macro_names_match_pattern_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(MacroNamesMatchPattern, "__call__"),
         patch.object(
             MacroNamesMatchPattern, "manifest", new_callable=PropertyMock
@@ -65,7 +65,7 @@ def test_macro_names_match_pattern_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
-        instance = MacroNamesMatchPattern()
+        instance = MacroNamesMatchPattern(Namespace())
         instance.args.name_must_match_pattern = pattern
         instance.perform_check()
         assert instance.check_name == "macro-names-match-pattern"
@@ -83,13 +83,12 @@ def test_macro_names_match_pattern_perform_checks(
 def test_macro_names_match_pattern_failure_message():
     with (
         patch.object(MacroNamesMatchPattern, "failures"),
-        patch.object(MacroNamesMatchPattern, "parse_args"),
         patch.object(MacroNamesMatchPattern, "__call__"),
         patch(
             "checks.macro_checks.macro_names_must_match_pattern.object_name_does_not_match_pattern"
         ) as mock_object_name_does_not_match_pattern,
     ):
-        instance = MacroNamesMatchPattern()
+        instance = MacroNamesMatchPattern(Namespace())
         pattern = "test_pattern"
         instance.args.name_must_match_pattern = pattern
         mock_object_name_does_not_match_pattern.return_value = Mock()
