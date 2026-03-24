@@ -5,7 +5,7 @@ from utils.check_failure_messages import object_missing_attribute_message
 
 
 class ModelsHaveColumns(ManifestCheck):
-    """CHeck if model has columns listed the manifest.
+    """CHeck if models have columns listed the manifest.
 
     Attributes:
         check_name: name of the check
