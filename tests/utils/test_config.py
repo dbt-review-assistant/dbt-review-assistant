@@ -298,7 +298,7 @@ def test_load_config(
                 )
             ],
             does_not_raise(),
-            f"Check 'models-have-data-tests' not found in {(Path.cwd() / Path(f'path/to/project/.{PROJECT_NAME}.yaml')).as_posix()}.\nRunning without arguments...",
+            f"Check 'models-have-data-tests' not found in {(Path.cwd() / Path(f'path/to/project/.{PROJECT_NAME}.yaml')).resolve()}.\nRunning without arguments...",
         ),
         (
             None,
