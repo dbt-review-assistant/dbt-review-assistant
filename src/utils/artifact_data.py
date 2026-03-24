@@ -1,9 +1,9 @@
 """Utilities for fetching dbt artifact data."""
 
 import json
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any, Collection, Generator
 
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_object.macro import Macro
@@ -38,7 +38,7 @@ class Catalog:
         """
         self.data = get_json_artifact_data(catalog_dir / CATALOG_FILE_NAME)
 
-    @property
+    @cached_property
     def nodes(self) -> dict[str, CatalogTable]:
         """All nodes present in the catalog.
 
@@ -50,7 +50,7 @@ class Catalog:
             for node_id, node_data in self.data.get("nodes", {}).items()
         }
 
-    @property
+    @cached_property
     def sources(self) -> dict[str, CatalogTable]:
         """All sources present in the catalog.
 
@@ -67,18 +67,23 @@ class Manifest:
     """Represents the data in the dbt manifest.json file."""
 
     def __init__(
-        self, manifest_dir: Path, filter_conditions: "ManifestFilterConditions"
+        self,
+        manifest_dir: Path,
+        filter_conditions: "ManifestFilterConditions",
+        filepaths: Collection[Path] | None = None,
     ):
         """Initialise the instance.
 
         Args:
             manifest_dir: directory where the manifest.json file is located.
             filter_conditions: A ManifestFilterConditions object to filter nodes by.
+            filepaths: Collection of Path objects representing the files to include.
         """
         self.data = get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)
         self.filter_conditions = filter_conditions
+        self.filepaths = set(filepaths) if filepaths else None
 
-    @property
+    @cached_property
     def nodes(self) -> dict[str, dict[str, Any]]:
         """All nodes present in the manifest.
 
@@ -87,7 +92,7 @@ class Manifest:
         """
         return self.data.get("nodes", {})
 
-    @property
+    @cached_property
     def models(self) -> dict[str, ManifestModel]:
         """All models present in the manifest.
 
@@ -102,7 +107,7 @@ class Manifest:
             if node_data.get("resource_type") == "model"
         }
 
-    @property
+    @cached_property
     def in_scope_models(self) -> Generator[ManifestModel, None, None]:
         """All models present in the manifest, after filtering.
 
@@ -110,7 +115,12 @@ class Manifest:
             ManifestModel object for each model present in the manifest,
             after filtering.
         """
-        return (model for model in self.models.values() if model.is_in_scope)
+        for model in self.models.values():
+            if model.is_in_scope and (
+                not self.filepaths
+                or model.is_included_by_original_or_patch_path(self.filepaths)
+            ):
+                yield model
 
     def get_model(self, model_id: str) -> ManifestModel | None:
         """Get a model from the manifest by looking up by unique ID.
@@ -123,7 +133,7 @@ class Manifest:
         """
         return self.models.get(model_id)
 
-    @property
+    @cached_property
     def generic_tests(self) -> dict[str, GenericTest]:
         """All generic tests present in the manifest.
 
@@ -139,7 +149,7 @@ class Manifest:
             and node_data.get("test_metadata")
         }
 
-    @property
+    @cached_property
     def snapshots(self) -> dict[str, ManifestSnapshot]:
         """All snapshots present in the manifest.
 
@@ -154,7 +164,7 @@ class Manifest:
             if node_data.get("resource_type") == "snapshot"
         }
 
-    @property
+    @cached_property
     def seeds(self) -> dict[str, ManifestSeed]:
         """All seeds present in the manifest.
 
@@ -169,7 +179,7 @@ class Manifest:
             if node_data.get("resource_type") == "seed"
         }
 
-    @property
+    @cached_property
     def analyses(self) -> dict[str, ManifestAnalysis]:
         """All analyses present in the manifest.
 
@@ -184,7 +194,7 @@ class Manifest:
             if node_data.get("resource_type") == "analysis"
         }
 
-    @property
+    @cached_property
     def singular_tests(self) -> dict[str, SingularTest]:
         """All singular tests present in the manifest.
 
@@ -200,7 +210,7 @@ class Manifest:
             and not node_data.get("test_metadata")
         }
 
-    @property
+    @cached_property
     def functions(self) -> dict[str, ManifestFunction]:
         """All functions present in the manifest.
 
@@ -215,7 +225,7 @@ class Manifest:
             if node_data.get("resource_type") == "function"
         }
 
-    @property
+    @cached_property
     def sources(self) -> dict[str, ManifestSource]:
         """All sources present in the manifest.
 
@@ -229,16 +239,21 @@ class Manifest:
             for source_id, source_data in self.data.get("sources", {}).items()
         }
 
-    @property
+    @cached_property
     def in_scope_sources(self) -> Generator[ManifestSource, None, None]:
         """All sources present in the manifest, after filtering.
 
         Yields:
             ManifestSource objects, after filtering.
         """
-        return (source for source in self.sources.values() if source.is_in_scope)
+        for source in self.sources.values():
+            if source.is_in_scope and (
+                not self.filepaths
+                or source.is_included_by_original_or_patch_path(self.filepaths)
+            ):
+                yield source
 
-    @property
+    @cached_property
     def macros(self) -> dict[str, Macro]:
         """All macros present in the manifest.
 
@@ -250,16 +265,21 @@ class Manifest:
             for macro_id, macro_data in self.data.get("macros", {}).items()
         }
 
-    @property
+    @cached_property
     def in_scope_macros(self) -> Generator[Macro, None, None]:
         """All macros present in the manifest, after filtering.
 
         Yields:
             Macro instances, after filtering.
         """
-        return (macro for macro in self.macros.values() if macro.is_in_scope)
+        for macro in self.macros.values():
+            if macro.is_in_scope and (
+                not self.filepaths
+                or macro.is_included_by_original_or_patch_path(self.filepaths)
+            ):
+                yield macro
 
-    @property
+    @cached_property
     def unit_tests(self) -> dict[str, UnitTest]:
         """All unit tests present in the manifest.
 
@@ -273,7 +293,7 @@ class Manifest:
             for unit_test_id, unit_test_data in self.data.get("unit_tests", {}).items()
         }
 
-    @property
+    @cached_property
     def child_map(self) -> dict[str, list[str]]:
         """Child map data from the manifest.
 

@@ -1,4 +1,6 @@
 import sys
+from argparse import Namespace
+from pathlib import Path
 from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
@@ -68,11 +70,10 @@ def test_models_have_unit_tests_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelsHaveUnitTests, "__call__"),
         patch("utils.artifact_data.get_json_artifact_data", return_value=manifest_data),
     ):
-        instance = ModelsHaveUnitTests()
+        instance = ModelsHaveUnitTests(Namespace(manifest_dir=Path(".")))
         instance.perform_check()
         assert instance.check_name == "models-have-unit-tests"
         assert instance.additional_arguments == [
@@ -93,13 +94,12 @@ def test_models_have_unit_tests_perform_checks(
 def test_models_have_unit_tests_failure_message():
     with (
         patch.object(ModelsHaveUnitTests, "failures"),
-        patch.object(ModelsHaveUnitTests, "parse_args"),
         patch.object(ModelsHaveUnitTests, "__call__"),
         patch(
             "checks.model_checks.models_have_unit_tests.object_missing_attribute_message"
         ) as mock_object_missing_attribute_message,
     ):
-        instance = ModelsHaveUnitTests()
+        instance = ModelsHaveUnitTests(Namespace())
         mock_object_missing_attribute_message.return_value = Mock()
         result = instance.failure_message
         mock_object_missing_attribute_message.assert_called_with(

@@ -36,6 +36,9 @@ from checks.model_checks.model_columns_have_types import (
 from checks.model_checks.model_names_must_match_pattern import (
     ModelNamesMatchPattern as ModelNamesMatchPattern,
 )
+from checks.model_checks.models_have_columns import (
+    ModelsHaveColumns as ModelsHaveColumns,
+)
 from checks.model_checks.models_have_constraints import (
     ModelsHaveConstraints as ModelsHaveConstraints,
 )
@@ -69,6 +72,9 @@ from checks.source_checks.source_columns_have_descriptions import (
 from checks.source_checks.source_columns_have_types import (
     SourceColumnsHaveTypes as SourceColumnsHaveTypes,
 )
+from checks.source_checks.sources_have_columns import (
+    SourcesHaveColumns as SourcesHaveColumns,
+)
 from checks.source_checks.sources_have_data_tests import (
     SourcesHaveDataTests as SourcesHaveDataTests,
 )
@@ -78,6 +84,7 @@ from checks.source_checks.sources_have_descriptions import (
 
 ALL_CHECKS = (
     ModelsHaveContracts,
+    ModelsHaveColumns,
     ModelsHaveDescriptions,
     ModelsHaveConstraints,
     MacrosHaveDescriptions,
@@ -98,6 +105,7 @@ ALL_CHECKS = (
     SourceColumnsHaveTypes,
     SourceColumnTypesMatchManifestVsCatalog,
     SourcesHaveDataTests,
+    SourcesHaveColumns,
     ModelColumnTypesMatchManifestVsCatalog,
     ModelColumnsHaveTypes,
     ModelColumnsDescriptionsAreConsistent,

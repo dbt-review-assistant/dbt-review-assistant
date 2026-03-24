@@ -3,10 +3,15 @@
 import logging
 from argparse import Namespace
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Collection, Iterable, Type
 
 import yaml
 from jsonschema import validate
+
+from checks.argparser import parse_cli_entrypoint_args
+
+if TYPE_CHECKING:
+    from utils.check_abc import Check
 
 CONFIG_YAML_SCHEMA = """
 type: object
@@ -61,47 +66,49 @@ def load_config(config_dir: Path) -> dict[str, Any]:
 
 
 def configure_checks(
-    config_data: dict | None, known_args: Namespace, extra_args: list[str]
-) -> list[list[str]]:
+    config_data: dict | None,
+    cli_args: Namespace,
+    allowed_checks: Iterable[Type["Check"]],
+) -> list[Namespace]:
     """Configure checks using CLI arguments or the config file data, if found.
 
     Args:
         config_data: Optional, configuration data from the config file.
             Defaults to None
-        known_args: CLI arguments from the main entrypoint command
-        extra_args: CLI arguments not parsed by the main entrypoint command
+        cli_args: CLI arguments from the main entrypoint command
+        allowed_checks: Collection of Check objects which can be selected from
 
     Returns:
         list of check arguments to be run
     """
     if config_data:
-        if extra_args:
-            logging.warning(
-                f"Check configuration will be read from"
-                f" {known_args.config_dir.absolute() / f'.{PROJECT_NAME}.yaml'},"
-                f" therefore the following extra CLI arguments will be ignored: {extra_args}"
-            )
         global_options = config_data.get("global_arguments", {}).get("arguments", [])
-        check_instances: list[list[str]] = [
-            # Allow per-check options to override the global options
-            [check_instance["check_id"]]
-            + global_options
-            + check_instance.get("arguments", [])
-            for check_instance in config_data.get("per_check_arguments", [])
-            if check_instance["check_id"] == known_args.check_id
-            or known_args.check_id == "all-checks"
-        ]
+        check_instances: list[Namespace] = []
+        for check_instance in config_data.get("per_check_arguments", []):
+            if (
+                check_instance["check_id"] == cli_args.check_id
+                or cli_args.check_id == "all-checks"
+            ):
+                argv = (
+                    [check_instance["check_id"]]
+                    + global_options
+                    + check_instance.get("arguments", [])
+                )
+                files = getattr(cli_args, "files")
+                if files:
+                    argv += ["--files"] + [file.as_posix() for file in files]
+                check_instances.append(parse_cli_entrypoint_args(argv, allowed_checks))
         # if check instance not found in config, run it without any arguments
         if not check_instances:
             logging.warning(
-                f"Check '{known_args.check_id}' not found in "
-                f"{known_args.config_dir.absolute() / f'.{PROJECT_NAME}.yaml'}.\n"
+                f"Check '{cli_args.check_id}' not found in "
+                f"{cli_args.config_dir.absolute() / f'.{PROJECT_NAME}.yaml'}.\n"
                 "Running without arguments..."
             )
-            check_instances = [[known_args.check_id]]
-    elif known_args.check_id == "all-checks" and not config_data:
+            check_instances = [cli_args]
+    elif cli_args.check_id == "all-checks" and not config_data:
         raise RuntimeError("Check id 'all-checks' requires a config file.")
     else:
         # Get the config from the CLI args if no config provided
-        check_instances = [[known_args.check_id] + extra_args]
+        check_instances = [cli_args]
     return check_instances

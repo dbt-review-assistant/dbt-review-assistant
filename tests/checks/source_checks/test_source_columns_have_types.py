@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -62,7 +63,6 @@ def test_source_columns_have_types_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(SourceColumnsHaveTypes, "__call__"),
         patch.object(
             SourceColumnsHaveTypes, "manifest", new_callable=PropertyMock
@@ -75,7 +75,7 @@ def test_source_columns_have_types_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
-        instance = SourceColumnsHaveTypes()
+        instance = SourceColumnsHaveTypes(Namespace())
         instance.perform_check()
         assert instance.check_name == "source-columns-have-types"
         assert instance.additional_arguments == [
@@ -95,13 +95,12 @@ def test_source_columns_have_types_perform_checks(
 def test_source_columns_have_descriptions_failure_message():
     with (
         patch.object(SourceColumnsHaveTypes, "failures"),
-        patch.object(SourceColumnsHaveTypes, "parse_args"),
         patch.object(SourceColumnsHaveTypes, "__call__"),
         patch(
             "checks.source_checks.source_columns_have_types.object_missing_attribute_message"
         ) as mock_object_missing_attribute_message,
     ):
-        instance = SourceColumnsHaveTypes()
+        instance = SourceColumnsHaveTypes(Namespace())
         mock_object_missing_attribute_message.return_value = Mock()
         result = instance.failure_message
         mock_object_missing_attribute_message.assert_called_with(

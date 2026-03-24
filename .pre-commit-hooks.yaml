@@ -4,8 +4,9 @@
     Run all checks
   entry: dbt-review-assistant all-checks
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: models-have-contracts
   name: models-have-contracts
@@ -13,8 +14,19 @@
     Check if models have contracts enabled
   entry: dbt-review-assistant models-have-contracts
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
+
+- id: models-have-columns
+  name: models-have-columns
+  description: >
+    Check if models have columns listed in a properties.yml file
+  entry: dbt-review-assistant models-have-columns
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
 
 - id: models-have-descriptions
   name: models-have-descriptions
@@ -22,8 +34,9 @@
     Check if models have descriptions
   entry: dbt-review-assistant models-have-descriptions
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: models-have-constraints
   name: models-have-constraints
@@ -31,8 +44,9 @@
     Check if models have constraints
   entry: dbt-review-assistant models-have-constraints
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-names-match-pattern
   name: model-names-match-pattern
@@ -40,8 +54,9 @@
     Check if model names match a regex pattern
   entry: dbt-review-assistant model-names-match-pattern
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-column-names-match-pattern
   name: model-column-names-match-pattern
@@ -49,8 +64,9 @@
     Check if model column names match a regex pattern
   entry: dbt-review-assistant model-column-names-match-pattern
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: macros-have-descriptions
   name: macros-have-descriptions
@@ -58,8 +74,9 @@
     Check if macros have descriptions
   entry: dbt-review-assistant macros-have-descriptions
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: macro-names-match-pattern
   name: macro-names-match-pattern
@@ -67,8 +84,9 @@
     Check if macro names match a regex pattern
   entry: dbt-review-assistant macro-names-match-pattern
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: models-have-properties-file
   name: models-have-properties-file
@@ -76,8 +94,9 @@
     Check if models have a properties YAML file
   entry: dbt-review-assistant models-have-properties-file
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: models-have-data-tests
   name: models-have-data-tests
@@ -85,8 +104,9 @@
     Check if models have data tests
   entry: dbt-review-assistant models-have-data-tests
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: models-have-unit-tests
   name: models-have-unit-tests
@@ -94,8 +114,9 @@
     Check if models have unit tests
   entry: dbt-review-assistant models-have-unit-tests
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: macro-arguments-have-descriptions
   name: macro-arguments-have-descriptions
@@ -103,8 +124,9 @@
     Check if macro arguments have descriptions
   entry: dbt-review-assistant macro-arguments-have-descriptions
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: macro-arguments-have-types
   name: macro-arguments-have-types
@@ -112,8 +134,9 @@
     Check if macro arguments have data types
   entry: dbt-review-assistant macro-arguments-have-types
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: macro-arguments-match-manifest-vs-sql
   name: macro-arguments-match-manifest-vs-sql
@@ -121,8 +144,9 @@
     Check if macro argument names match between the manifest and SQL code
   entry: dbt-review-assistant macro-arguments-match-manifest-vs-sql
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-columns-have-descriptions
   name: model-columns-have-descriptions
@@ -130,8 +154,9 @@
     Check if model columns have descriptions
   entry: dbt-review-assistant model-columns-have-descriptions
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-column-names-match-manifest-vs-catalog
   name: model-column-names-match-manifest-vs-catalog
@@ -139,8 +164,9 @@
     Check if model column names match between the manifest and the catalog
   entry: dbt-review-assistant model-column-names-match-manifest-vs-catalog
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: sources-have-descriptions
   name: sources-have-descriptions
@@ -148,8 +174,19 @@
     Check if sources have descriptions
   entry: dbt-review-assistant sources-have-descriptions
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
+
+- id: sources-have-columns
+  name: sources-have-columns
+  description: >
+    Check if sources have columns listed in a properties.yml file
+  entry: dbt-review-assistant sources-have-columns
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
 
 - id: source-columns-have-descriptions
   name: source-columns-have-descriptions
@@ -157,8 +194,9 @@
     Check if source columns have descriptions
   entry: dbt-review-assistant source-columns-have-descriptions
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: source-column-names-match-manifest-vs-catalog
   name: source-column-names-match-manifest-vs-catalog
@@ -166,8 +204,9 @@
     Check if source column names match between the manifest and the catalog
   entry: dbt-review-assistant source-column-names-match-manifest-vs-catalog
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: source-columns-have-types
   name: source-columns-have-types
@@ -175,8 +214,9 @@
     Check if source columns have types
   entry: dbt-review-assistant source-columns-have-types
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: source-column-types-match-manifest-vs-catalog
   name: source-column-types-match-manifest-vs-catalog
@@ -184,8 +224,9 @@
     Check if source column types match between the manifest and the catalog
   entry: dbt-review-assistant source-column-types-match-manifest-vs-catalog
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: sources-have-data-tests
   name: sources-have-data-tests
@@ -193,8 +234,9 @@
     Check if sources have data tests
   entry: dbt-review-assistant sources-have-data-tests
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-column-types-match-manifest-vs-catalog
   name: model-column-types-match-manifest-vs-catalog
@@ -202,8 +244,9 @@
     Check if model column types match between the manifest and the catalog
   entry: dbt-review-assistant model-column-types-match-manifest-vs-catalog
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-columns-have-types
   name: model-columns-have-types
@@ -211,8 +254,9 @@
     Check if model columns have types
   entry: dbt-review-assistant model-columns-have-types
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
 
 - id: model-column-descriptions-are-consistent
   name: model-column-descriptions-are-consistent
@@ -220,5 +264,6 @@
     Check if column descriptions are consistent across different models
   entry: dbt-review-assistant model-columns-have-types
   language: python
-  pass_filenames: false
+  pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true

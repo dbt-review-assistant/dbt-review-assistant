@@ -7,6 +7,7 @@ from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.manifest_object import (
     DataTestableMixin,
     HasColumnsMixin,
+    HasPatchPathMixin,
     ManifestColumn,
     ManifestObject,
 )
@@ -15,7 +16,7 @@ from utils.manifest_object.node.model.constraint import Constraint
 from utils.manifest_object.node.node import SingularTest
 
 
-class ConcreteManifestObject(ManifestObject):
+class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
     pass
 
 
@@ -76,6 +77,68 @@ def test_manifest_object_package_name(package_name, expected):
         filter_conditions=ManifestFilterConditions(),
     )
     assert instance.package_name == expected
+
+
+@pytest.mark.parametrize(
+    argnames=["original_file_path", "expected"],
+    ids=["has original_file_path", "None"],
+    argvalues=[
+        ("path/to/model.sql", Path("path/to/model.sql")),
+        (None, None),
+    ],
+)
+def test_manifest_object_original_file_path(original_file_path, expected):
+    instance = ConcreteManifestObject(
+        data={"original_file_path": original_file_path},
+        filter_conditions=ManifestFilterConditions(),
+    )
+    assert instance.original_file_path == expected
+
+
+@pytest.mark.parametrize(
+    argnames=[
+        "data",
+        "filepaths",
+        "expected",
+    ],
+    ids=[
+        "original_file_path one of included files",
+        "patch_path one of included files",
+        "Not included",
+    ],
+    argvalues=[
+        (
+            {"original_file_path": "path/to/model.sql"},
+            [Path("path/to/model.sql"), Path("path/to/model.yml")],
+            True,
+        ),
+        (
+            {
+                "patch_path": "test_package://path/to/model.yml",
+                "package_name": "test_package",
+            },
+            [Path("path/to/model.sql"), Path("path/to/model.yml")],
+            True,
+        ),
+        (
+            {
+                "original_file_path": "path/to/model.sql",
+                "patch_path": "test_package://path/to/model.yml",
+                "package_name": "test_package",
+            },
+            [Path("path/to/another_model.sql"), Path("path/to/another_model.yml")],
+            False,
+        ),
+    ],
+)
+def test_manifest_object_is_included_by_original_or_patch_path(
+    data: dict, filepaths: list[Path], expected: bool
+):
+    instance = ConcreteManifestObject(
+        data=data,
+        filter_conditions=ManifestFilterConditions(),
+    )
+    assert instance.is_included_by_original_or_patch_path(filepaths) == expected
 
 
 def test_manifest_object_name():
@@ -793,11 +856,11 @@ class ConcreteDataTestableNode(DataTestableMixin, ManifestObject):
             {},
             {
                 "singular_test": SingularTest(
-                    {"unique_id": "singular_test"},
+                    {"name": "singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
                 "another_singular_test": SingularTest(
-                    {"unique_id": "another_singular_test"},
+                    {"name": "another_singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
             },
@@ -812,11 +875,11 @@ class ConcreteDataTestableNode(DataTestableMixin, ManifestObject):
             {},
             {
                 "singular_test": SingularTest(
-                    {"unique_id": "singular_test"},
+                    {"name": "singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
                 "another_singular_test": SingularTest(
-                    {"unique_id": "another_singular_test"},
+                    {"name": "another_singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
             },
@@ -1056,7 +1119,7 @@ def test_data_testable_mixin_get_data_tests(
             {},
             {
                 "singular_test": SingularTest(
-                    {"unique_id": "singular_test"},
+                    {"name": "singular_test"},
                     filter_conditions=ManifestFilterConditions(),
                 ),
             },

@@ -1,4 +1,5 @@
 import sys
+from argparse import Namespace
 from typing import Iterable
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -127,7 +128,6 @@ def test_model_column_names_match_manifest_vs_catalog_perform_checks(
     tmpdir,
 ):
     with (
-        patch.object(sys, "argv", return_value=[]),
         patch.object(ModelColumnNamesMatchManifestVsCatalog, "__call__"),
         patch.object(
             ModelColumnNamesMatchManifestVsCatalog,
@@ -152,7 +152,7 @@ def test_model_column_names_match_manifest_vs_catalog_perform_checks(
             }
         )
         type(mock_catalog.return_value).nodes = mock_catalog_nodes
-        instance = ModelColumnNamesMatchManifestVsCatalog()
+        instance = ModelColumnNamesMatchManifestVsCatalog(Namespace())
         instance.perform_check()
         assert instance.check_name == "model-column-names-match-manifest-vs-catalog"
         assert instance.additional_arguments == [
@@ -177,13 +177,12 @@ def test_model_column_names_match_manifest_vs_catalog_failure_message():
     with (
         patch.object(ModelColumnNamesMatchManifestVsCatalog, "manifest_items"),
         patch.object(ModelColumnNamesMatchManifestVsCatalog, "catalog_items"),
-        patch.object(ModelColumnNamesMatchManifestVsCatalog, "parse_args"),
         patch.object(ModelColumnNamesMatchManifestVsCatalog, "__call__"),
         patch(
             "checks.model_checks.model_column_names_match_manifest_vs_catalog.manifest_vs_catalog_column_name_mismatch_message"
         ) as mock_manifest_vs_catalog_column_name_mismatch_message,
     ):
-        instance = ModelColumnNamesMatchManifestVsCatalog()
+        instance = ModelColumnNamesMatchManifestVsCatalog(Namespace())
         mock_manifest_vs_catalog_column_name_mismatch_message.return_value = Mock()
         result = instance.failure_message
         mock_manifest_vs_catalog_column_name_mismatch_message.assert_called_with(

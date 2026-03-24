@@ -2,167 +2,20 @@ import logging
 import re
 import sys
 from argparse import Namespace
-from contextlib import nullcontext as does_not_raise
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest import mock
+from unittest.mock import Mock, call, patch
 
 import pytest
 
+from checks import ALL_CHECKS_MAP, ModelsHaveColumns, ModelsHaveDescriptions
 from checks.entrypoint import (
-    UnknownCheck,
+    convert_to_paths_relative_to_project_dir,
+    count_failures,
     entrypoint,
-    parse_cli_entrypoint_args,
-    run_check,
 )
+from utils.check_abc import Check, ManifestCheck
 from utils.console_formatting import check_status_header
-
-
-@pytest.mark.parametrize(
-    ids=[
-        "unknown check",
-        "check passes",
-        "check fails",
-        "check does not raise anything",
-    ],
-    argnames=[
-        "arguments",
-        "side_effect",
-        "expected_raise",
-        "expected_result",
-        "should_log_error",
-    ],
-    argvalues=[
-        (
-            [
-                "not-a-real-check-id",
-                "--project-dir",
-                "path/to/project",
-            ],
-            None,
-            pytest.raises(UnknownCheck, match="Unknown check not-a-real-check-id"),
-            None,
-            True,
-        ),
-        (
-            [
-                "test-check",
-                "--project-dir",
-                "path/to/project",
-            ],
-            SystemExit(0),
-            does_not_raise(),
-            True,
-            False,
-        ),
-        (
-            [
-                "test-check",
-                "--project-dir",
-                "path/to/project",
-            ],
-            SystemExit("test error"),
-            does_not_raise(),
-            False,
-            True,
-        ),
-        (
-            [
-                "test-check",
-                "--project-dir",
-                "path/to/project",
-            ],
-            None,
-            does_not_raise(),
-            True,
-            False,
-        ),
-    ],
-)
-def test_run_check(
-    arguments: list[str],
-    side_effect: SystemExit | None,
-    expected_raise,
-    expected_result,
-    should_log_error,
-):
-    mock_check = Mock(side_effect=side_effect)
-    with (
-        expected_raise,
-        patch("checks.entrypoint.ALL_CHECKS_MAP", {"test-check": mock_check}),
-        patch.object(logging, "error") as mock_logging_error,
-    ):
-        result = run_check(arguments)
-        mock_check.assert_called()
-        if should_log_error and side_effect is not None:
-            mock_logging_error.assert_called_with(side_effect.code)
-        assert sys.argv == arguments
-    if expected_result:
-        assert expected_result == result
-
-
-@pytest.mark.parametrize(
-    ids=[
-        "check with config_dir",
-        "check without config_dir",
-        "check with extra args",
-    ],
-    argnames=["arguments", "expected_result"],
-    argvalues=[
-        (
-            [
-                "test",
-                "models-have-descriptions",
-                "--config-dir",
-                "path/to/project",
-            ],
-            (
-                Namespace(
-                    check_id="models-have-descriptions",
-                    config_dir=Path("path/to/project"),
-                ),
-                [],
-            ),
-        ),
-        (
-            [
-                "test",
-                "models-have-descriptions",
-            ],
-            (
-                Namespace(
-                    check_id="models-have-descriptions",
-                    config_dir=None,
-                ),
-                [],
-            ),
-        ),
-        (
-            [
-                "test",
-                "models-have-constraints",
-                "--config-dir",
-                "path/to/project",
-                "--constraints",
-                "primary_key",
-            ],
-            (
-                Namespace(
-                    check_id="models-have-constraints",
-                    config_dir=Path("path/to/project"),
-                ),
-                [
-                    "--constraints",
-                    "primary_key",
-                ],
-            ),
-        ),
-    ],
-)
-def test_parse_cli_entrypoint_args(
-    arguments: list[str], expected_result: tuple[Namespace, list[str]]
-):
-    with patch.object(sys, "argv", arguments):
-        assert parse_cli_entrypoint_args() == expected_result
 
 
 @pytest.mark.parametrize(
@@ -173,104 +26,376 @@ def test_parse_cli_entrypoint_args(
         "one pass",
         "one fail",
     ],
-    argnames=["arguments", "checks", "config_data", "expected_result"],
+    argnames=[
+        "arguments",
+        "failures",
+        "config_data",
+        "expected_check_arguments",
+        "expected_raise",
+        "expected_info_msg",
+    ],
     argvalues=[
         (
-            ["test", "all-checks", "-c", "."],
+            [
+                "test",
+                "all-checks",
+                "-c",
+                ".",
+                "path/to/project/test.sql",
+                "path/to/project/test.yml",
+                "foo.txt",
+            ],
+            1,
             {
-                "all-models-have-descriptions": True,
-                "all-models-have-constraints": False,
-            },
-            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        (Path.cwd() / "path/to/project/").as_posix(),
+                    ],
+                },
                 "per_check_arguments": [
-                    {"check_id": "all-models-have-descriptions"},
-                    {"check_id": "all-models-have-constraints"},
-                ]
+                    {"check_id": "models-have-descriptions"},
+                    {"check_id": "models-have-constraints"},
+                ],
             },
+            [
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-descriptions",
+                ),
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    must_have_all_constraints_from=None,
+                    must_have_any_constraint_from=None,
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-constraints",
+                ),
+            ],
             pytest.raises(
                 SystemExit,
                 match=re.escape(check_status_header("1/2 checks failed", False)),
             ),
+            None,
         ),
         (
-            ["test", "all-checks", "-c", "."],
+            [
+                "test",
+                "all-checks",
+                "-c",
+                ".",
+                "path/to/project/test.sql",
+                "path/to/project/test.yml",
+                "foo.txt",
+            ],
+            2,
             {
-                "all-models-have-descriptions": False,
-                "all-models-have-constraints": False,
-            },
-            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        (Path.cwd() / "path/to/project/").as_posix(),
+                    ],
+                },
                 "per_check_arguments": [
-                    {"check_id": "all-models-have-descriptions"},
-                    {"check_id": "all-models-have-constraints"},
-                ]
+                    {"check_id": "models-have-descriptions"},
+                    {"check_id": "models-have-constraints"},
+                ],
             },
+            [
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-descriptions",
+                ),
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    must_have_all_constraints_from=None,
+                    must_have_any_constraint_from=None,
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-constraints",
+                ),
+            ],
             pytest.raises(
                 SystemExit,
                 match=re.escape(check_status_header("2/2 checks failed", False)),
             ),
+            None,
         ),
         (
-            ["test", "all-checks", "-c", "."],
+            [
+                "test",
+                "all-checks",
+                "-c",
+                ".",
+                "path/to/project/test.sql",
+                "path/to/project/test.yml",
+                "foo.txt",
+            ],
+            0,
             {
-                "all-models-have-descriptions": True,
-                "all-models-have-constraints": True,
-            },
-            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        (Path.cwd() / "path/to/project/").as_posix(),
+                    ],
+                },
                 "per_check_arguments": [
-                    {"check_id": "all-models-have-descriptions"},
-                    {"check_id": "all-models-have-constraints"},
-                ]
+                    {"check_id": "models-have-descriptions"},
+                    {"check_id": "models-have-constraints"},
+                ],
             },
+            [
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-descriptions",
+                ),
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    must_have_all_constraints_from=None,
+                    must_have_any_constraint_from=None,
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-constraints",
+                ),
+            ],
             pytest.raises(
                 SystemExit,
                 match="0",
             ),
+            check_status_header("2/2 checks passed", True),
         ),
         (
-            ["test", "all-checks", "-c", "."],
+            [
+                "test",
+                "all-checks",
+                "-c",
+                ".",
+                "path/to/project/test.sql",
+                "path/to/project/test.yml",
+                "foo.txt",
+            ],
+            0,
             {
-                "all-models-have-descriptions": True,
-            },
-            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        (Path.cwd() / "path/to/project/").as_posix(),
+                    ],
+                },
                 "per_check_arguments": [
-                    {"check_id": "all-models-have-descriptions"},
-                ]
+                    {"check_id": "models-have-descriptions"},
+                ],
             },
+            [
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-descriptions",
+                ),
+            ],
             pytest.raises(
                 SystemExit,
                 match="0",
             ),
+            check_status_header("1/1 checks passed", True),
         ),
         (
-            ["test", "all-checks", "-c", "."],
+            [
+                "test",
+                "all-checks",
+                "-c",
+                ".",
+                "path/to/project/test.sql",
+                "path/to/project/test.yml",
+                "foo.txt",
+            ],
+            1,
             {
-                "all-models-have-descriptions": False,
-            },
-            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        (Path.cwd() / "path/to/project/").as_posix(),
+                    ],
+                },
                 "per_check_arguments": [
-                    {"check_id": "all-models-have-descriptions"},
-                ]
+                    {"check_id": "models-have-descriptions"},
+                ],
             },
+            [
+                Namespace(
+                    project_dir=Path.cwd() / "path/to/project/",
+                    manifest_dir=Path.cwd() / "path/to/project/target/",
+                    catalog_dir=Path.cwd() / "path/to/project/target/",
+                    include_materializations=None,
+                    include_packages=None,
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-descriptions",
+                ),
+            ],
             pytest.raises(
                 SystemExit,
                 match=re.escape(check_status_header("1/1 checks failed", False)),
             ),
+            None,
         ),
     ],
 )
 def test_entrypoint(
     arguments,
-    checks,
+    failures,
     config_data,
-    expected_result,
+    expected_check_arguments,
+    expected_raise,
+    expected_info_msg,
 ):
-    def mock_run_check(check_arguments: list[str]) -> bool:
-        return checks[check_arguments[0]]
-
     with (
-        expected_result,
+        expected_raise,
         patch.object(sys, "argv", arguments),
-        patch("checks.entrypoint.run_check", mock_run_check),
+        patch.object(logging, "info") as mock_info,
         patch("checks.entrypoint.load_config", return_value=config_data),
+        patch(
+            "checks.entrypoint.count_failures", return_value=failures
+        ) as mock_count_failures,
     ):
         entrypoint()
+    if expected_info_msg:
+        mock_info.assert_called_with(expected_info_msg)
+    mock_count_failures.assert_called_with(expected_check_arguments)
+
+
+def test_convert_to_paths_relative_to_project_dir():
+    raw_paths = (
+        Path("outside_project_relative"),
+        Path("/outside_project_absolute"),
+        Path("outside_project_relative"),
+        Path.cwd() / "path/to/project/inside_project_absolute.sql",
+        Path("path/to/project/inside_project_absolute.sql"),
+    )
+    expected_paths = [
+        Path("inside_project_absolute.sql"),
+        Path("inside_project_absolute.sql"),
+    ]
+    project_dir = Path.cwd() / "path/to/project"
+    assert (
+        list(convert_to_paths_relative_to_project_dir(raw_paths, project_dir))
+        == expected_paths
+    )
+
+
+def test_count_failures():
+    all_arguments = [
+        Namespace(check_id="models-have-descriptions"),
+        Namespace(check_id="models-have-columns"),
+    ]
+    with (
+        patch.object(ModelsHaveDescriptions, "failures", False),
+        patch.object(
+            ModelsHaveDescriptions, "__init__", return_value=None
+        ) as mock_init_1,
+        patch.object(ModelsHaveColumns, "failures", True),
+        patch.object(ModelsHaveColumns, "__init__", return_value=None) as mock_init_2,
+    ):
+        actual = count_failures(all_arguments)
+        assert actual == 1
+        mock_init_1.assert_called_with(all_arguments[0])
+        mock_init_2.assert_called_with(all_arguments[1])

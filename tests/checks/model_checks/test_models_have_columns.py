@@ -5,7 +5,7 @@ from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 
-from checks.model_checks.model_columns_have_types import ModelColumnsHaveTypes
+from checks.model_checks.models_have_columns import ModelsHaveColumns
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.model.model import ManifestModel
 
@@ -21,17 +21,11 @@ from utils.manifest_object.node.model.model import ManifestModel
             [
                 {
                     "unique_id": "test_model",
-                    "columns": {
-                        "column_1": {"name": "column_1", "data_type": "INT64"},
-                        "column_2": {"name": "column_2", "data_type": "STRING"},
-                    },
+                    "columns": {"test_column": {}},
                 },
                 {
                     "unique_id": "another_model",
-                    "columns": {
-                        "column_1": {"name": "column_1", "data_type": "INT64"},
-                        "column_2": {"name": "column_2", "data_type": "STRING"},
-                    },
+                    "columns": {"test_column": {}},
                 },
             ],
             set(),
@@ -40,32 +34,25 @@ from utils.manifest_object.node.model.model import ManifestModel
             [
                 {
                     "unique_id": "test_model",
-                    "columns": {
-                        "column_1": {"name": "column_1", "data_type": "INT64"},
-                        "column_2": {"name": "column_2", "data_type": "STRING"},
-                    },
+                    "columns": {"test_column": {}},
                 },
                 {
                     "unique_id": "another_model",
-                    "columns": {
-                        "column_1": {"name": "column_1", "data_type": "INT64"},
-                        "column_2": {"name": "column_2"},
-                    },
                 },
             ],
-            {"another_model.column_2"},
+            {"another_model"},
         ),
     ],
 )
-def test_model_columns_have_types_perform_checks(
+def test_models_have_columns_perform_checks(
     models: Iterable[dict[str, str]],
     expected_failures: set[str],
     tmpdir,
 ):
     with (
-        patch.object(ModelColumnsHaveTypes, "__call__"),
+        patch.object(ModelsHaveColumns, "__call__"),
         patch.object(
-            ModelColumnsHaveTypes, "manifest", new_callable=PropertyMock
+            ModelsHaveColumns, "manifest", new_callable=PropertyMock
         ) as mock_manifest,
     ):
         mock_in_scope_models = PropertyMock(
@@ -75,9 +62,9 @@ def test_model_columns_have_types_perform_checks(
             ]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
-        instance = ModelColumnsHaveTypes(Namespace())
+        instance = ModelsHaveColumns(Namespace())
         instance.perform_check()
-        assert instance.check_name == "model-columns-have-types"
+        assert instance.check_name == "models-have-columns"
         assert instance.additional_arguments == [
             "include_materializations",
             "include_tags",
@@ -91,23 +78,23 @@ def test_model_columns_have_types_perform_checks(
             "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
-        mock_in_scope_models.assert_called_once()
+        mock_in_scope_models.assert_called()
 
 
-def test_model_columns_have_descriptions_failure_message():
+def test_models_have_columns_failure_message():
     with (
-        patch.object(ModelColumnsHaveTypes, "failures"),
-        patch.object(ModelColumnsHaveTypes, "__call__"),
+        patch.object(ModelsHaveColumns, "failures"),
+        patch.object(ModelsHaveColumns, "__call__"),
         patch(
-            "checks.model_checks.model_columns_have_types.object_missing_attribute_message"
+            "checks.model_checks.models_have_columns.object_missing_attribute_message"
         ) as mock_object_missing_attribute_message,
     ):
-        instance = ModelColumnsHaveTypes(Namespace())
+        instance = ModelsHaveColumns(Namespace())
         mock_object_missing_attribute_message.return_value = Mock()
         result = instance.failure_message
         mock_object_missing_attribute_message.assert_called_with(
             missing_attributes=instance.failures,
-            object_type="model column",
-            attribute_type="data_type",
+            object_type="model",
+            attribute_type="column",
         )
         assert result is mock_object_missing_attribute_message.return_value

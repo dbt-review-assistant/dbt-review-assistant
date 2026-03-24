@@ -22,12 +22,15 @@ hooks:
   or from which they must have at least one tag
 - `models-have-contracts`: Check if models have contracts enabled
 - `models-have-constraints`: Check if models have constraints configured
-- `models-have-data-tests`: Check if models have data tests
+- `models-have-data-tests`: Check if models have data tests (generic or singular tests)
 - `models-have-unit-tests`: Check if models have unit tests
 - `models-have-properties-file`: Check if models have a
   corresponding [properties YAML file](https://docs.getdbt.com/reference/define-properties)
-- `model-columns-have-descriptions`: Check if model columns have descriptions
-- `model-columns-have-types`: Check if model columns have data types documented
+- `models-have-columns`: Check if a model has columns listed in a [properties YAML file](https://docs.getdbt.com/reference/define-properties).
+- `model-columns-have-descriptions`: Check if model columns have descriptions. Models without columns listed at all
+will always pass this check, so it's recommend to run `models-have-columns` as a complementary check.
+- `model-columns-have-types`: Check if model columns have data types documented. Models without columns listed at all
+will always pass this check, so it's recommend to run `models-have-columns` as a complementary check.
 - `model-column-names-match-manifest-vs-catalog`: Check if model column names match between the manifest.json and the
   catalog.json
 - `model-column-types-match-manifest-vs-catalog`: Check if model column data types match between the manifest.json and
@@ -41,9 +44,12 @@ included in this check
 ### Source checks:
 
 - `sources-have-descriptions`: Check if sources have descriptions
-- `sources-have-data-tests`: Check if sources have data tests
-- `source-columns-have-descriptions`: Check if source columns have descriptions
-- `source-columns-have-types`: Check if source columns have data types documented
+- `sources-have-data-tests`: Check if sources have data tests (generic or singular tests)
+- `sources-have-columns`: Check if sources have columns listed
+- `source-columns-have-descriptions`: Check if source columns have descriptions. Sources without columns listed at all
+will always pass this check, so it's recommend to run `sources-have-columns` as a complementary check.
+- `source-columns-have-types`: Check if source columns have data types documented. Sources without columns listed at all
+will always pass this check, so it's recommend to run `sources-have-columns` as a complementary check.
 - `source-column-names-match-manifest-vs-catalog`: Check if source column names match between the manifest.json and the
   catalog.json
 - `source-column-types-match-manifest-vs-catalog`: Check if source column data types match between the manifest.json and
@@ -126,9 +132,11 @@ these regex patterns will be considered out-of-scope for the check(s).
 
 `--must-have-any-constraint-from`: Optional - List of constraint names, from which objects must have at least one value.
 
-`--must-have-all-data-tests-from`: Optional - List of data test names, from which objects must have the full set.
+`--must-have-all-data-tests-from`: Optional - List of data test names, from which objects must have the full set. This
+option can include generic test or singular tests.
 
-`--must-have-any-data-test-from`: Optional - List of data test names, from which objects must have at least one value.
+`--must-have-any-data-test-from`: Optional - List of data test names, from which objects must have at least one value. This
+option can include generic test or singular tests.
 
 `--must-have-all-tags-from`: Optional - List of tags, from which objects must have the full set.
 
@@ -230,10 +238,8 @@ repos:
     rev: <latest tag>
     hooks:
       - id: all-models-have-descriptions
-        pass_filenames: false
         args: [ "--include-packages", "my_dbt_project" ]
       - id: all-models-have-constraints
-        pass_filenames: false
         args: [
           "--must-have-all-constraints-from",
           "primary_key",
@@ -253,16 +259,15 @@ separate environments, so they cannot share cached data.
 pre-commit hooks have an option called `pass_filenames`, which defaults to true. This instructs pre-commit to pass all
 filenames that are staged for commit into the hook entry command as positional arguments.
 
-`dbt-review-assistant` does not support `pass_filenames: true`, and so all hooks will come with `pass_filenames: false`
-by default, and it should not be overridden. Be aware that if using these hooks with `repo: local`, this will change the
-default value back to `pass_filenames: false`, so all examples here explicitly include the correct setting, even though
-it is not always strictly necessary.
+As of `v2.0.0` `dbt-review-assistant` now supports `pass_filenames: true`. When filenames are passed to each check, they
+will automatically filter objects from the manifest, based on whether the `patch_path` or `original_file_path` of the
+object matches one of the set of filenames passed to them. This means, for example, that changes to _either_ a model's
+definition in its `.sql` file, _or_ its properties in its `.yml` file will cause it to be checked by pre-commit. If
+neither have changed then the model will not be included in the check. This allows a more 'slim' CI setup where only
+resources which have changed since the last commit are checked.
 
-Disabling `pass_filenames` for hooks is a deliberate design choice, which greatly simplifies how the tool works.
-Although it can be helpful to only run checks on files that have changed, this is very complicated to do correctly in
-practice, due to the complex dependencies between files within dbt projects. A more 'slim' option might be developed as
-a future improvement, but for now the entire project is checked (unless nodes are excluded by specific arguments),
-regardless of which files are staged for commit.
+If you do not want this behaviour in your pre-commit checks, simply set `pass_filenames: false` on the hooks, and they
+will run on all files in your project every time.
 
 ### Refreshing dbt artifacts
 
@@ -325,6 +330,7 @@ installed entries to your existing pre-commit configuration, before the checks:
 repos:
   - repo: local
     hooks:
+      # for any checks requiring the manifest.json
       - id: refresh-manifest
         name: Refresh dbt Manifest
         entry: dbt parse
@@ -335,8 +341,12 @@ repos:
           "./my_dbt_project"
         ]
         language: python
-        pass_filenames: false
+        pass_filenames: true
+        require_serial: true
         types_or: [sql,yaml]
+        files: "my_dbt_project/"
+        exclude: "(my_dbt_project/target/|my_dbt_project/dbt_packages/)"
+      # for any checks requiring the catalog.json
       - id: refresh-catalog
         name: Refresh dbt Catalog
         entry: dbt docs generate
@@ -348,8 +358,11 @@ repos:
           "--no-compile"
         ]
         language: python
-        pass_filenames: false
+        pass_filenames: true
+        require_serial: true
         types_or: [sql,yaml]
+        files: "my_dbt_project/"
+        exclude: "(my_dbt_project/target/|my_dbt_project/dbt_packages/)"
   - repo: https://github.com/sambloom92/dbt-review-assistant
     rev: <latest tag>
     hooks:

@@ -1,13 +1,14 @@
 import logging
 import re
 from argparse import Namespace
-from contextlib import nullcontext
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import call, patch
 
 import pytest
 from jsonschema import ValidationError
 
+from checks import ALL_CHECKS
 from utils.config import PROJECT_NAME, configure_checks, load_config
 
 VALID_MANIFEST = """
@@ -22,7 +23,7 @@ per_check_arguments:
   - check_id: models-have-descriptions
   - check_id: models-have-constraints
     arguments: [
-      "--constraints",
+      "--must-have-all-constraints-from",
       "primary_key",
       "--include-materializations",
       "view",
@@ -41,7 +42,7 @@ per_check_arguments:
   - wrong_key: models-have-descriptions
   - check_id: models-have-constraints
     arguments: [
-      "--constraints",
+      "--must-have-all-constraints-from",
       "primary_key",
       "--include-materializations",
       "view",
@@ -55,46 +56,48 @@ per_check_arguments:
         "config_dir",
         "manifest_contents",
         "expected_return",
+        "expected_raise",
     ],
     argvalues=[
         (
             Path("path/to/project"),
             VALID_MANIFEST,
-            nullcontext(
-                {
-                    "global_arguments": {
-                        "arguments": [
-                            "--project-dir",
-                            "path/to/project",
-                            "--include-packages",
-                            "test_dbt_package",
-                        ],
-                    },
-                    "per_check_arguments": [
-                        {
-                            "check_id": "models-have-descriptions",
-                        },
-                        {
-                            "arguments": [
-                                "--constraints",
-                                "primary_key",
-                                "--include-materializations",
-                                "view",
-                            ],
-                            "check_id": "models-have-constraints",
-                        },
+            {
+                "global_arguments": {
+                    "arguments": [
+                        "--project-dir",
+                        "path/to/project",
+                        "--include-packages",
+                        "test_dbt_package",
                     ],
-                }
-            ),
+                },
+                "per_check_arguments": [
+                    {
+                        "check_id": "models-have-descriptions",
+                    },
+                    {
+                        "arguments": [
+                            "--must-have-all-constraints-from",
+                            "primary_key",
+                            "--include-materializations",
+                            "view",
+                        ],
+                        "check_id": "models-have-constraints",
+                    },
+                ],
+            },
+            does_not_raise(),
         ),
         (
             Path("path/to/project"),
             INVALID_MANIFEST,
+            {},
             pytest.raises(ValidationError, match="'check_id' is a required property"),
         ),
         (
             Path("wrong/path"),
             VALID_MANIFEST,
+            {},
             pytest.raises(
                 FileNotFoundError,
                 match=re.escape(
@@ -104,13 +107,15 @@ per_check_arguments:
         ),
     ],
 )
-def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
+def test_load_config(
+    config_dir, manifest_contents, expected_return, expected_raise, tmpdir
+):
     path = Path(tmpdir) / "path/to/project"
     path.mkdir(parents=True, exist_ok=True)
     with open(path / f".{PROJECT_NAME}.yaml", "w") as f:
         f.write(manifest_contents)
-    with expected_return as e:
-        assert load_config(Path(tmpdir) / config_dir) == e
+    with expected_raise:
+        assert load_config(Path(tmpdir) / config_dir) == expected_return
 
 
 @pytest.mark.parametrize(
@@ -120,14 +125,13 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
         "check not in config",
         "all without config file",
         "one check with no config",
-        "config data and extra args",
     ],
     argnames=[
         "config_data",
-        "known_args",
-        "extra_args",
+        "args",
         "expected_return",
-        "expect_warning",
+        "expected_raise",
+        "expected_warning",
     ],
     argvalues=[
         (
@@ -146,7 +150,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
                     },
                     {
                         "arguments": [
-                            "--constraints",
+                            "--must-have-all-constraints-from",
                             "primary_key",
                             "--include-materializations",
                             "view",
@@ -158,19 +162,29 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
             Namespace(
                 config_dir=Path("path/to/project"),
                 check_id="models-have-descriptions",
+                files=None,
             ),
-            [],
-            nullcontext(
-                [
-                    [
-                        "models-have-descriptions",
-                        "--project-dir",
-                        "path/to/project",
-                        "--include-packages",
-                        "test_dbt_package",
-                    ]
-                ]
-            ),
+            [
+                Namespace(
+                    project_dir=Path.cwd() / Path("path/to/project"),
+                    manifest_dir=Path.cwd() / Path("path/to/project/target"),
+                    catalog_dir=Path.cwd() / Path("path/to/project/target"),
+                    include_materializations=None,
+                    include_packages=["test_dbt_package"],
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=None,
+                    check_id="models-have-descriptions",
+                )
+            ],
+            does_not_raise(),
             None,
         ),
         (
@@ -189,7 +203,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
                     },
                     {
                         "arguments": [
-                            "--constraints",
+                            "--must-have-all-constraints-from",
                             "primary_key",
                             "--include-materializations",
                             "view",
@@ -201,30 +215,49 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
             Namespace(
                 config_dir=Path("path/to/project"),
                 check_id="all-checks",
+                files=[Path("test.sql"), Path("test.yml")],
             ),
-            [],
-            nullcontext(
-                [
-                    [
-                        "models-have-descriptions",
-                        "--project-dir",
-                        "path/to/project",
-                        "--include-packages",
-                        "test_dbt_package",
-                    ],
-                    [
-                        "models-have-constraints",
-                        "--project-dir",
-                        "path/to/project",
-                        "--include-packages",
-                        "test_dbt_package",
-                        "--constraints",
-                        "primary_key",
-                        "--include-materializations",
-                        "view",
-                    ],
-                ]
-            ),
+            [
+                Namespace(
+                    project_dir=Path.cwd() / Path("path/to/project"),
+                    manifest_dir=Path.cwd() / Path("path/to/project/target"),
+                    catalog_dir=Path.cwd() / Path("path/to/project/target"),
+                    include_materializations=None,
+                    include_packages=["test_dbt_package"],
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-descriptions",
+                ),
+                Namespace(
+                    project_dir=Path.cwd() / Path("path/to/project"),
+                    manifest_dir=Path.cwd() / Path("path/to/project/target"),
+                    catalog_dir=Path.cwd() / Path("path/to/project/target"),
+                    must_have_all_constraints_from=["primary_key"],
+                    must_have_any_constraint_from=None,
+                    include_materializations=["view"],
+                    include_packages=["test_dbt_package"],
+                    include_tags=None,
+                    include_node_paths=None,
+                    include_name_patterns=None,
+                    exclude_materializations=None,
+                    exclude_packages=None,
+                    exclude_tags=None,
+                    exclude_node_paths=None,
+                    exclude_name_patterns=None,
+                    config_dir=None,
+                    files=[Path("test.sql"), Path("test.yml")],
+                    check_id="models-have-constraints",
+                ),
+            ],
+            does_not_raise(),
             None,
         ),
         (
@@ -243,7 +276,7 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
                     },
                     {
                         "arguments": [
-                            "--constraints",
+                            "--must-have-all-constraints-from",
                             "primary_key",
                             "--include-materializations",
                             "view",
@@ -255,22 +288,24 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
             Namespace(
                 config_dir=Path("path/to/project"),
                 check_id="models-have-data-tests",
+                files=None,
             ),
-            [],
-            nullcontext(
-                [
-                    [
-                        "models-have-data-tests",
-                    ]
-                ]
-            ),
-            True,
+            [
+                Namespace(
+                    config_dir=Path("path/to/project"),
+                    check_id="models-have-data-tests",
+                    files=None,
+                )
+            ],
+            does_not_raise(),
+            f"Check 'models-have-data-tests' not found in {(Path.cwd() / Path(f'path/to/project/.{PROJECT_NAME}.yaml')).resolve()}.\nRunning without arguments...",
         ),
         (
             None,
             Namespace(
                 config_dir=Path("path/to/project"),
                 check_id="all-checks",
+                files=None,
             ),
             [],
             pytest.raises(
@@ -283,80 +318,29 @@ def test_load_config(config_dir, manifest_contents, expected_return, tmpdir):
             Namespace(
                 config_dir=Path("path/to/project"),
                 check_id="models-have-descriptions",
+                files=None,
             ),
-            ["--packages", "test_dbt_package"],
-            nullcontext(
-                [["models-have-descriptions", "--packages", "test_dbt_package"]]
-            ),
+            [
+                Namespace(
+                    config_dir=Path("path/to/project"),
+                    check_id="models-have-descriptions",
+                    files=None,
+                )
+            ],
+            does_not_raise(),
             None,
-        ),
-        (
-            {
-                "global_arguments": {
-                    "arguments": [
-                        "--project-dir",
-                        "path/to/project",
-                        "--include-packages",
-                        "test_dbt_package",
-                    ],
-                },
-                "per_check_arguments": [
-                    {
-                        "check_id": "models-have-descriptions",
-                    },
-                    {
-                        "arguments": [
-                            "--constraints",
-                            "primary_key",
-                            "--include-materializations",
-                            "view",
-                        ],
-                        "check_id": "models-have-constraints",
-                    },
-                ],
-            },
-            Namespace(
-                config_dir=Path("path/to/project"),
-                check_id="models-have-descriptions",
-            ),
-            ["--packages", "test_dbt_package"],
-            nullcontext(
-                [
-                    [
-                        "models-have-descriptions",
-                        "--project-dir",
-                        "path/to/project",
-                        "--include-packages",
-                        "test_dbt_package",
-                    ]
-                ]
-            ),
-            True,
         ),
     ],
 )
 def test_configure_checks(
-    config_data, known_args, extra_args, expected_return, expect_warning
+    config_data, args, expected_return, expected_raise, expected_warning
 ):
-    with expected_return as e, patch.object(logging, "warning") as mock_warning:
+    with expected_raise, patch.object(logging, "warning") as mock_warning:
         result = configure_checks(
             config_data=config_data,
-            known_args=known_args,
-            extra_args=extra_args,
+            cli_args=args,
+            allowed_checks=ALL_CHECKS,
         )
-        assert result == e
-        expected_warning_calls = []
-        filename = f".{PROJECT_NAME}.yaml"
-        if expect_warning and config_data and extra_args:
-            expected_warning_calls.append(
-                call(
-                    f"Check configuration will be read from {(known_args.config_dir / filename).absolute()}, therefore the following extra CLI arguments will be ignored: ['--packages', 'test_dbt_package']"
-                )
-            )
-        elif expect_warning:
-            expected_warning_calls.append(
-                call(
-                    f"Check 'models-have-data-tests' not found in {(known_args.config_dir / filename).absolute()}.\nRunning without arguments..."
-                )
-            )
-        mock_warning.assert_has_calls(expected_warning_calls)
+        assert result == expected_return
+        if expected_warning:
+            mock_warning.assert_called_with(expected_warning)
