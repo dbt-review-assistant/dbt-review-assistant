@@ -3,7 +3,8 @@
 import logging
 import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Collection, Protocol, cast
 
@@ -40,7 +41,7 @@ class HasNameMixin(ABC):
         return bool(pattern.search(name))
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass
 class ManifestObject(HasNameMixin, ABC):
     """Abstract base class representing objects in the manifest file.
 

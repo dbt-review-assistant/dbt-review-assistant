@@ -355,22 +355,22 @@ def test_entrypoint(
         patch("checks.entrypoint.load_config", return_value=config_data),
         patch(
             "checks.entrypoint.count_failures", return_value=failures
-        ) as mock_count_faillures,
+        ) as mock_count_failures,
     ):
         entrypoint()
     if expected_info_msg:
         mock_info.assert_called_with(expected_info_msg)
-    mock_count_faillures.assert_called_with(expected_check_arguments)
+    mock_count_failures.assert_called_with(expected_check_arguments)
 
 
 def test_convert_to_paths_relative_to_project_dir():
-    raw_paths = [
+    raw_paths = (
         Path("outside_project_relative"),
         Path("/outside_project_absolute"),
         Path("outside_project_relative"),
         Path.cwd() / "path/to/project/inside_project_absolute.sql",
         Path("path/to/project/inside_project_absolute.sql"),
-    ]
+    )
     expected_paths = [
         Path("inside_project_absolute.sql"),
         Path("inside_project_absolute.sql"),

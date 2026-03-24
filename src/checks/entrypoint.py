@@ -3,8 +3,9 @@
 import logging
 import sys
 from argparse import Namespace
+from functools import lru_cache
 from pathlib import Path
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Tuple
 
 from checks import ALL_CHECKS, ALL_CHECKS_MAP
 from checks.argparser import parse_cli_entrypoint_args
@@ -14,26 +15,29 @@ from utils.console_formatting import (
 )
 
 
+@lru_cache
 def convert_to_paths_relative_to_project_dir(
-    raw_paths: Iterable[Path], project_dir: Path
-) -> Generator[Path, None, None]:
+    raw_paths: Tuple[Path, ...], project_dir: Path
+) -> list[Path]:
     """Convert a raw path to a path relative to the project directory.
 
     Paths not in the sub-path of the project directory will not be yielded.
 
     Args:
-        raw_paths: The raw paths to convert.
+        raw_paths: tuple of raw paths to convert.
         project_dir: The project directory absolute path.
 
-    Yields:
-        Paths relative to the project directory.
+    Returns:
+        list of Paths relative to the project directory.
     """
+    converted_paths = []
     for raw_path in raw_paths:
         abs_path = raw_path if raw_path.is_absolute() else Path.cwd() / raw_path
         try:
-            yield abs_path.relative_to(project_dir)
+            converted_paths.append(abs_path.relative_to(project_dir))
         except ValueError:
             pass
+    return converted_paths
 
 
 def entrypoint() -> None:
@@ -54,10 +58,8 @@ def entrypoint() -> None:
     )
     for check_args in all_check_arguments:
         if check_args.files:
-            check_args.files = list(
-                convert_to_paths_relative_to_project_dir(
-                    check_args.files, check_args.project_dir
-                )
+            check_args.files = convert_to_paths_relative_to_project_dir(
+                tuple(check_args.files), check_args.project_dir
             )
     failed_hooks = count_failures(all_check_arguments)
     if failed_hooks:

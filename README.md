@@ -254,6 +254,21 @@ by allowing `dbt-review-assistant` to cache data in memory between checks. Runni
 run in
 separate environments, so they cannot share cached data.
 
+### Using `pass_filenames`
+
+pre-commit hooks have an option called `pass_filenames`, which defaults to true. This instructs pre-commit to pass all
+filenames that are staged for commit into the hook entry command as positional arguments.
+
+As of `v2.0.0` `dbt-review-assistant` now supports `pass_filenames: true`. When filenames are passed to each check, they
+will automatically filter objects from the manifest, based on whether the `patch_path` or `original_file_path` of the
+object matches one of the set of filenames passed to them. This means, for example, that changes to _either_ a model's
+definition in its `.sql` file, _or_ its properties in its `.yml` file will cause it to be checked by pre-commit. If
+neither have changed then the model will not be included in the check. This allows a more 'slim' CI setup where only
+resources which have changed since the last commit are checked.
+
+If you do not want this behaviour in your pre-commit checks, simply set `pass_filenames: false` on the hooks, and they
+will run on all files in your project every time.
+
 ### Refreshing dbt artifacts
 
 All checks rely on the data in the dbt `manifest.json` file, and some checks have an additional dependency on the dbt
