@@ -292,6 +292,7 @@ This table shows which checks require which dbt artifacts:
 | `models-have-unit-tests`                        | ✅        | ❌       |
 | `models-have-properties-file`                   | ✅        | ❌       |
 | `model-names-match-pattern`                     | ✅        | ❌       |
+| `models-have-specific-materialization`          | ✅        | ❌       |
 | `model-column-names-match-pattern`              | ✅        | ❌       |
 | `model-columns-have-descriptions`               | ✅        | ❌       |
 | `model-columns-have-types`                      | ✅        | ❌       |
