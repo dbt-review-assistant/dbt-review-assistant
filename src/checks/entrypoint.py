@@ -5,7 +5,7 @@ import sys
 from argparse import Namespace
 from functools import lru_cache
 from pathlib import Path
-from typing import Generator, Iterable, Tuple
+from typing import Iterable, Tuple
 
 from checks import ALL_CHECKS, ALL_CHECKS_MAP
 from checks.argparser import parse_cli_entrypoint_args

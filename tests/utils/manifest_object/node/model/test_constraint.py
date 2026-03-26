@@ -1,5 +1,4 @@
 from contextlib import nullcontext as does_not_raise
-from unittest.mock import Mock
 
 import pytest
 from _pytest.raises import RaisesExc

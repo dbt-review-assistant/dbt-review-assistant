@@ -1,4 +1,3 @@
-import sys
 from argparse import Namespace
 from typing import Collection, Iterable
 from unittest.mock import Mock, PropertyMock, patch

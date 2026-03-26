@@ -3,8 +3,6 @@
 from utils.check_abc import ManifestCheck
 from utils.check_failure_messages import (
     object_attribute_value_not_in_set,
-    object_missing_attribute_message,
-    object_missing_values_from_set_message,
 )
 
 
