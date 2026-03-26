@@ -1,7 +1,11 @@
+import sys
 from argparse import Namespace
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+from _pytest.raises import RaisesExc
 
 from checks import ALL_CHECKS
 from checks.argparser import CliArgument, parse_cli_entrypoint_args
@@ -9,12 +13,18 @@ from checks.argparser import CliArgument, parse_cli_entrypoint_args
 
 @pytest.mark.parametrize(
     ids=[
+        "no arguments",
         "check with config_dir",
         "check without config_dir",
         "check with extra args",
     ],
-    argnames=["arguments", "expected_result"],
+    argnames=["arguments", "expected_result", "expected_raise"],
     argvalues=[
+        (
+            [],
+            None,
+            pytest.raises(SystemExit, match="1"),
+        ),
         (
             [
                 "models-have-descriptions",
@@ -39,6 +49,7 @@ from checks.argparser import CliArgument, parse_cli_entrypoint_args
                 files=None,
                 check_id="models-have-descriptions",
             ),
+            does_not_raise(),
         ),
         (
             [
@@ -62,6 +73,7 @@ from checks.argparser import CliArgument, parse_cli_entrypoint_args
                 files=None,
                 check_id="models-have-descriptions",
             ),
+            does_not_raise(),
         ),
         (
             [
@@ -91,13 +103,22 @@ from checks.argparser import CliArgument, parse_cli_entrypoint_args
                 files=None,
                 check_id="models-have-constraints",
             ),
+            does_not_raise(),
         ),
     ],
 )
 def test_parse_cli_entrypoint_args(
-    arguments: list[str], expected_result: tuple[Namespace, list[str]]
+    arguments: list[str],
+    expected_result: tuple[Namespace, list[str]],
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
-    assert parse_cli_entrypoint_args(arguments, ALL_CHECKS) == expected_result
+    with (
+        expected_raise as e,
+        patch("checks.argparser.argparse.ArgumentParser.print_help") as mock_print_help,
+    ):
+        assert parse_cli_entrypoint_args(arguments, ALL_CHECKS) == expected_result
+    if e:
+        mock_print_help.assert_called_with(sys.stderr)
 
 
 @pytest.mark.parametrize(

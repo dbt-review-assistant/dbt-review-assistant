@@ -45,7 +45,7 @@ dbtra = "checks.entrypoint:entrypoint"
 # Enable all `pydocstyle` rules, limiting to those that adhere to the
 # Google convention via `convention = "google"`, below.
 select = ["D", "F401"]
-fixable = ["F401"]
+fixable = ["F401", "I001"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

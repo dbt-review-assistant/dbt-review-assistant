@@ -1,6 +1,7 @@
 """Argument parser utilities."""
 
 import argparse
+import sys
 from argparse import Namespace
 from dataclasses import dataclass
 from pathlib import Path
@@ -80,6 +81,9 @@ def parse_cli_entrypoint_args(
         help="filepaths passed to the check.",
         type=Path,
     )
+    if len(argv) == 0:
+        main_parser.print_help(sys.stderr)
+        raise SystemExit(1)
     args = main_parser.parse_args(argv)
     if not getattr(args, "config_dir", None):
         args.config_dir = None
