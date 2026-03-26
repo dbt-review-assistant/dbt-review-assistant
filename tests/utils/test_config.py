@@ -3,7 +3,7 @@ import re
 from argparse import Namespace
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 import pytest
 from jsonschema import ValidationError

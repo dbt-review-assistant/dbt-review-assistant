@@ -3,7 +3,7 @@
 import logging
 from argparse import Namespace
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Collection, Iterable, Type
+from typing import TYPE_CHECKING, Any, Iterable, Type
 
 import yaml
 from jsonschema import validate
@@ -108,7 +108,9 @@ def configure_checks(
             check_instances = [cli_args]
     elif cli_args.check_id == "all-checks" and not config_data:
         raise RuntimeError("Check id 'all-checks' requires a config file.")
-    else:
+    elif cli_args.check_id:
         # Get the config from the CLI args if no config provided
         check_instances = [cli_args]
+    else:
+        check_instances = []
     return check_instances

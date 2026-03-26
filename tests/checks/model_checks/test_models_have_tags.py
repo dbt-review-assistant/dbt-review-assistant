@@ -1,6 +1,4 @@
-import sys
 from argparse import Namespace
-from typing import Collection
 from unittest.mock import Mock, PropertyMock, patch
 
 import pytest

@@ -3,23 +3,22 @@ import re
 import sys
 from argparse import Namespace
 from pathlib import Path
-from unittest import mock
-from unittest.mock import Mock, call, patch
+from unittest.mock import patch
 
 import pytest
 
-from checks import ALL_CHECKS_MAP, ModelsHaveColumns, ModelsHaveDescriptions
+from checks import ModelsHaveColumns, ModelsHaveDescriptions
 from checks.entrypoint import (
     convert_to_paths_relative_to_project_dir,
     count_failures,
     entrypoint,
 )
-from utils.check_abc import Check, ManifestCheck
 from utils.console_formatting import check_status_header
 
 
 @pytest.mark.parametrize(
     ids=[
+        "no check-id, no config",
         "one pass, one fail",
         "two fail",
         "two pass",
@@ -35,6 +34,19 @@ from utils.console_formatting import check_status_header
         "expected_info_msg",
     ],
     argvalues=[
+        (
+            [
+                "test",
+            ],
+            0,
+            None,
+            [],
+            pytest.raises(
+                SystemExit,
+                match=re.escape("0"),
+            ),
+            None,
+        ),
         (
             [
                 "test",

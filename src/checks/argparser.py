@@ -81,6 +81,12 @@ def parse_cli_entrypoint_args(
         type=Path,
     )
     args = main_parser.parse_args(argv)
+    if not getattr(args, "config_dir", None):
+        args.config_dir = None
+    if not getattr(args, "files", None):
+        args.files = None
+    if not getattr(args, "check_id", None):
+        args.check_id = None
     if not getattr(args, "project_dir", None):
         args.project_dir = Path.cwd()
     if not getattr(args, "manifest_dir", None):

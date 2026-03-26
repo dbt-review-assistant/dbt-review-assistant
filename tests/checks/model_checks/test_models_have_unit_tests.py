@@ -1,13 +1,10 @@
-import sys
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
-from utils.manifest_filter_conditions import ManifestFilterConditions
-from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(

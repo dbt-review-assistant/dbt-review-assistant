@@ -2,7 +2,7 @@
 
 from dataclasses import InitVar, dataclass, field
 from pathlib import Path
-from typing import Any, Collection
+from typing import Collection
 
 from utils.console_formatting import ConsoleEmphasis, colour_message
 
