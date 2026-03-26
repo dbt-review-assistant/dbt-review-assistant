@@ -18,6 +18,16 @@
   types_or: [sql, yaml]
   require_serial: true
 
+- id: models-have-specific-materialization
+  name: models-have-specific-materialization
+  description: >
+    Check if models are materialized with one of a set of allowed materializations
+  entry: dbt-review-assistant models-have-specific-materialization
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+
 - id: models-have-columns
   name: models-have-columns
   description: >

@@ -5,6 +5,7 @@ from utils.check_failure_messages import (
     macro_argument_mismatch_manifest_vs_sql,
     manifest_vs_catalog_column_name_mismatch_message,
     manifest_vs_catalog_column_type_mismatch_message,
+    object_attribute_value_not_in_set,
     object_missing_attribute_message,
     object_missing_values_from_set_message,
     object_name_does_not_match_pattern,
@@ -320,3 +321,39 @@ def test_object_missing_values_from_set_message(kwargs: dict, expected_return: s
 )
 def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
     assert object_name_does_not_match_pattern(**kwargs) == expected_return
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "One model",
+        "Two models",
+    ],
+    argnames=["kwargs", "expected_return"],
+    argvalues=[
+        (
+            {
+                "objects": {"test_model": "ephemeral"},
+                "object_type": "model",
+                "attribute_type": "materialization",
+                "allowed_values": {"table", "view"},
+            },
+            "The following models do not have one of the required materializations "
+            "(table,view):\n"
+            " - test_model - ephemeral",
+        ),
+        (
+            {
+                "objects": {"test_model": "ephemeral", "another_model": "incremental"},
+                "object_type": "model",
+                "attribute_type": "materialization",
+                "allowed_values": {"table", "view"},
+            },
+            "The following models do not have one of the required materializations "
+            "(table,view):\n"
+            " - another_model - incremental\n"
+            " - test_model - ephemeral",
+        ),
+    ],
+)
+def test_object_attribute_value_not_in_set(kwargs: dict, expected_return: str):
+    assert object_attribute_value_not_in_set(**kwargs) == expected_return

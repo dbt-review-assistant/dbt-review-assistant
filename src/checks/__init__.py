@@ -54,6 +54,9 @@ from checks.model_checks.models_have_descriptions import (
 from checks.model_checks.models_have_properties_file import (
     ModelsHavePropertiesFile as ModelsHavePropertiesFile,
 )
+from checks.model_checks.models_have_specific_materialization import (
+    ModelsHaveSpecificMaterialization as ModelsHaveSpecificMaterialization,
+)
 from checks.model_checks.models_have_tags import (
     ModelsHaveTags as ModelsHaveTags,
 )
@@ -89,6 +92,7 @@ ALL_CHECKS = (
     ModelsHaveConstraints,
     MacrosHaveDescriptions,
     ModelsHavePropertiesFile,
+    ModelsHaveSpecificMaterialization,
     ModelsHaveDataTests,
     ModelsHaveUnitTests,
     ModelNamesMatchPattern,

@@ -221,6 +221,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
+        name="must_be_materialized_as_one_of",
+        help="Specific materialization names from which models must use one.",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
         name="include_materializations",
         help="List of materialization types to include. Models with other materialization types will be ignored.",
         type=str,
