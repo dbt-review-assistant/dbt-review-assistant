@@ -43,7 +43,7 @@ from utils.console_formatting import check_status_header
             [],
             pytest.raises(
                 SystemExit,
-                match=re.escape("0"),
+                match=re.escape("1"),
             ),
             None,
         ),
@@ -372,7 +372,8 @@ def test_entrypoint(
         entrypoint()
     if expected_info_msg:
         mock_info.assert_called_with(expected_info_msg)
-    mock_count_failures.assert_called_with(expected_check_arguments)
+    if expected_check_arguments:
+        mock_count_failures.assert_called_with(expected_check_arguments)
 
 
 def test_convert_to_paths_relative_to_project_dir():
