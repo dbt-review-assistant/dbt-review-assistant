@@ -22,6 +22,7 @@ from utils.manifest_filter_conditions import (
     PathFilterMethod,
     ResourceTypeFilterMethod,
     TagFilterMethod,
+    UniqueIdFilterMethod,
 )
 from utils.manifest_object.manifest_object import HasPatchPathMixin, ManifestObject
 from utils.manifest_object.node.model.model import ManifestModel
@@ -50,6 +51,7 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                 "include_indirect_parents": ["another_model"],
                 "include_direct_children": ["test_model"],
                 "include_indirect_children": ["another_model"],
+                "include_unique_ids": ["test_model"],
                 "exclude_materializations": ("ephemeral", "incremental"),
                 "exclude_packages": ["one_more_dbt_project"],
                 "exclude_tags": {"one_more_tag"},
@@ -60,6 +62,7 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                 "exclude_indirect_parents": ["yet_another_model"],
                 "exclude_direct_children": ["one_more_model"],
                 "exclude_indirect_children": ["yet_another_model"],
+                "exclude_unique_ids": ["another_model"],
             },
             (
                 MaterializationFilterMethod(
@@ -128,6 +131,12 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                         exclude_indirect_children={"yet_another_model"},
                     )
                 ),
+                UniqueIdFilterMethod(
+                    Namespace(
+                        include_unique_ids={"test_model"},
+                        exclude_unique_ids={"another_model"},
+                    )
+                ),
             ),
         ),
         (
@@ -141,6 +150,7 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                 "include_indirect_parents": None,
                 "include_direct_children": None,
                 "include_indirect_children": None,
+                "include_unique_ids": None,
                 "exclude_materializations": None,
                 "exclude_packages": None,
                 "exclude_tags": None,
@@ -150,6 +160,7 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                 "exclude_indirect_parents": None,
                 "exclude_direct_children": None,
                 "exclude_indirect_children": None,
+                "exclude_unique_ids": None,
             },
             (
                 MaterializationFilterMethod(
@@ -210,6 +221,12 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                     Namespace(
                         include_indirect_children=None,
                         exclude_indirect_children=None,
+                    )
+                ),
+                UniqueIdFilterMethod(
+                    Namespace(
+                        include_unique_id=None,
+                        exclude_unique_id=None,
                     )
                 ),
             ),
@@ -275,6 +292,12 @@ class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
                     Namespace(
                         include_indirect_children=None,
                         exclude_indirect_children=None,
+                    )
+                ),
+                UniqueIdFilterMethod(
+                    Namespace(
+                        include_unique_id={"test_model"},
+                        exclude_unique_id={"another_model"},
                     )
                 ),
             ),
@@ -351,47 +374,6 @@ Excluding:
 )
 def test_manifest_filter_conditions_summary(kwargs, expected_summary):
     assert ManifestFilterConditions(Namespace(**kwargs)).summary == expected_summary
-
-
-@pytest.mark.parametrize(
-    argnames=[
-        "data",
-        "include_name_patterns",
-        "expected_return",
-    ],
-    ids=[
-        "Explicitly included",
-        "Not explicitly included",
-    ],
-    argvalues=[
-        (
-            {
-                "name": "included_model",
-            },
-            ["included_[a-z]*", "another_model"],
-            True,
-        ),
-        (
-            {
-                "name": "excluded_model",
-            },
-            ["included_[a-z]*"],
-            False,
-        ),
-    ],
-)
-def test_name_pattern_filter_method_is_manifest_object_included(
-    data: dict,
-    include_name_patterns: list[str],
-    expected_return: bool,
-):
-    manifest_object = ConcreteManifestObject(data)
-    instance = NamePatternFilterMethod(
-        args=Namespace(
-            include_name_patterns=include_name_patterns,
-        )
-    )
-    assert instance.is_manifest_object_in_scope(manifest_object) is expected_return
 
 
 @pytest.mark.parametrize(
@@ -480,6 +462,97 @@ def test_name_pattern_filter_method_is_manifest_object_in_scope(
         args=Namespace(
             include_name_patterns=include_name_patterns,
             exclude_name_patterns=exclude_name_patterns,
+        )
+    )
+    assert instance.is_manifest_object_in_scope(manifest_object) is expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=[
+        "data",
+        "include_unique_ids",
+        "exclude_unique_ids",
+        "expected_return",
+    ],
+    ids=[
+        "Explicitly included",
+        "Not explicitly included",
+        "Explicitly excluded",
+        "Not explicitly excluded",
+        "Explicitly included, with exclude condition",
+        "Explicitly excluded, with include condition",
+        "Both explicitly included and explicitly excluded - exclude should take precedence",
+    ],
+    argvalues=[
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["included_model", "another_model"],
+            None,
+            True,
+        ),
+        (
+            {
+                "unique_id": "excluded_model",
+            },
+            ["included_model"],
+            None,
+            False,
+        ),
+        (
+            {
+                "unique_id": "excluded_model",
+            },
+            None,
+            ["excluded_model", "another_model"],
+            False,
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            None,
+            ["excluded_model"],
+            True,
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["included_model"],
+            ["excluded_model"],
+            True,
+        ),
+        (
+            {
+                "unique_id": "excluded_model",
+            },
+            ["included_model"],
+            ["excluded_model"],
+            False,
+        ),
+        (
+            {
+                "unique_id": "excluded_model",
+            },
+            ["excluded_model"],
+            ["excluded_model"],
+            False,
+        ),
+    ],
+)
+def test_unique_id_filter_method_is_manifest_object_in_scope(
+    data: dict,
+    include_unique_ids: list[str],
+    exclude_unique_ids: list[str],
+    expected_return: bool,
+):
+    manifest_object = ConcreteManifestObject(data)
+    instance = UniqueIdFilterMethod(
+        args=Namespace(
+            include_unique_ids=include_unique_ids,
+            exclude_unique_ids=exclude_unique_ids,
         )
     )
     assert instance.is_manifest_object_in_scope(manifest_object) is expected_return

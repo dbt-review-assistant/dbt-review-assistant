@@ -127,6 +127,25 @@ class ConfigurableMixin(ABC):
         """Whether the object is enabled in its config."""
         return self.config.get("enabled", True)
 
+    def config_difference(
+        self, other_config: dict[str, Any]
+    ) -> dict[str, dict[str, Any]]:
+        """Get the difference in config between this object and another config.
+
+        Only common keys are included in the comparison.
+
+        Args:
+            other_config: dictionary representing the config to compare.
+
+        Returns:
+            dictionary representing the difference in values.
+        """
+        return {
+            key: {"this": self.config.get(key), "other": value}
+            for key, value in other_config.items()
+            if self.config.get(key) != value
+        }
+
 
 class HasPatchPathMixin(ABC, HasPackageName):
     """Mixin for objects which have the patch_path property."""

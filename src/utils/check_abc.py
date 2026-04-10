@@ -13,7 +13,7 @@ from utils.console_formatting import (
 )
 from utils.manifest_filter_conditions import ManifestFilterConditions
 
-STANDARD_MODEL_ARGUMENTS = [
+STANDARD_MODEL_ARGUMENTS: list[str] = [
     "include_materializations",
     "include_tags",
     "include_packages",
@@ -23,6 +23,7 @@ STANDARD_MODEL_ARGUMENTS = [
     "include_indirect_parents",
     "include_direct_children",
     "include_indirect_children",
+    "include_unique_ids",
     "exclude_materializations",
     "exclude_tags",
     "exclude_packages",
@@ -32,20 +33,23 @@ STANDARD_MODEL_ARGUMENTS = [
     "exclude_indirect_parents",
     "exclude_direct_children",
     "exclude_indirect_children",
+    "exclude_unique_ids",
 ]
 
-STANDARD_MACRO_ARGUMENTS = [
+STANDARD_MACRO_ARGUMENTS: list[str] = [
     "include_tags",
     "include_packages",
     "include_node_paths",
     "include_name_patterns",
+    "include_unique_ids",
     "exclude_tags",
     "exclude_packages",
     "exclude_node_paths",
     "exclude_name_patterns",
+    "exclude_unique_ids",
 ]
 
-STANDARD_SOURCE_ARGUMENTS = [
+STANDARD_SOURCE_ARGUMENTS: list[str] = [
     "include_tags",
     "include_packages",
     "include_node_paths",
@@ -54,6 +58,7 @@ STANDARD_SOURCE_ARGUMENTS = [
     "include_indirect_parents",
     "include_direct_children",
     "include_indirect_children",
+    "include_unique_ids",
     "exclude_tags",
     "exclude_packages",
     "exclude_node_paths",
@@ -62,6 +67,7 @@ STANDARD_SOURCE_ARGUMENTS = [
     "exclude_indirect_parents",
     "exclude_direct_children",
     "exclude_indirect_children",
+    "exclude_unique_ids",
 ]
 
 

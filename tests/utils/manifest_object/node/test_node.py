@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 
 from utils.manifest_object.manifest_object import (
-    ConfigurableMixin,
     HasPatchPathMixin,
     ManifestObject,
     TaggableMixin,
@@ -17,47 +16,6 @@ class ConcreteManifestNode(ManifestNode):
 
 class ConcreteTaggableNode(TaggableMixin, ManifestObject):
     pass
-
-
-class ConcreteConfigurableNode(ConfigurableMixin, ManifestObject):
-    pass
-
-
-@pytest.mark.parametrize(
-    argnames=["data", "expected_return"],
-    ids=[
-        "Has config",
-        "No config",
-        "Config is None",
-    ],
-    argvalues=[
-        (
-            {"config": {"enabled": True}},
-            {"enabled": True},
-        ),
-        ({}, {}),
-        ({"config": None}, {}),
-    ],
-)
-def test_configurable_mixin_config(data: dict, expected_return: bool):
-    instance = ConcreteConfigurableNode(data)
-    assert instance.config == expected_return
-
-
-@pytest.mark.parametrize(
-    argnames=["data", "expected_return"],
-    ids=[
-        "Enabled",
-        "Disabled",
-    ],
-    argvalues=[
-        ({"config": {"enabled": True}}, True),
-        ({"config": {"enabled": False}}, False),
-    ],
-)
-def test_configurable_mixin_enabled(data: dict, expected_return: bool):
-    instance = ConcreteConfigurableNode(data)
-    assert instance.enabled == expected_return
 
 
 class ConcreteHasPatchPathNode(HasPatchPathMixin, ManifestObject):

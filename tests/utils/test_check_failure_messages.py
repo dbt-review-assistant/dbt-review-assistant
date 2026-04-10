@@ -1,6 +1,9 @@
+from typing import Any
+
 import pytest
 
 from utils.check_failure_messages import (
+    dictionary_values_mismatch,
     inconsistent_column_descriptions_message,
     macro_argument_mismatch_manifest_vs_sql,
     manifest_vs_catalog_column_name_mismatch_message,
@@ -367,3 +370,70 @@ def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
 )
 def test_object_attribute_value_not_in_set(kwargs: dict, expected_return: str):
     assert object_attribute_value_not_in_set(**kwargs) == expected_return
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "One model",
+        "Two models",
+    ],
+    argnames=["kwargs", "expected_return"],
+    argvalues=[
+        (
+            {
+                "object_type": "model",
+                "dict_name": "config",
+                "differences": {
+                    "test_model": {
+                        "partition_by": {
+                            "this": {"granularity": "MONTH"},
+                            "other": {"granularity": "DAY"},
+                        }
+                    }
+                },
+            },
+            """The following models do not have expected config:
++---------------------+--------------------------+----------------------------+
+|        model        |         Required         |           Actual           |
++---------------------+--------------------------+----------------------------+
+|      test_model     |      partition_by:       |       partition_by:        |
+|                     |  {'granularity': 'DAY'}  |  {'granularity': 'MONTH'}  |
++---------------------+--------------------------+----------------------------+""",
+        ),
+        (
+            {
+                "object_type": "model",
+                "dict_name": "config",
+                "differences": {
+                    "test_model": {
+                        "partition_by": {
+                            "this": {"granularity": "MONTH"},
+                            "other": {"granularity": "DAY"},
+                        }
+                    },
+                    "another_model": {
+                        "incremental_strategy": {
+                            "this": "merge",
+                            "other": "delete+insert",
+                        }
+                    },
+                },
+            },
+            """The following models do not have expected config:
++---------------------+--------------------------+----------------------------+
+|        model        |         Required         |           Actual           |
++---------------------+--------------------------+----------------------------+
+|    another_model    |  incremental_strategy:   |   incremental_strategy:    |
+|                     |      delete+insert       |           merge            |
++---------------------+--------------------------+----------------------------+
+|      test_model     |      partition_by:       |       partition_by:        |
+|                     |  {'granularity': 'DAY'}  |  {'granularity': 'MONTH'}  |
++---------------------+--------------------------+----------------------------+""",
+        ),
+    ],
+)
+def test_dictionary_values_mismatch(
+    kwargs: dict[str, Any],
+    expected_return: str,
+):
+    assert dictionary_values_mismatch(**kwargs) == expected_return

@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from utils.manifest_object.manifest_object import (
+    ConfigurableMixin,
     DataTestableMixin,
     HasColumnsMixin,
     HasPatchPathMixin,
@@ -668,3 +669,88 @@ def test_data_testable_mixin_has_required_data_tests(
         )
         is expected_return
     )
+
+
+class ConcreteConfigurableNode(ConfigurableMixin, ManifestObject):
+    pass
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
+        "Has config",
+        "No config",
+        "Config is None",
+    ],
+    argvalues=[
+        (
+            {"config": {"enabled": True}},
+            {"enabled": True},
+        ),
+        ({}, {}),
+        ({"config": None}, {}),
+    ],
+)
+def test_configurable_mixin_config(data: dict, expected_return: bool):
+    instance = ConcreteConfigurableNode(data)
+    assert instance.config == expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
+        "Enabled",
+        "Disabled",
+    ],
+    argvalues=[
+        ({"config": {"enabled": True}}, True),
+        ({"config": {"enabled": False}}, False),
+    ],
+)
+def test_configurable_mixin_enabled(data: dict, expected_return: bool):
+    instance = ConcreteConfigurableNode(data)
+    assert instance.enabled == expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_config", "expected_return"],
+    ids=[
+        "Matched",
+        "Not matched",
+        "Not matched, nested",
+    ],
+    argvalues=[
+        (
+            {"config": {"materialized": "table"}},
+            {"materialized": "table"},
+            {},
+        ),
+        (
+            {"config": {"materialized": "table"}},
+            {"materialized": "view"},
+            {
+                "materialized": {
+                    "other": "view",
+                    "this": "table",
+                },
+            },
+        ),
+        (
+            {"config": {"partition_by": {"granularity": "DAY"}}},
+            {"partition_by": {"granularity": "MONTH"}},
+            {
+                "partition_by": {
+                    "other": {"granularity": "MONTH"},
+                    "this": {"granularity": "DAY"},
+                },
+            },
+        ),
+    ],
+)
+def test_configurable_mixin_(
+    data: dict,
+    expected_config: dict,
+    expected_return: bool,
+):
+    instance = ConcreteConfigurableNode(data)
+    assert instance.config_difference(expected_config) == expected_return

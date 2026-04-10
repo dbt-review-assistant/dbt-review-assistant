@@ -250,6 +250,46 @@ class NamePatternFilterMethod(ManifestFilterMethod):
         return included and not excluded
 
 
+class UniqueIdFilterMethod(ManifestFilterMethod):
+    """Method for filtering by unique ID.
+
+    Attributes:
+        include_values: set of unique IDs to include.
+        exclude_values: set of unique IDs to exclude.
+    """
+
+    include_values: set[str] | None = None
+    exclude_values: set[str] | None = None
+
+    @property
+    def arg_name_suffix(self) -> str:
+        """Suffix of this filter method's CLI argument names."""
+        return "unique_ids"
+
+    def is_manifest_object_in_scope(
+        self, manifest_object: "ManifestObject", manifest: Optional["Manifest"] = None
+    ) -> bool:
+        """Whether the object is in scope for the current check.
+
+        Args:
+            manifest_object: ManifestObject instance.
+            manifest: Manifest instance.
+
+        Returns:
+            True if the object is in scope, False otherwise.
+
+        Raises:
+            NotImplementedError: if the object does not support this filter method.
+        """
+        excluded = self.exclude_values is not None and (
+            manifest_object.unique_id in self.exclude_values
+        )
+        included = self.include_values is None or (
+            manifest_object.unique_id in self.include_values
+        )
+        return included and not excluded
+
+
 class PackageFilterMethod(ManifestFilterMethod):
     """Method for filtering by package name.
 
@@ -629,6 +669,7 @@ class ManifestFilterConditions:
                 IndirectParentsFilterMethod(args),
                 DirectChildrenFilterMethod(args),
                 IndirectChildrenFilterMethod(args),
+                UniqueIdFilterMethod(args),
             ),
         )
 
