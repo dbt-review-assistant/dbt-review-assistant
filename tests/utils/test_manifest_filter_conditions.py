@@ -1151,11 +1151,14 @@ def test_tag_filter_method_is_manifest_object_in_scope(
         "data",
         "include_direct_parents",
         "direct_parents",
+        "manifest",
         "expected_return",
+        "expected_raise",
     ],
     ids=[
         "Explicitly included",
         "Not explicitly included",
+        "Manifest None",
     ],
     argvalues=[
         (
@@ -1164,7 +1167,9 @@ def test_tag_filter_method_is_manifest_object_in_scope(
             },
             ["test_model", "another_model"],
             {"test_model"},
+            Mock(),
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -1172,7 +1177,19 @@ def test_tag_filter_method_is_manifest_object_in_scope(
             },
             ["test_model", "another_model"],
             {"one_more_model"},
+            Mock(),
             False,
+            does_not_raise(),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            None,
+            True,
+            pytest.raises(ValueError, match="cannot be None"),
         ),
     ],
 )
@@ -1180,7 +1197,9 @@ def test_direct_parents_filter_method_is_manifest_object_included(
     data: dict,
     include_direct_parents: list[str],
     direct_parents: set[str],
+    manifest: None | Mock,
     expected_return: bool,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
     manifest_object = ConcreteManifestObject(data)
     with patch(
@@ -1192,10 +1211,11 @@ def test_direct_parents_filter_method_is_manifest_object_included(
                 include_direct_parents=include_direct_parents,
             ),
         )
-        assert (
-            instance.is_manifest_object_in_scope(manifest_object, manifest=Mock())
-            is expected_return
-        )
+        with expected_raise:
+            assert (
+                instance.is_manifest_object_in_scope(manifest_object, manifest=manifest)
+                is expected_return
+            )
 
 
 @pytest.mark.parametrize(
@@ -1203,11 +1223,14 @@ def test_direct_parents_filter_method_is_manifest_object_included(
         "data",
         "include_indirect_parents",
         "indirect_parents",
+        "manifest",
         "expected_return",
+        "expected_raise",
     ],
     ids=[
         "Explicitly included",
         "Not explicitly included",
+        "Manifest None",
     ],
     argvalues=[
         (
@@ -1216,7 +1239,9 @@ def test_direct_parents_filter_method_is_manifest_object_included(
             },
             ["test_model", "another_model"],
             {"test_model"},
+            Mock(),
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -1224,7 +1249,19 @@ def test_direct_parents_filter_method_is_manifest_object_included(
             },
             ["test_model", "another_model"],
             {"one_more_model"},
+            Mock(),
             False,
+            does_not_raise(),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            None,
+            True,
+            pytest.raises(ValueError, match="cannot be None"),
         ),
     ],
 )
@@ -1232,7 +1269,9 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
     data: dict,
     include_indirect_parents: list[str],
     indirect_parents: set[str],
+    manifest: None | Mock,
     expected_return: bool,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
     manifest_object = ConcreteManifestObject(data)
     with patch(
@@ -1244,10 +1283,11 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
                 include_indirect_parents=include_indirect_parents,
             ),
         )
-        assert (
-            instance.is_manifest_object_in_scope(manifest_object, manifest=Mock())
-            is expected_return
-        )
+        with expected_raise:
+            assert (
+                instance.is_manifest_object_in_scope(manifest_object, manifest=manifest)
+                is expected_return
+            )
 
 
 @pytest.mark.parametrize(
@@ -1255,11 +1295,14 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
         "data",
         "include_direct_children",
         "direct_children",
+        "manifest",
         "expected_return",
+        "expected_raise",
     ],
     ids=[
         "Explicitly included",
         "Not explicitly included",
+        "Manifest None",
     ],
     argvalues=[
         (
@@ -1268,7 +1311,9 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
             },
             ["test_model", "another_model"],
             {"test_model"},
+            Mock(),
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -1276,7 +1321,19 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
             },
             ["test_model", "another_model"],
             {"one_more_model"},
+            Mock(),
             False,
+            does_not_raise(),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            None,
+            True,
+            pytest.raises(ValueError, match="cannot be None"),
         ),
     ],
 )
@@ -1284,7 +1341,9 @@ def test_direct_children_filter_method_is_manifest_object_included(
     data: dict,
     include_direct_children: list[str],
     direct_children: set[str],
+    manifest: None | Mock,
     expected_return: bool,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
     manifest_object = ConcreteManifestObject(data)
     with patch(
@@ -1296,10 +1355,11 @@ def test_direct_children_filter_method_is_manifest_object_included(
                 include_direct_children=include_direct_children,
             ),
         )
-        assert (
-            instance.is_manifest_object_in_scope(manifest_object, manifest=Mock())
-            is expected_return
-        )
+        with expected_raise:
+            assert (
+                instance.is_manifest_object_in_scope(manifest_object, manifest=manifest)
+                is expected_return
+            )
 
 
 @pytest.mark.parametrize(
@@ -1307,11 +1367,14 @@ def test_direct_children_filter_method_is_manifest_object_included(
         "data",
         "include_indirect_children",
         "indirect_children",
+        "manifest",
         "expected_return",
+        "expected_raise",
     ],
     ids=[
         "Explicitly included",
         "Not explicitly included",
+        "Manifest None",
     ],
     argvalues=[
         (
@@ -1320,7 +1383,9 @@ def test_direct_children_filter_method_is_manifest_object_included(
             },
             ["test_model", "another_model"],
             {"test_model"},
+            Mock(),
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -1328,7 +1393,19 @@ def test_direct_children_filter_method_is_manifest_object_included(
             },
             ["test_model", "another_model"],
             {"one_more_model"},
+            Mock(),
             False,
+            does_not_raise(),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            None,
+            True,
+            pytest.raises(ValueError, match="cannot be None"),
         ),
     ],
 )
@@ -1336,7 +1413,9 @@ def test_indirect_children_filter_method_is_manifest_object_included(
     data: dict,
     include_indirect_children: list[str],
     indirect_children: set[str],
+    manifest: None | Mock,
     expected_return: bool,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
     manifest_object = ConcreteManifestObject(data)
     with patch(
@@ -1348,10 +1427,11 @@ def test_indirect_children_filter_method_is_manifest_object_included(
                 include_indirect_children=include_indirect_children,
             ),
         )
-        assert (
-            instance.is_manifest_object_in_scope(manifest_object, manifest=Mock())
-            is expected_return
-        )
+        with expected_raise:
+            assert (
+                instance.is_manifest_object_in_scope(manifest_object, manifest=manifest)
+                is expected_return
+            )
 
 
 @pytest.mark.parametrize(
