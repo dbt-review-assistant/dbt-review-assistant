@@ -41,6 +41,9 @@ will always pass this check, so it's recommend to run `models-have-columns` as a
 - `model-names-match-pattern`: Check if model names match a regex pattern
 - `model-column-names-match-pattern`: Check if model column names match a regex pattern. Only documented columns will be
 included in this check
+- `models-have-specific-config`: Check if models have a specific config. Provide a JSON representation of the required
+config using argument `--must-have-specific-config`. Any keys not present in this argument are not included in the 
+comparison
 
 ### Source checks:
 
@@ -129,6 +132,9 @@ these regex patterns will be considered out-of-scope for the check(s).
 `--exclude-name-patterns`: Optional - list of name regex patterns to exclude nodes by. Nodes names matching any of
 these regex patterns will be considered out-of-scope for the check(s).
 
+`--include-unique-ids`: Optional - list of unique IDs to include. Nodes that do not have at least 
+one of these unique IDs will be considered out-of-scope for the check(s).
+
 `--include-direct-parents`: Optional - list of direct parent unique IDs to include. Nodes that do not have at least 
 one of these as a direct parent will be considered out-of-scope for the check(s).
 
@@ -137,6 +143,9 @@ these as a direct parent will be considered out-of-scope for the check(s).
 
 `--include-indirect-parents`: Optional - list of indirect parent unique IDs to include. Nodes that do not have at least 
 one of these as a direct or indirect parent will be considered out-of-scope for the check(s).
+
+`--exclude-unique-ids`: Optional - list of unique IDs to exclude. Nodes that have any of these unique IDs will be 
+considered out-of-scope for the check(s).
 
 `--exclude-indirect-parents`: Optional - list of indirect parent unique IDs to exclude. Nodes that do not have any of 
 these as a direct or indirect parent will be considered out-of-scope for the check(s).
@@ -170,6 +179,9 @@ option can include generic test or singular tests.
 `--name-must-match-pattern`: Optional - Regex pattern to match object names against.
 
 `--must-be-materialized-as-one-of`: Optional - Specific materialization names from which models must use one
+
+`--must-have-specific-config`: Optional - JSON object representing config which nodes must have. Only included keys will
+be checked, so omitted keys will not be checked
 
 ### Running checks individually
 
@@ -315,6 +327,7 @@ This table shows which checks require which dbt artifacts:
 | `models-have-data-tests`                        | ✅        | ❌       |
 | `models-have-unit-tests`                        | ✅        | ❌       |
 | `models-have-properties-file`                   | ✅        | ❌       |
+| `models-have-specific-config`                   | ✅        | ❌       |
 | `model-names-match-pattern`                     | ✅        | ❌       |
 | `models-have-specific-materialization`          | ✅        | ❌       |
 | `model-column-names-match-pattern`              | ✅        | ❌       |

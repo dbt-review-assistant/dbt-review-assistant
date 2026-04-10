@@ -23,6 +23,7 @@ from utils.manifest_filter_conditions import (
     PathFilterMethod,
     ResourceTypeFilterMethod,
     TagFilterMethod,
+    UniqueIdFilterMethod,
 )
 
 ADDITIONAL_ARGUMENTS = [
@@ -95,6 +96,7 @@ def test_check_filter_conditions():
         include_indirect_parents=["another_model"],
         include_direct_children=["test_model"],
         include_indirect_children=["another_model"],
+        include_unique_ids=["test_model"],
         exclude_materializations=["view"],
         exclude_packages=["another_dbt_package"],
         exclude_tags=["another_tag"],
@@ -103,6 +105,7 @@ def test_check_filter_conditions():
         exclude_indirect_parents=["yet_another_model"],
         exclude_direct_children=["one_more_model"],
         exclude_indirect_children=["yet_another_model"],
+        exclude_unique_ids=["another_model"],
     )
     with (
         patch.object(Check, "__call__"),
@@ -148,6 +151,10 @@ def test_check_filter_conditions():
             IndirectChildrenFilterMethod(
                 include_values={"another_model"},
                 exclude_values={"yet_another_model"},
+            ),
+            UniqueIdFilterMethod(
+                include_values={"test_model"},
+                exclude_values={"another_model"},
             ),
         )
 

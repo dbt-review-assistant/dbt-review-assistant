@@ -1,6 +1,7 @@
 """Argument parser utilities."""
 
 import argparse
+import json
 import sys
 from argparse import Namespace
 from dataclasses import dataclass
@@ -140,6 +141,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
+        name="must_have_specific_config",
+        help="JSON object representing config which nodes must have. Only included keys will be checked, so omitted"
+        " keys will not be checked",
+        type=json.loads,
+        required=False,
+        default=None,
+    ),
+    CliArgument(
         name="include_materializations",
         help="List of materialization types to include. Models with other materialization types will be ignored.",
         type=str,
@@ -167,6 +176,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         name="include_node_paths",
         help="List of resource paths to include. Nodes outside of these paths will be ignored.",
         type=Path,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
+        name="include_unique_ids",
+        help="List of unique IDs to include. Nodes without one of these unique IDs will be ignored.",
+        type=str,
         nargs="+",
         required=False,
         default=None,
@@ -249,6 +266,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
     CliArgument(
         name="exclude_name_patterns",
         help="List of name regex patterns to exclude. Nodes with names matching any of these regex patterns ignored.",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
+        name="exclude_unique_ids",
+        help="List of unique IDs to exclude. Nodes with any of these unique IDs will be ignored.",
         type=str,
         nargs="+",
         required=False,

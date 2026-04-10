@@ -252,3 +252,38 @@ def object_attribute_value_not_in_set(
             ]
         )
     return f"The following {object_type}s do not have an allowed {attribute_type}:\n{table}"
+
+
+def dictionary_values_mismatch(
+    object_type: str,
+    dict_name: str,
+    differences: dict[str, dict[str, Any]],
+) -> str:
+    """Summarise check failures when dictionary values are mismatched.
+
+    Args:
+        object_type: Type of object being checked.
+        dict_name: name of the dictionary being compared.
+        differences: dictionary summarising the differences by object and key.
+    """
+    table = PrettyTable(**PRETTY_TABLE_KWARGS)
+    table.field_names = [object_type, "Required", "Actual"]
+    for object_name, difference in sorted(differences.items(), key=lambda x: x[0]):
+        table.add_row(
+            [
+                object_name,
+                str(
+                    "\n".join(
+                        f"{key}: {value['other']}"
+                        for key, value in sorted(difference.items(), key=lambda x: x[0])
+                    )
+                ),
+                str(
+                    "\n".join(
+                        f"{key}: {value['this']}"
+                        for key, value in sorted(difference.items(), key=lambda x: x[0])
+                    )
+                ),
+            ]
+        )
+    return f"The following {object_type}s do not have expected {dict_name}:\n{table}"

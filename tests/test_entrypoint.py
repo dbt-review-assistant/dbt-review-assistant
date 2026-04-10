@@ -13,27 +13,18 @@ from checks.entrypoint import (
     count_failures,
     entrypoint,
 )
+from utils.check_abc import (
+    STANDARD_MACRO_ARGUMENTS,
+    STANDARD_MODEL_ARGUMENTS,
+    STANDARD_SOURCE_ARGUMENTS,
+)
 from utils.console_formatting import check_status_header
 
 DEFAULTS = {
-    "include_materializations": None,
-    "include_packages": None,
-    "include_tags": None,
-    "include_node_paths": None,
-    "include_name_patterns": None,
-    "include_direct_parents": None,
-    "include_indirect_parents": None,
-    "include_direct_children": None,
-    "include_indirect_children": None,
-    "exclude_materializations": None,
-    "exclude_packages": None,
-    "exclude_tags": None,
-    "exclude_node_paths": None,
-    "exclude_name_patterns": None,
-    "exclude_direct_parents": None,
-    "exclude_indirect_parents": None,
-    "exclude_direct_children": None,
-    "exclude_indirect_children": None,
+    arg: None
+    for arg in set(
+        STANDARD_MODEL_ARGUMENTS + STANDARD_MACRO_ARGUMENTS + STANDARD_SOURCE_ARGUMENTS
+    )
 }
 
 

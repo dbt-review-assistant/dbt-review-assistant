@@ -1,89 +1,56 @@
 """All pre-commit hooks."""
 
 from checks.macro_checks.macro_arguments_have_descriptions import (
-    MacroArgumentsHaveDescriptions as MacroArgumentsHaveDescriptions,
+    MacroArgumentsHaveDescriptions,
 )
-from checks.macro_checks.macro_arguments_have_types import (
-    MacroArgumentsHaveTypes as MacroArgumentsHaveTypes,
-)
+from checks.macro_checks.macro_arguments_have_types import MacroArgumentsHaveTypes
 from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
-    MacroArgumentsMatchManifestVsSql as MacroArgumentsMatchManifestVsSql,
+    MacroArgumentsMatchManifestVsSql,
 )
-from checks.macro_checks.macro_names_must_match_pattern import (
-    MacroNamesMatchPattern as MacroNamesMatchPattern,
-)
-from checks.macro_checks.macros_have_descriptions import (
-    MacrosHaveDescriptions as MacrosHaveDescriptions,
-)
+from checks.macro_checks.macro_names_must_match_pattern import MacroNamesMatchPattern
+from checks.macro_checks.macros_have_descriptions import MacrosHaveDescriptions
 from checks.model_checks.model_column_descriptions_are_consistent import (
-    ModelColumnsDescriptionsAreConsistent as ModelColumnsDescriptionsAreConsistent,
+    ModelColumnsDescriptionsAreConsistent,
 )
 from checks.model_checks.model_column_names_match_manifest_vs_catalog import (
-    ModelColumnNamesMatchManifestVsCatalog as ModelColumnNamesMatchManifestVsCatalog,
+    ModelColumnNamesMatchManifestVsCatalog,
 )
 from checks.model_checks.model_column_names_must_match_pattern import (
-    ModelColumnNamesMatchPattern as ModelColumnNamesMatchPattern,
+    ModelColumnNamesMatchPattern,
 )
 from checks.model_checks.model_column_types_match_manifest_vs_catalog import (
-    ModelColumnTypesMatchManifestVsCatalog as ModelColumnTypesMatchManifestVsCatalog,
+    ModelColumnTypesMatchManifestVsCatalog,
 )
 from checks.model_checks.model_columns_have_descriptions import (
-    ModelColumnsHaveDescriptions as ModelColumnsHaveDescriptions,
+    ModelColumnsHaveDescriptions,
 )
-from checks.model_checks.model_columns_have_types import (
-    ModelColumnsHaveTypes as ModelColumnsHaveTypes,
-)
-from checks.model_checks.model_names_must_match_pattern import (
-    ModelNamesMatchPattern as ModelNamesMatchPattern,
-)
-from checks.model_checks.models_have_columns import (
-    ModelsHaveColumns as ModelsHaveColumns,
-)
-from checks.model_checks.models_have_constraints import (
-    ModelsHaveConstraints as ModelsHaveConstraints,
-)
-from checks.model_checks.models_have_contracts import (
-    ModelsHaveContracts as ModelsHaveContracts,
-)
-from checks.model_checks.models_have_data_tests import (
-    ModelsHaveDataTests as ModelsHaveDataTests,
-)
-from checks.model_checks.models_have_descriptions import (
-    ModelsHaveDescriptions as ModelsHaveDescriptions,
-)
-from checks.model_checks.models_have_properties_file import (
-    ModelsHavePropertiesFile as ModelsHavePropertiesFile,
-)
+from checks.model_checks.model_columns_have_types import ModelColumnsHaveTypes
+from checks.model_checks.model_names_must_match_pattern import ModelNamesMatchPattern
+from checks.model_checks.models_have_columns import ModelsHaveColumns
+from checks.model_checks.models_have_constraints import ModelsHaveConstraints
+from checks.model_checks.models_have_contracts import ModelsHaveContracts
+from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
+from checks.model_checks.models_have_descriptions import ModelsHaveDescriptions
+from checks.model_checks.models_have_properties_file import ModelsHavePropertiesFile
+from checks.model_checks.models_have_specific_config import ModelsHaveSpecificConfig
 from checks.model_checks.models_have_specific_materialization import (
-    ModelsHaveSpecificMaterialization as ModelsHaveSpecificMaterialization,
+    ModelsHaveSpecificMaterialization,
 )
-from checks.model_checks.models_have_tags import (
-    ModelsHaveTags as ModelsHaveTags,
-)
-from checks.model_checks.models_have_unit_tests import (
-    ModelsHaveUnitTests as ModelsHaveUnitTests,
-)
+from checks.model_checks.models_have_tags import ModelsHaveTags
+from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
-    SourceColumnNamesMatchManifestVsCatalog as SourceColumnNamesMatchManifestVsCatalog,
+    SourceColumnNamesMatchManifestVsCatalog,
 )
 from checks.source_checks.source_column_types_match_manifest_vs_catalog import (
-    SourceColumnTypesMatchManifestVsCatalog as SourceColumnTypesMatchManifestVsCatalog,
+    SourceColumnTypesMatchManifestVsCatalog,
 )
 from checks.source_checks.source_columns_have_descriptions import (
-    SourceColumnsHaveDescriptions as SourceColumnsHaveDescriptions,
+    SourceColumnsHaveDescriptions,
 )
-from checks.source_checks.source_columns_have_types import (
-    SourceColumnsHaveTypes as SourceColumnsHaveTypes,
-)
-from checks.source_checks.sources_have_columns import (
-    SourcesHaveColumns as SourcesHaveColumns,
-)
-from checks.source_checks.sources_have_data_tests import (
-    SourcesHaveDataTests as SourcesHaveDataTests,
-)
-from checks.source_checks.sources_have_descriptions import (
-    SourcesHaveDescriptions as SourcesHaveDescriptions,
-)
+from checks.source_checks.source_columns_have_types import SourceColumnsHaveTypes
+from checks.source_checks.sources_have_columns import SourcesHaveColumns
+from checks.source_checks.sources_have_data_tests import SourcesHaveDataTests
+from checks.source_checks.sources_have_descriptions import SourcesHaveDescriptions
 
 ALL_CHECKS = (
     ModelsHaveContracts,
@@ -97,6 +64,7 @@ ALL_CHECKS = (
     ModelsHaveUnitTests,
     ModelNamesMatchPattern,
     ModelColumnNamesMatchPattern,
+    ModelsHaveSpecificConfig,
     MacroArgumentsHaveDescriptions,
     MacroArgumentsHaveTypes,
     MacroArgumentsMatchManifestVsSql,
