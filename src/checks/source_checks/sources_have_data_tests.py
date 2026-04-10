@@ -1,6 +1,6 @@
 """Check sources have data tests."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_SOURCE_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_values_from_set_message
 
 
@@ -13,17 +13,9 @@ class SourcesHaveDataTests(ManifestCheck):
     """
 
     check_name: str = "sources-have-data-tests"
-    additional_arguments = [
+    additional_arguments = STANDARD_SOURCE_ARGUMENTS + [
         "must_have_all_data_tests_from",
         "must_have_any_data_test_from",
-        "include_tags",
-        "include_packages",
-        "include_node_paths",
-        "include_name_patterns",
-        "exclude_tags",
-        "exclude_packages",
-        "exclude_node_paths",
-        "exclude_name_patterns",
     ]
 
     def perform_check(self) -> None:

@@ -89,5 +89,5 @@ def count_failures(all_check_arguments: Iterable[Namespace]) -> int:
     failures = 0
     for check_arguments in all_check_arguments:
         result = ALL_CHECKS_MAP[check_arguments.check_id](check_arguments).has_failures
-        failures += 0 if result else 1
+        failures += int(result)
     return failures

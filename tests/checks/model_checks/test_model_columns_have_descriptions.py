@@ -7,7 +7,7 @@ import pytest
 from checks.model_checks.model_columns_have_descriptions import (
     ModelColumnsHaveDescriptions,
 )
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS
 from utils.manifest_object.node.model.model import ManifestModel
 
 
@@ -70,27 +70,13 @@ def test_model_columns_have_descriptions_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_models = PropertyMock(
-            return_value=[
-                ManifestModel(model_data, ManifestFilterConditions())
-                for model_data in models
-            ]
+            return_value=[ManifestModel(model_data) for model_data in models]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
         instance = ModelColumnsHaveDescriptions(Namespace())
         instance.perform_check()
         assert instance.check_name == "model-columns-have-descriptions"
-        assert instance.additional_arguments == [
-            "include_materializations",
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_materializations",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
-        ]
+        assert instance.additional_arguments == STANDARD_MODEL_ARGUMENTS
         assert instance.failures == expected_failures
         mock_in_scope_models.assert_called_once()
 

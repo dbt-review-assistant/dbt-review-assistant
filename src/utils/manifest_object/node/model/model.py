@@ -67,17 +67,6 @@ class ManifestModel(ManifestNode, DataTestableMixin):
             and self.materialized != "ephemeral"
         )
 
-    @property
-    def filter_by_materialization_type(self) -> bool:
-        """Whether the model is considered in-scope, based on materialization type."""
-        return (
-            self.filter_conditions.include_materializations is None
-            or self.materialized in self.filter_conditions.include_materializations
-        ) and (
-            self.filter_conditions.exclude_materializations is None
-            or self.materialized not in self.filter_conditions.exclude_materializations
-        )
-
     def has_required_constraints(
         self,
         must_have_all_constraints_from: Collection[str] | None = None,

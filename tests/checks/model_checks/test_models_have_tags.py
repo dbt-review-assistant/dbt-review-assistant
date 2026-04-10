@@ -4,7 +4,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import pytest
 
 from checks.model_checks.models_have_tags import ModelsHaveTags
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS
 from utils.manifest_object.node.model.model import ManifestModel
 
 
@@ -94,10 +94,7 @@ def test_models_have_tags_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_models = PropertyMock(
-            return_value=[
-                ManifestModel(model_data, ManifestFilterConditions())
-                for model_data in models
-            ]
+            return_value=[ManifestModel(model_data) for model_data in models]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
         instance = ModelsHaveTags(Namespace())
@@ -105,19 +102,9 @@ def test_models_have_tags_perform_checks(
         instance.args.must_have_any_tag_from = must_have_any_tag_from
         instance.perform_check()
         assert instance.check_name == "models-have-tags"
-        assert instance.additional_arguments == [
+        assert instance.additional_arguments == STANDARD_MODEL_ARGUMENTS + [
             "must_have_all_tags_from",
             "must_have_any_tag_from",
-            "include_materializations",
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_materializations",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
 

@@ -6,7 +6,7 @@ from jinja2.nodes import Expr, Name
 from jinja2.nodes import Macro as JinjaMacro
 from jinja2.parser import Parser
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_MACRO_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import macro_argument_mismatch_manifest_vs_sql
 from utils.manifest_object.macro import Macro as ManifestMacro
 
@@ -88,14 +88,7 @@ class MacroArgumentsMatchManifestVsSql(ManifestCheck):
     manifest_args: set[str] = set()
     sql_args: set[str] = set()
     check_name: str = "macro-arguments-match-manifest-vs-sql"
-    additional_arguments = [
-        "include_packages",
-        "include_tags",
-        "include_name_patterns",
-        "exclude_packages",
-        "exclude_tags",
-        "exclude_name_patterns",
-    ]
+    additional_arguments = STANDARD_MACRO_ARGUMENTS
 
     def perform_check(self) -> None:
         """Execute the check logic."""

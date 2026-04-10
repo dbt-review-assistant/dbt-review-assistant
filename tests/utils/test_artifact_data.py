@@ -1,4 +1,5 @@
 import json
+from argparse import Namespace
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -101,11 +102,9 @@ def test_manifest_models(mock_get_json_artifact_data):
     expected_models = {
         "test_model": ManifestModel(
             data={"resource_type": "model"},
-            filter_conditions=filters,
         ),
         "another_model": ManifestModel(
             data={"resource_type": "model"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -116,7 +115,7 @@ def test_manifest_models(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_models(mock_get_json_artifact_data):
-    filters = ManifestFilterConditions(_include_packages=["test_package"])
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {
         "nodes": {
             "test_model": {"resource_type": "model", "package_name": "test_package"},
@@ -133,11 +132,9 @@ def test_manifest_in_scope_models(mock_get_json_artifact_data):
     expected_models = [
         ManifestModel(
             data={"resource_type": "model", "package_name": "test_package"},
-            filter_conditions=filters,
         ),
         ManifestModel(
             data={"resource_type": "model", "package_name": "test_package"},
-            filter_conditions=filters,
         ),
     ]
     mock_get_json_artifact_data.return_value = mock_data
@@ -154,7 +151,6 @@ def test_manifest_in_scope_models(mock_get_json_artifact_data):
             "test_model",
             ManifestModel(
                 data={"resource_type": "model", "package_name": "test_package"},
-                filter_conditions=ManifestFilterConditions(),
             ),
         ),
         ("no_such_model", None),
@@ -205,11 +201,9 @@ def test_manifest_generic_tests(mock_get_json_artifact_data):
     expected_tests = {
         "test_test": GenericTest(
             data={"resource_type": "test", "test_metadata": {"name": "test"}},
-            filter_conditions=filters,
         ),
         "another_test": GenericTest(
             data={"resource_type": "test", "test_metadata": {"name": "test"}},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -233,11 +227,9 @@ def test_manifest_snapshots(mock_get_json_artifact_data):
     expected_snapshots = {
         "test_snapshot": ManifestSnapshot(
             data={"resource_type": "snapshot"},
-            filter_conditions=filters,
         ),
         "another_snapshot": ManifestSnapshot(
             data={"resource_type": "snapshot"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -261,11 +253,9 @@ def test_manifest_seeds(mock_get_json_artifact_data):
     expected_seeds = {
         "test_seed": ManifestSeed(
             data={"resource_type": "seed"},
-            filter_conditions=filters,
         ),
         "another_seed": ManifestSeed(
             data={"resource_type": "seed"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -289,11 +279,9 @@ def test_manifest_analyses(mock_get_json_artifact_data):
     expected_analyses = {
         "test_analysis": ManifestAnalysis(
             data={"resource_type": "analysis"},
-            filter_conditions=filters,
         ),
         "another_analysis": ManifestAnalysis(
             data={"resource_type": "analysis"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -321,11 +309,9 @@ def test_manifest_singular_tests(mock_get_json_artifact_data):
     expected_singular_tests = {
         "test_singular_test": SingularTest(
             data={"resource_type": "test"},
-            filter_conditions=filters,
         ),
         "another_singular_test": SingularTest(
             data={"resource_type": "test"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -349,11 +335,9 @@ def test_manifest_functions(mock_get_json_artifact_data):
     expected_functions = {
         "test_function": ManifestFunction(
             data={"resource_type": "function"},
-            filter_conditions=filters,
         ),
         "another_function": ManifestFunction(
             data={"resource_type": "function"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -375,11 +359,9 @@ def test_manifest_sources(mock_get_json_artifact_data):
     expected_sources = {
         "test_source": ManifestSource(
             data={"resource_type": "source"},
-            filter_conditions=filters,
         ),
         "another_source": ManifestSource(
             data={"resource_type": "source"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -390,7 +372,7 @@ def test_manifest_sources(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_sources(mock_get_json_artifact_data):
-    filters = ManifestFilterConditions(_include_packages=["test_package"])
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {
         "sources": {
             "test_source": {"resource_type": "source", "package_name": "test_package"},
@@ -408,11 +390,9 @@ def test_manifest_in_scope_sources(mock_get_json_artifact_data):
     expected_sources = [
         ManifestSource(
             data={"resource_type": "source", "package_name": "test_package"},
-            filter_conditions=filters,
         ),
         ManifestSource(
             data={"resource_type": "source", "package_name": "test_package"},
-            filter_conditions=filters,
         ),
     ]
     mock_get_json_artifact_data.return_value = mock_data
@@ -434,11 +414,9 @@ def test_manifest_macros(mock_get_json_artifact_data):
     expected_macros = {
         "test_macro": Macro(
             data={"resource_type": "macro"},
-            filter_conditions=filters,
         ),
         "another_macro": Macro(
             data={"resource_type": "macro"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -449,7 +427,7 @@ def test_manifest_macros(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_macros(mock_get_json_artifact_data):
-    filters = ManifestFilterConditions(_include_packages=["test_package"])
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {
         "macros": {
             "test_macro": {"resource_type": "macro", "package_name": "test_package"},
@@ -467,11 +445,9 @@ def test_manifest_in_scope_macros(mock_get_json_artifact_data):
     expected_sources = [
         Macro(
             data={"resource_type": "macro", "package_name": "test_package"},
-            filter_conditions=filters,
         ),
         Macro(
             data={"resource_type": "macro", "package_name": "test_package"},
-            filter_conditions=filters,
         ),
     ]
     mock_get_json_artifact_data.return_value = mock_data
@@ -493,11 +469,9 @@ def test_manifest_unit_tests(mock_get_json_artifact_data):
     expected_unit_tests = {
         "test_unit_test": UnitTest(
             data={"resource_type": "unit_test"},
-            filter_conditions=filters,
         ),
         "another_unit_test": UnitTest(
             data={"resource_type": "unit_test"},
-            filter_conditions=filters,
         ),
     }
     mock_get_json_artifact_data.return_value = mock_data
@@ -507,7 +481,7 @@ def test_manifest_unit_tests(mock_get_json_artifact_data):
 
 
 @patch("utils.artifact_data.get_json_artifact_data")
-def test_manifest_child_maps(mock_get_json_artifact_data):
+def test_manifest_child_map(mock_get_json_artifact_data):
     filters = ManifestFilterConditions()
     mock_child_map = Mock()
     mock_data = {
@@ -518,6 +492,20 @@ def test_manifest_child_maps(mock_get_json_artifact_data):
     path = Path("test")
     instance = Manifest(manifest_dir=path, filter_conditions=filters)
     assert instance.child_map is mock_child_map
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_parent_map(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions()
+    mock_parent_map = Mock()
+    mock_data = {
+        "parent_map": mock_parent_map,
+        "seeds": {},
+    }
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert instance.parent_map is mock_parent_map
 
 
 @patch("utils.artifact_data.get_json_artifact_data")

@@ -1,6 +1,6 @@
 """Check if macro names match a regex pattern."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_MACRO_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_name_does_not_match_pattern
 
 
@@ -13,11 +13,7 @@ class MacroNamesMatchPattern(ManifestCheck):
     """
 
     check_name: str = "macro-names-match-pattern"
-    additional_arguments = [
-        "include_tags",
-        "include_packages",
-        "exclude_tags",
-        "exclude_packages",
+    additional_arguments = STANDARD_MACRO_ARGUMENTS + [
         "name_must_match_pattern",
     ]
 

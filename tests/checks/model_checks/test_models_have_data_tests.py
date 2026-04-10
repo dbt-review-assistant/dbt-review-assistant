@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from checks.model_checks.models_have_data_tests import ModelsHaveDataTests
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS
 
 
 @pytest.mark.parametrize(
@@ -260,19 +261,9 @@ def test_models_have_data_tests_perform_checks(
         instance.args.must_have_any_data_test_from = must_have_any_data_test_from
         instance.perform_check()
         assert instance.check_name == "models-have-data-tests"
-        assert instance.additional_arguments == [
+        assert instance.additional_arguments == STANDARD_MODEL_ARGUMENTS + [
             "must_have_all_data_tests_from",
             "must_have_any_data_test_from",
-            "include_materializations",
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_materializations",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
 

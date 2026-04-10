@@ -1,6 +1,6 @@
 """Check if the source column names match between the manifest and the catalog."""
 
-from utils.check_abc import ManifestVsCatalogComparison
+from utils.check_abc import STANDARD_SOURCE_ARGUMENTS, ManifestVsCatalogComparison
 from utils.check_failure_messages import (
     manifest_vs_catalog_column_name_mismatch_message,
 )
@@ -19,16 +19,7 @@ class SourceColumnNamesMatchManifestVsCatalog(ManifestVsCatalogComparison):
     manifest_items: set[str] = set()
     catalog_items: set[str] = set()
     check_name: str = "source-column-names-match-manifest-vs-catalog"
-    additional_arguments = [
-        "include_tags",
-        "include_packages",
-        "include_node_paths",
-        "include_name_patterns",
-        "exclude_tags",
-        "exclude_packages",
-        "exclude_node_paths",
-        "exclude_name_patterns",
-    ]
+    additional_arguments = STANDARD_SOURCE_ARGUMENTS
 
     def perform_check(self) -> None:
         """Execute the check logic."""

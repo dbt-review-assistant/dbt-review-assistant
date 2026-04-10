@@ -1,6 +1,6 @@
 """Check sources have columns listed in the manifest."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_SOURCE_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_attribute_message
 
 
@@ -13,16 +13,7 @@ class SourcesHaveColumns(ManifestCheck):
     """
 
     check_name: str = "sources-have-columns"
-    additional_arguments = [
-        "include_tags",
-        "include_packages",
-        "include_node_paths",
-        "include_name_patterns",
-        "exclude_tags",
-        "exclude_packages",
-        "exclude_node_paths",
-        "exclude_name_patterns",
-    ]
+    additional_arguments = STANDARD_SOURCE_ARGUMENTS
 
     def perform_check(self) -> None:
         """Execute the check logic."""

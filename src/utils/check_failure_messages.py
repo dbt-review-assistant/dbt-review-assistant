@@ -239,12 +239,16 @@ def object_attribute_value_not_in_set(
         attribute_type: Type of attribute being checked.
         allowed_values: set of allowed values.
     """
-    join_string = "\n - "
-    failures = join_string.join(
-        f"{instance} - {materialization}"
-        for instance, materialization in sorted(objects.items())
-    )
-    return (
-        f"The following {object_type}s do not have one of the required {attribute_type}s ({','.join(sorted(allowed_values))})"
-        f":\n - {failures}"
-    )
+    table = PrettyTable(**PRETTY_TABLE_KWARGS)
+    table.field_names = [object_type, "Allowed", "Actual"]
+    for object_name, object_attribute_value in sorted(
+        objects.items(), key=lambda x: x[0]
+    ):
+        table.add_row(
+            [
+                object_name,
+                "\n".join(sorted(allowed_values)),
+                object_attribute_value,
+            ]
+        )
+    return f"The following {object_type}s do not have an allowed {attribute_type}:\n{table}"

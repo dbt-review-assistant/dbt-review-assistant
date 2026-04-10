@@ -1,6 +1,6 @@
 """Check macros have descriptions."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_MACRO_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_attribute_message
 
 
@@ -13,14 +13,7 @@ class MacrosHaveDescriptions(ManifestCheck):
     """
 
     check_name: str = "macros-have-descriptions"
-    additional_arguments = [
-        "include_packages",
-        "include_tags",
-        "include_name_patterns",
-        "exclude_packages",
-        "exclude_tags",
-        "exclude_name_patterns",
-    ]
+    additional_arguments = STANDARD_MACRO_ARGUMENTS
 
     def perform_check(self) -> None:
         """Execute the check logic."""

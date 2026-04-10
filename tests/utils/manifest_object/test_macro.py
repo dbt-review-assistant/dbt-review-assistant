@@ -1,11 +1,10 @@
 import pytest
 
-from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.macro import Macro, MacroArgument
 
 
 def test_macro_macro_sql():
-    instance = Macro({"macro_sql": "test macro"}, ManifestFilterConditions())
+    instance = Macro({"macro_sql": "test macro"})
     assert instance.macro_sql == "test macro"
 
 
@@ -40,7 +39,7 @@ def test_macro_macro_sql():
     ],
 )
 def test_macro_arguments(data: dict, expected_return: list[MacroArgument]):
-    instance = Macro(data, ManifestFilterConditions())
+    instance = Macro(data)
     assert list(instance.arguments) == expected_return
 
 

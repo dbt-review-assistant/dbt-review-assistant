@@ -337,9 +337,13 @@ def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
                 "attribute_type": "materialization",
                 "allowed_values": {"table", "view"},
             },
-            "The following models do not have one of the required materializations "
-            "(table,view):\n"
-            " - test_model - ephemeral",
+            """The following models do not have an allowed materialization:
++-------------------------+-------------------------+-------------------------+
+|          model          |         Allowed         |          Actual         |
++-------------------------+-------------------------+-------------------------+
+|        test_model       |          table          |        ephemeral        |
+|                         |           view          |                         |
++-------------------------+-------------------------+-------------------------+""",
         ),
         (
             {
@@ -348,10 +352,16 @@ def test_object_name_does_not_match_pattern(kwargs: dict, expected_return: str):
                 "attribute_type": "materialization",
                 "allowed_values": {"table", "view"},
             },
-            "The following models do not have one of the required materializations "
-            "(table,view):\n"
-            " - another_model - incremental\n"
-            " - test_model - ephemeral",
+            """The following models do not have an allowed materialization:
++-------------------------+-------------------------+-------------------------+
+|          model          |         Allowed         |          Actual         |
++-------------------------+-------------------------+-------------------------+
+|      another_model      |          table          |       incremental       |
+|                         |           view          |                         |
++-------------------------+-------------------------+-------------------------+
+|        test_model       |          table          |        ephemeral        |
+|                         |           view          |                         |
++-------------------------+-------------------------+-------------------------+""",
         ),
     ],
 )

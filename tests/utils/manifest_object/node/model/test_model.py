@@ -2,7 +2,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.model.constraint import Constraint
 from utils.manifest_object.node.model.contract import Contract
 from utils.manifest_object.node.model.model import ManifestColumn, ManifestModel
@@ -35,7 +34,7 @@ from utils.manifest_object.node.model.model import ManifestColumn, ManifestModel
     ],
 )
 def test_manifest_model_columns(data: dict, expected_return: dict[str, ManifestColumn]):
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert instance.columns == expected_return
 
 
@@ -66,7 +65,7 @@ def test_manifest_model_columns(data: dict, expected_return: dict[str, ManifestC
 def test_manifest_model_constraints(
     data: dict, expected_return: tuple[Constraint, ...]
 ):
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert instance.constraints == expected_return
 
 
@@ -104,7 +103,7 @@ def test_manifest_model_constraints(
     ],
 )
 def test_manifest_model_contract(data: dict, expected_return: tuple[Constraint, ...]):
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert instance.contract == expected_return
 
 
@@ -159,7 +158,7 @@ def test_manifest_model_contract(data: dict, expected_return: tuple[Constraint, 
     ],
 )
 def test_manifest_model_materialized(data: dict, expected_return: str):
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert instance.materialized == expected_return
 
 
@@ -209,113 +208,8 @@ def test_manifest_model_materialized(data: dict, expected_return: str):
     ],
 )
 def test_manifest_model_has_contract(data: dict, expected_return: bool):
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert instance.has_contract is expected_return
-
-
-@pytest.mark.parametrize(
-    argnames=[
-        "data",
-        "include_materializations",
-        "exclude_materializations",
-        "expected_return",
-    ],
-    ids=[
-        "Explicitly included",
-        "Not explicitly included",
-        "Explicitly excluded",
-        "Not explicitly excluded",
-        "Explicitly included, with exclude condition",
-        "Explicitly excluded, with include condition",
-        "Both explicitly included and explicitly excluded - exclude should take precedence",
-    ],
-    argvalues=[
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "view"},
-            },
-            ["view"],
-            None,
-            True,
-        ),
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "view"},
-            },
-            ["table"],
-            None,
-            False,
-        ),
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "view"},
-            },
-            None,
-            ["view"],
-            False,
-        ),
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "view"},
-            },
-            None,
-            ["table"],
-            True,
-        ),
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "view"},
-            },
-            ["view"],
-            ["table"],
-            True,
-        ),
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "table"},
-            },
-            ["view"],
-            ["table"],
-            False,
-        ),
-        (
-            {
-                "unique_id": "included-model",
-                "resource_type": "model",
-                "config": {"materialized": "view"},
-            },
-            ["view"],
-            ["view"],
-            False,
-        ),
-    ],
-)
-def test_manifest_model_filter_nodes_by_materialization_type(
-    data: dict,
-    include_materializations: list[str],
-    exclude_materializations: list[str],
-    expected_return: bool,
-):
-    instance = ManifestModel(
-        data,
-        ManifestFilterConditions(
-            _include_materializations=include_materializations,
-            _exclude_materializations=exclude_materializations,
-        ),
-    )
-    assert instance.filter_by_materialization_type is expected_return
 
 
 @pytest.mark.parametrize(
@@ -444,7 +338,7 @@ def test_manifest_model_has_required_constraints(
     must_have_any_constraint_from: list[str],
     expected_return: bool,
 ):
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert (
         instance.has_required_constraints(
             must_have_all_constraints_from=must_have_all_constraints_from,
@@ -495,5 +389,5 @@ def test_manifest_model_has_unit_tests(
     mock_manifest = Mock()
     mock_manifest.child_map = child_map
     mock_manifest.unit_tests = unit_tests
-    instance = ManifestModel(data, ManifestFilterConditions())
+    instance = ManifestModel(data)
     assert instance.has_unit_tests(manifest=mock_manifest) is expected_return

@@ -1,6 +1,6 @@
 """Check if models have a description."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import (
     object_missing_values_from_set_message,
 )
@@ -15,19 +15,9 @@ class ModelsHaveTags(ManifestCheck):
     """
 
     check_name: str = "models-have-tags"
-    additional_arguments = [
+    additional_arguments = STANDARD_MODEL_ARGUMENTS + [
         "must_have_all_tags_from",
         "must_have_any_tag_from",
-        "include_materializations",
-        "include_tags",
-        "include_packages",
-        "include_node_paths",
-        "include_name_patterns",
-        "exclude_materializations",
-        "exclude_tags",
-        "exclude_packages",
-        "exclude_node_paths",
-        "exclude_name_patterns",
     ]
 
     def perform_check(self) -> None:

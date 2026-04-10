@@ -13,7 +13,7 @@ from checks.macro_checks.macro_arguments_match_manifest_vs_sql import (
     MacroArgumentsMatchManifestVsSql,
     get_macro_args_from_sql_code,
 )
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_MACRO_ARGUMENTS
 from utils.manifest_object.macro import Macro as ManifestMacro
 
 
@@ -65,10 +65,7 @@ from utils.manifest_object.macro import Macro as ManifestMacro
     ),
 )
 def test_get_macro_args_from_sql_code(macro: dict[str, str], expected_args: set[str]):
-    assert (
-        get_macro_args_from_sql_code(ManifestMacro(macro, ManifestFilterConditions()))
-        == expected_args
-    )
+    assert get_macro_args_from_sql_code(ManifestMacro(macro)) == expected_args
 
 
 @pytest.mark.parametrize(
@@ -212,23 +209,13 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_macros = PropertyMock(
-            return_value=[
-                ManifestMacro(macro_data, ManifestFilterConditions())
-                for macro_data in macros
-            ]
+            return_value=[ManifestMacro(macro_data) for macro_data in macros]
         )
         type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
         instance = MacroArgumentsMatchManifestVsSql(Namespace())
         instance.perform_check()
         assert instance.check_name == "macro-arguments-match-manifest-vs-sql"
-        assert instance.additional_arguments == [
-            "include_packages",
-            "include_tags",
-            "include_name_patterns",
-            "exclude_packages",
-            "exclude_tags",
-            "exclude_name_patterns",
-        ]
+        assert instance.additional_arguments == STANDARD_MACRO_ARGUMENTS
         assert instance.sql_args == expected_sql_args
         assert instance.manifest_args == expected_manifest_args
         mock_in_scope_macros.assert_called_once()
