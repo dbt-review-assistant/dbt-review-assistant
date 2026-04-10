@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from checks.source_checks.sources_have_data_tests import SourcesHaveDataTests
+from utils.check_abc import STANDARD_SOURCE_ARGUMENTS
 
 
 @pytest.mark.parametrize(
@@ -274,17 +275,9 @@ def test_sources_have_data_tests_perform_checks(
         instance.args.must_have_any_data_test_from = must_have_any_data_test_from
         instance.perform_check()
         assert instance.check_name == "sources-have-data-tests"
-        assert instance.additional_arguments == [
+        assert instance.additional_arguments == STANDARD_SOURCE_ARGUMENTS + [
             "must_have_all_data_tests_from",
             "must_have_any_data_test_from",
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
         ]
         assert instance.failures == expected_failures
 

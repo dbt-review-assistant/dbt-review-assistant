@@ -1,6 +1,6 @@
 """Check if models are materialized with one of a set of allowed materializations."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import (
     object_attribute_value_not_in_set,
 )
@@ -16,17 +16,7 @@ class ModelsHaveSpecificMaterialization(ManifestCheck):
 
     failures: dict[str, str | None]
     check_name: str = "models-have-specific-materialization"
-    additional_arguments = [
-        "include_tags",
-        "include_packages",
-        "include_node_paths",
-        "include_name_patterns",
-        "exclude_tags",
-        "exclude_packages",
-        "exclude_node_paths",
-        "exclude_name_patterns",
-        "must_be_materialized_as_one_of",
-    ]
+    additional_arguments = STANDARD_MODEL_ARGUMENTS + ["must_be_materialized_as_one_of"]
 
     def perform_check(self) -> None:
         """Execute the check logic."""

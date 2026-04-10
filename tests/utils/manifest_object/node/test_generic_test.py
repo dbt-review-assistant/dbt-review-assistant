@@ -3,7 +3,6 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 from _pytest.raises import RaisesExc
 
-from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.generic_test import GenericTest
 
 
@@ -45,13 +44,11 @@ def test_generic_test_name(
     expected_return: str | None,
     expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
-    instance = GenericTest(data, filter_conditions=ManifestFilterConditions())
+    instance = GenericTest(data)
     with expected_raise:
         assert instance.name == expected_return
 
 
 def test_generic_test_instance_name():
-    instance = GenericTest(
-        {"name": "not_null_my_model"}, filter_conditions=ManifestFilterConditions()
-    )
+    instance = GenericTest({"name": "not_null_my_model"})
     assert instance.instance_name == "not_null_my_model"

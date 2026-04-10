@@ -11,7 +11,19 @@ from utils.console_formatting import (
     check_status_header,
     colour_message,
 )
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.manifest_filter_conditions import (
+    DirectChildrenFilterMethod,
+    DirectParentsFilterMethod,
+    IndirectChildrenFilterMethod,
+    IndirectParentsFilterMethod,
+    ManifestFilterConditions,
+    MaterializationFilterMethod,
+    NamePatternFilterMethod,
+    PackageFilterMethod,
+    PathFilterMethod,
+    ResourceTypeFilterMethod,
+    TagFilterMethod,
+)
 
 ADDITIONAL_ARGUMENTS = [
     "include_materializations",
@@ -49,14 +61,14 @@ def test_check_init():
     with (
         patch.object(Check, "__call__") as mock_call,
     ):
-        args = Mock()
+        args = Namespace()
         instance = ConcreteCheck(args)
         mock_call.assert_called_once()
         assert instance.args is args
 
 
 def test_check_check_name():
-    mock_args = Mock()
+    mock_args = Namespace()
     with (
         patch.object(Check, "__call__"),
     ):
@@ -65,7 +77,7 @@ def test_check_check_name():
 
 
 def test_check_additional_arguments():
-    mock_args = Mock()
+    mock_args = Namespace()
     with (
         patch.object(Check, "__call__"),
     ):
@@ -79,26 +91,64 @@ def test_check_filter_conditions():
         include_packages=["test_dbt_package"],
         include_tags=["test_tag"],
         include_node_paths=[Path("test/path/")],
+        include_direct_parents=["test_model"],
+        include_indirect_parents=["another_model"],
+        include_direct_children=["test_model"],
+        include_indirect_children=["another_model"],
         exclude_materializations=["view"],
         exclude_packages=["another_dbt_package"],
         exclude_tags=["another_tag"],
         exclude_node_paths=[Path("another/path/")],
+        exclude_direct_parents=["one_more_model"],
+        exclude_indirect_parents=["yet_another_model"],
+        exclude_direct_children=["one_more_model"],
+        exclude_indirect_children=["yet_another_model"],
     )
     with (
         patch.object(Check, "__call__"),
     ):
         instance = ConcreteCheck(mock_args)
-        assert instance.filter_conditions == ManifestFilterConditions(
-            _include_resource_types=None,
-            _include_materializations=["table"],
-            _include_packages=["test_dbt_package"],
-            _include_tags=["test_tag"],
-            _include_paths=[Path("test/path/")],
-            _exclude_resource_types=None,
-            _exclude_materializations=["view"],
-            _exclude_packages=["another_dbt_package"],
-            _exclude_tags=["another_tag"],
-            _exclude_paths=[Path("another/path/")],
+        assert instance.filter_conditions.filter_methods == (
+            MaterializationFilterMethod(
+                include_values={"table"},
+                exclude_values={"view"},
+            ),
+            PathFilterMethod(
+                include_values={Path("test/path/")},
+                exclude_values={Path("another/path/")},
+            ),
+            PackageFilterMethod(
+                include_values={"test_dbt_package"},
+                exclude_values={"another_dbt_package"},
+            ),
+            NamePatternFilterMethod(
+                include_values=None,
+                exclude_values=None,
+            ),
+            ResourceTypeFilterMethod(
+                include_values=None,
+                exclude_values=None,
+            ),
+            TagFilterMethod(
+                include_values={"test_tag"},
+                exclude_values={"another_tag"},
+            ),
+            DirectParentsFilterMethod(
+                include_values={"test_model"},
+                exclude_values={"one_more_model"},
+            ),
+            IndirectParentsFilterMethod(
+                include_values={"another_model"},
+                exclude_values={"yet_another_model"},
+            ),
+            DirectChildrenFilterMethod(
+                include_values={"test_model"},
+                exclude_values={"one_more_model"},
+            ),
+            IndirectChildrenFilterMethod(
+                include_values={"another_model"},
+                exclude_values={"yet_another_model"},
+            ),
         )
 
 
@@ -127,28 +177,31 @@ def test_check_call(has_failures: bool):
     ):
         instance = ConcreteCheck(mock_args)
         instance.args = mock_args
+        instance.filter_conditions = ManifestFilterConditions()
         instance.failures = has_failures
         instance()
         mock_perform_check.assert_called_once()
-        mock_info.assert_has_calls(
-            [
-                call(
-                    f"""{
-                        colour_message(
-                            f"Performing check: {instance.check_name}",
-                            emphasis=ConsoleEmphasis.BOLD,
-                        )
-                    }\n\n{instance.filter_conditions.summary}\n"""
-                ),
-                call(
-                    f"{check_status_header(f'{instance.check_name}: PASS', True)}\n\n{80 * '_'}\n"
-                ),
-            ]
-        )
-        if has_failures:
-            mock_error.assert_called_with(
-                f"{check_status_header(f'{instance.check_name}: FAIL', False)}\n\n{instance.failure_message}\n\n{80 * '_'}\n"
+        expected_info_calls = [
+            call(
+                f"""{
+                    colour_message(
+                        f"Performing check: {instance.check_name}",
+                        emphasis=ConsoleEmphasis.BOLD,
+                    )
+                }\n\n{instance.filter_conditions.summary}\n"""
             )
+        ]
+    if has_failures:
+        mock_error.assert_called_with(
+            f"{check_status_header(f'{instance.check_name}: FAIL', False)}\n\n{instance.failure_message}\n\n{80 * '_'}\n"
+        )
+    else:
+        expected_info_calls.append(
+            call(
+                f"{check_status_header(f'{instance.check_name}: PASS', True)}\n\n{80 * '_'}\n"
+            )
+        )
+    mock_info.assert_has_calls(expected_info_calls)
 
 
 class ConcreteManifestCheck(ManifestCheck):

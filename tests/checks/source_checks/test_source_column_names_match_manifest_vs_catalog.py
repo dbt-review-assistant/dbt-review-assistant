@@ -8,7 +8,7 @@ from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
     SourceColumnNamesMatchManifestVsCatalog,
 )
 from utils.catalog_object.catalog_table import CatalogTable
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_SOURCE_ARGUMENTS
 from utils.manifest_object.manifest_object import ManifestSource
 
 
@@ -143,8 +143,7 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
     ):
         mock_in_scope_sources = PropertyMock(
             return_value=[
-                ManifestSource(source_data, ManifestFilterConditions())
-                for source_data in manifest_sources
+                ManifestSource(source_data) for source_data in manifest_sources
             ]
         )
         type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
@@ -158,16 +157,7 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
         instance = SourceColumnNamesMatchManifestVsCatalog(Namespace())
         instance.perform_check()
         assert instance.check_name == "source-column-names-match-manifest-vs-catalog"
-        assert instance.additional_arguments == [
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
-        ]
+        assert instance.additional_arguments == STANDARD_SOURCE_ARGUMENTS
         assert instance.catalog_items == expected_catalog_items
         assert instance.manifest_items == expected_manifest_items
         mock_catalog_sources.assert_called_once()

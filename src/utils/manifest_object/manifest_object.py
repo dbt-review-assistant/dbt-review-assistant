@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Collection, Protocol, cast
 
-from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.node.model.constraint import Constraint
 
 if TYPE_CHECKING:
@@ -45,11 +44,9 @@ class ManifestObject(HasNameMixin, ABC):
 
     Attributes:
         data: data for the object from the manifest file.
-        filter_conditions: a ManifestFilterConditions object to filter objects by.
     """
 
     data: dict
-    filter_conditions: ManifestFilterConditions
 
     @property
     def description(self) -> str | None:
@@ -100,89 +97,6 @@ class ManifestObject(HasNameMixin, ABC):
             self.original_file_path in filepaths
             or getattr(self, "patch_path", None) in filepaths
         )
-
-    @property
-    def filter_by_name_pattern(self) -> bool:
-        """Whether the object is considered in scope based on name pattern."""
-        return (
-            self.filter_conditions.include_name_patterns is None
-            or any(
-                self.name_matches_regex(pattern)
-                for pattern in self.filter_conditions.include_name_patterns
-            )
-        ) and (
-            self.filter_conditions.exclude_name_patterns is None
-            or all(
-                not self.name_matches_regex(pattern)
-                for pattern in self.filter_conditions.exclude_name_patterns
-            )
-        )
-
-    @property
-    def filter_by_package(self) -> bool:
-        """Whether the object is considered in scope based on package name."""
-        return (
-            self.filter_conditions.include_packages is None
-            or self.package_name in self.filter_conditions.include_packages
-        ) and (
-            self.filter_conditions.exclude_packages is None
-            or self.package_name not in self.filter_conditions.exclude_packages
-        )
-
-    @property
-    def filter_by_path(self) -> bool:
-        """Whether the object is considered in scope based on path."""
-        return (
-            self.filter_conditions.include_paths is None
-            or any(
-                Path(self.data["original_file_path"]).is_relative_to(path)
-                for path in self.filter_conditions.include_paths
-            )
-        ) and (
-            self.filter_conditions.exclude_paths is None
-            or not any(
-                Path(self.data["original_file_path"]).is_relative_to(path)
-                for path in self.filter_conditions.exclude_paths
-            )
-        )
-
-    @property
-    def filter_by_resource_type(self) -> bool:
-        """Whether the object is considered in scope based on resource type."""
-        return (
-            self.filter_conditions.include_resource_types is None
-            or self.resource_type in self.filter_conditions.include_resource_types
-        ) and (
-            self.filter_conditions.exclude_resource_types is None
-            or self.resource_type not in self.filter_conditions.exclude_resource_types
-        )
-
-    @property
-    def is_in_scope(self) -> bool:
-        """Whether the object is considered in scope based on all filter conditions."""
-        return all(
-            [
-                self.filter_by_resource_type,
-                self.filter_by_package,
-                self.filter_by_path,
-                self.filter_by_name_pattern,
-            ]
-        )
-
-
-class ImplementsIsInScope(Protocol):
-    """Protocol for objects that implements the in_scope property."""
-
-    @property
-    def is_in_scope(self) -> bool:
-        """Whether the object is considered in scope based on all filter conditions."""
-        ...
-
-
-class HasFilterConditions(Protocol):
-    """Protocol for objects that have the filter_conditions attribute."""
-
-    filter_conditions: ManifestFilterConditions
 
 
 class HasData(Protocol):
@@ -240,20 +154,6 @@ class TaggableMixin(ConfigurableMixin):
         config_tags = set(self.config.get("tags", []))
         manifest_tags = set(cast(HasData, self).data.get("tags", []))
         return config_tags.union(manifest_tags)
-
-    @property
-    def filter_by_tags(self) -> bool:
-        """Whether the object is considered in scope based on tags."""
-        include_tags = cast(HasFilterConditions, self).filter_conditions.include_tags
-        exclude_tags = cast(HasFilterConditions, self).filter_conditions.exclude_tags
-        return (
-            include_tags is None or bool(self.tags.intersection(include_tags))
-        ) and (exclude_tags is None or not bool(self.tags.intersection(exclude_tags)))
-
-    @property
-    def is_in_scope(self) -> bool:
-        """Whether the object is considered in scope based on all filter conditions."""
-        return cast(ImplementsIsInScope, super()).is_in_scope and self.filter_by_tags
 
     def has_required_tags(
         self,

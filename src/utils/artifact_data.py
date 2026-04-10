@@ -100,9 +100,7 @@ class Manifest:
             a dictionary mapping unique IDs to ManifestModel objects.
         """
         return {
-            node_id: ManifestModel(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: ManifestModel(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "model"
         }
@@ -116,7 +114,7 @@ class Manifest:
             after filtering.
         """
         for model in self.models.values():
-            if model.is_in_scope and (
+            if self.filter_conditions.is_manifest_object_in_scope(model, self) and (
                 not self.filepaths
                 or model.is_included_by_original_or_patch_path(self.filepaths)
             ):
@@ -141,9 +139,7 @@ class Manifest:
             a dictionary mapping unique IDs to GenericTest objects.
         """
         return {
-            node_id: GenericTest(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: GenericTest(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "test"
             and node_data.get("test_metadata")
@@ -157,9 +153,7 @@ class Manifest:
             a dictionary mapping unique IDs to ManifestSnapshot objects.
         """
         return {
-            node_id: ManifestSnapshot(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: ManifestSnapshot(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "snapshot"
         }
@@ -172,9 +166,7 @@ class Manifest:
             a dictionary mapping unique IDs to ManifestSeed objects.
         """
         return {
-            node_id: ManifestSeed(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: ManifestSeed(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "seed"
         }
@@ -187,9 +179,7 @@ class Manifest:
             a dictionary mapping unique IDs to ManifestAnalysis objects.
         """
         return {
-            node_id: ManifestAnalysis(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: ManifestAnalysis(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "analysis"
         }
@@ -202,9 +192,7 @@ class Manifest:
             a dictionary mapping unique IDs to SingularTest objects.
         """
         return {
-            node_id: SingularTest(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: SingularTest(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "test"
             and not node_data.get("test_metadata")
@@ -218,9 +206,7 @@ class Manifest:
             a dictionary mapping unique IDs to ManifestFunction objects.
         """
         return {
-            node_id: ManifestFunction(
-                data=node_data, filter_conditions=self.filter_conditions
-            )
+            node_id: ManifestFunction(data=node_data)
             for node_id, node_data in self.nodes.items()
             if node_data.get("resource_type") == "function"
         }
@@ -233,9 +219,7 @@ class Manifest:
             a dictionary mapping unique IDs to ManifestSource objects.
         """
         return {
-            source_id: ManifestSource(
-                source_data, filter_conditions=self.filter_conditions
-            )
+            source_id: ManifestSource(source_data)
             for source_id, source_data in self.data.get("sources", {}).items()
         }
 
@@ -247,7 +231,7 @@ class Manifest:
             ManifestSource objects, after filtering.
         """
         for source in self.sources.values():
-            if source.is_in_scope and (
+            if self.filter_conditions.is_manifest_object_in_scope(source, self) and (
                 not self.filepaths
                 or source.is_included_by_original_or_patch_path(self.filepaths)
             ):
@@ -261,7 +245,7 @@ class Manifest:
             a dictionary mapping unique IDs to Macro objects.
         """
         return {
-            macro_id: Macro(macro_data, filter_conditions=self.filter_conditions)
+            macro_id: Macro(macro_data)
             for macro_id, macro_data in self.data.get("macros", {}).items()
         }
 
@@ -273,7 +257,7 @@ class Manifest:
             Macro instances, after filtering.
         """
         for macro in self.macros.values():
-            if macro.is_in_scope and (
+            if self.filter_conditions.is_manifest_object_in_scope(macro, self) and (
                 not self.filepaths
                 or macro.is_included_by_original_or_patch_path(self.filepaths)
             ):
@@ -287,9 +271,7 @@ class Manifest:
             a dictionary mapping unique IDs to UnitTest objects.
         """
         return {
-            unit_test_id: UnitTest(
-                unit_test_data, filter_conditions=self.filter_conditions
-            )
+            unit_test_id: UnitTest(unit_test_data)
             for unit_test_id, unit_test_data in self.data.get("unit_tests", {}).items()
         }
 
@@ -301,6 +283,15 @@ class Manifest:
             a dictionary mapping unique IDs to lists of child IDs.
         """
         return self.data.get("child_map", {})
+
+    @cached_property
+    def parent_map(self) -> dict[str, list[str]]:
+        """Parent map data from the manifest.
+
+        Returns:
+            a dictionary mapping unique IDs to lists of parent IDs.
+        """
+        return self.data.get("parent_map", {})
 
 
 @lru_cache

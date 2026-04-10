@@ -13,6 +13,57 @@ from utils.console_formatting import (
 )
 from utils.manifest_filter_conditions import ManifestFilterConditions
 
+STANDARD_MODEL_ARGUMENTS = [
+    "include_materializations",
+    "include_tags",
+    "include_packages",
+    "include_node_paths",
+    "include_name_patterns",
+    "include_direct_parents",
+    "include_indirect_parents",
+    "include_direct_children",
+    "include_indirect_children",
+    "exclude_materializations",
+    "exclude_tags",
+    "exclude_packages",
+    "exclude_node_paths",
+    "exclude_name_patterns",
+    "exclude_direct_parents",
+    "exclude_indirect_parents",
+    "exclude_direct_children",
+    "exclude_indirect_children",
+]
+
+STANDARD_MACRO_ARGUMENTS = [
+    "include_tags",
+    "include_packages",
+    "include_node_paths",
+    "include_name_patterns",
+    "exclude_tags",
+    "exclude_packages",
+    "exclude_node_paths",
+    "exclude_name_patterns",
+]
+
+STANDARD_SOURCE_ARGUMENTS = [
+    "include_tags",
+    "include_packages",
+    "include_node_paths",
+    "include_name_patterns",
+    "include_direct_parents",
+    "include_indirect_parents",
+    "include_direct_children",
+    "include_indirect_children",
+    "exclude_tags",
+    "exclude_packages",
+    "exclude_node_paths",
+    "exclude_name_patterns",
+    "exclude_direct_parents",
+    "exclude_indirect_parents",
+    "exclude_direct_children",
+    "exclude_indirect_children",
+]
+
 
 class Check(ABC):
     """Abstract base class for generic checks.
@@ -27,27 +78,8 @@ class Check(ABC):
     def __init__(self, args: Namespace) -> None:
         """Initialise and call the instance."""
         self.args: Namespace = args
+        self.filter_conditions = ManifestFilterConditions(self.args)
         self()
-
-    @property
-    def filter_conditions(self) -> ManifestFilterConditions:
-        """Filter conditions for filtering objects from the manifest."""
-        return ManifestFilterConditions(
-            _include_materializations=getattr(
-                self.args, "include_materializations", None
-            ),
-            _include_tags=getattr(self.args, "include_tags", None),
-            _include_packages=getattr(self.args, "include_packages", None),
-            _include_paths=getattr(self.args, "include_node_paths", None),
-            _include_name_patterns=getattr(self.args, "include_name_patterns", None),
-            _exclude_materializations=getattr(
-                self.args, "exclude_materializations", None
-            ),
-            _exclude_tags=getattr(self.args, "exclude_tags", None),
-            _exclude_packages=getattr(self.args, "exclude_packages", None),
-            _exclude_paths=getattr(self.args, "exclude_node_paths", None),
-            _exclude_name_patterns=getattr(self.args, "exclude_name_patterns", None),
-        )
 
     @abstractmethod
     def perform_check(self) -> None:
@@ -85,9 +117,10 @@ class Check(ABC):
             logging.error(
                 f"{check_status_header(f'{self.check_name}: FAIL', False)}\n\n{self.failure_message}\n\n{80 * '_'}\n"
             )
-        logging.info(
-            f"{check_status_header(f'{self.check_name}: PASS', True)}\n\n{80 * '_'}\n"
-        )
+        else:
+            logging.info(
+                f"{check_status_header(f'{self.check_name}: PASS', True)}\n\n{80 * '_'}\n"
+            )
 
     @property
     def manifest(self) -> Manifest:

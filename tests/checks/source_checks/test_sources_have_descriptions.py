@@ -5,7 +5,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import pytest
 
 from checks.source_checks.sources_have_descriptions import SourcesHaveDescriptions
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_SOURCE_ARGUMENTS
 from utils.manifest_object.manifest_object import ManifestSource
 
 
@@ -56,25 +56,13 @@ def test_sources_have_descriptions_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_sources = PropertyMock(
-            return_value=[
-                ManifestSource(source_data, ManifestFilterConditions())
-                for source_data in sources
-            ]
+            return_value=[ManifestSource(source_data) for source_data in sources]
         )
         type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
         instance = SourcesHaveDescriptions(Namespace())
         instance.perform_check()
         assert instance.check_name == "sources-have-descriptions"
-        assert instance.additional_arguments == [
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
-        ]
+        assert instance.additional_arguments == STANDARD_SOURCE_ARGUMENTS
         assert instance.failures == expected_failures
         mock_in_scope_sources.assert_called_once()
 

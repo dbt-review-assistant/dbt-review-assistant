@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS
 
 
 @pytest.mark.parametrize(
@@ -73,18 +74,7 @@ def test_models_have_unit_tests_perform_checks(
         instance = ModelsHaveUnitTests(Namespace(manifest_dir=Path(".")))
         instance.perform_check()
         assert instance.check_name == "models-have-unit-tests"
-        assert instance.additional_arguments == [
-            "include_materializations",
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "include_name_patterns",
-            "exclude_materializations",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "exclude_name_patterns",
-        ]
+        assert instance.additional_arguments == STANDARD_MODEL_ARGUMENTS
         assert instance.failures == expected_failures
 
 

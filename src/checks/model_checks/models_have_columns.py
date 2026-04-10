@@ -1,6 +1,6 @@
 """CHeck if models have columns listed in the manifest."""
 
-from utils.check_abc import ManifestCheck
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_attribute_message
 
 
@@ -13,18 +13,7 @@ class ModelsHaveColumns(ManifestCheck):
     """
 
     check_name: str = "models-have-columns"
-    additional_arguments = [
-        "include_materializations",
-        "include_tags",
-        "include_packages",
-        "include_node_paths",
-        "include_name_patterns",
-        "exclude_materializations",
-        "exclude_tags",
-        "exclude_packages",
-        "exclude_node_paths",
-        "exclude_name_patterns",
-    ]
+    additional_arguments = STANDARD_MODEL_ARGUMENTS
 
     def perform_check(self) -> None:
         """Execute the check logic."""

@@ -11,6 +11,27 @@ from jsonschema import ValidationError
 from checks import ALL_CHECKS
 from utils.config import PROJECT_NAME, configure_checks, load_config
 
+DEFAULTS = {
+    "include_materializations": None,
+    "include_packages": None,
+    "include_tags": None,
+    "include_node_paths": None,
+    "include_name_patterns": None,
+    "include_direct_parents": None,
+    "include_indirect_parents": None,
+    "include_direct_children": None,
+    "include_indirect_children": None,
+    "exclude_materializations": None,
+    "exclude_packages": None,
+    "exclude_tags": None,
+    "exclude_node_paths": None,
+    "exclude_name_patterns": None,
+    "exclude_direct_parents": None,
+    "exclude_indirect_parents": None,
+    "exclude_direct_children": None,
+    "exclude_indirect_children": None,
+}
+
 VALID_MANIFEST = """
 global_arguments:
   arguments: [
@@ -125,6 +146,7 @@ def test_load_config(
         "check not in config",
         "all without config file",
         "one check with no config",
+        "no checks",
     ],
     argnames=[
         "config_data",
@@ -169,19 +191,13 @@ def test_load_config(
                     project_dir=Path.cwd() / Path("path/to/project"),
                     manifest_dir=Path.cwd() / Path("path/to/project/target"),
                     catalog_dir=Path.cwd() / Path("path/to/project/target"),
-                    include_materializations=None,
-                    include_packages=["test_dbt_package"],
-                    include_tags=None,
-                    include_node_paths=None,
-                    include_name_patterns=None,
-                    exclude_materializations=None,
-                    exclude_packages=None,
-                    exclude_tags=None,
-                    exclude_node_paths=None,
-                    exclude_name_patterns=None,
                     config_dir=None,
                     files=None,
                     check_id="models-have-descriptions",
+                    include_packages=["test_dbt_package"],
+                    **DEFAULTS.fromkeys(
+                        key for key in DEFAULTS.keys() if key != "include_packages"
+                    ),
                 )
             ],
             does_not_raise(),
@@ -222,19 +238,13 @@ def test_load_config(
                     project_dir=Path.cwd() / Path("path/to/project"),
                     manifest_dir=Path.cwd() / Path("path/to/project/target"),
                     catalog_dir=Path.cwd() / Path("path/to/project/target"),
-                    include_materializations=None,
-                    include_packages=["test_dbt_package"],
-                    include_tags=None,
-                    include_node_paths=None,
-                    include_name_patterns=None,
-                    exclude_materializations=None,
-                    exclude_packages=None,
-                    exclude_tags=None,
-                    exclude_node_paths=None,
-                    exclude_name_patterns=None,
                     config_dir=None,
                     files=[Path("test.sql"), Path("test.yml")],
                     check_id="models-have-descriptions",
+                    include_packages=["test_dbt_package"],
+                    **DEFAULTS.fromkeys(
+                        key for key in DEFAULTS.keys() if key != "include_packages"
+                    ),
                 ),
                 Namespace(
                     project_dir=Path.cwd() / Path("path/to/project"),
@@ -242,19 +252,16 @@ def test_load_config(
                     catalog_dir=Path.cwd() / Path("path/to/project/target"),
                     must_have_all_constraints_from=["primary_key"],
                     must_have_any_constraint_from=None,
-                    include_materializations=["view"],
-                    include_packages=["test_dbt_package"],
-                    include_tags=None,
-                    include_node_paths=None,
-                    include_name_patterns=None,
-                    exclude_materializations=None,
-                    exclude_packages=None,
-                    exclude_tags=None,
-                    exclude_node_paths=None,
-                    exclude_name_patterns=None,
                     config_dir=None,
                     files=[Path("test.sql"), Path("test.yml")],
                     check_id="models-have-constraints",
+                    include_packages=["test_dbt_package"],
+                    include_materializations=["view"],
+                    **DEFAULTS.fromkeys(
+                        key
+                        for key in DEFAULTS.keys()
+                        if key not in ("include_packages", "include_materializations")
+                    ),
                 ),
             ],
             does_not_raise(),
@@ -327,6 +334,13 @@ def test_load_config(
                     files=None,
                 )
             ],
+            does_not_raise(),
+            None,
+        ),
+        (
+            {},
+            Namespace(check_id=None),
+            [],
             does_not_raise(),
             None,
         ),

@@ -5,7 +5,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import pytest
 
 from checks.macro_checks.macro_names_must_match_pattern import MacroNamesMatchPattern
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_MACRO_ARGUMENTS
 from utils.manifest_object.macro import Macro
 
 
@@ -59,20 +59,14 @@ def test_macro_names_match_pattern_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_macros = PropertyMock(
-            return_value=[
-                Macro(macro_data, ManifestFilterConditions()) for macro_data in macros
-            ]
+            return_value=[Macro(macro_data) for macro_data in macros]
         )
         type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
         instance = MacroNamesMatchPattern(Namespace())
         instance.args.name_must_match_pattern = pattern
         instance.perform_check()
         assert instance.check_name == "macro-names-match-pattern"
-        assert instance.additional_arguments == [
-            "include_tags",
-            "include_packages",
-            "exclude_tags",
-            "exclude_packages",
+        assert instance.additional_arguments == STANDARD_MACRO_ARGUMENTS + [
             "name_must_match_pattern",
         ]
         assert instance.failures == expected_failures

@@ -7,7 +7,7 @@ import pytest
 from checks.macro_checks.macro_arguments_have_descriptions import (
     MacroArgumentsHaveDescriptions,
 )
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_MACRO_ARGUMENTS
 from utils.manifest_object.macro import Macro
 
 
@@ -70,22 +70,13 @@ def test_macro_arguments_have_descriptions_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_macros = PropertyMock(
-            return_value=[
-                Macro(macro_data, ManifestFilterConditions()) for macro_data in macros
-            ]
+            return_value=[Macro(macro_data) for macro_data in macros]
         )
         type(mock_manifest.return_value).in_scope_macros = mock_in_scope_macros
         instance = MacroArgumentsHaveDescriptions(Namespace())
         instance.perform_check()
         assert instance.check_name == "macro-arguments-have-descriptions"
-        assert instance.additional_arguments == [
-            "include_packages",
-            "include_tags",
-            "include_name_patterns",
-            "exclude_packages",
-            "exclude_tags",
-            "exclude_name_patterns",
-        ]
+        assert instance.additional_arguments == STANDARD_MACRO_ARGUMENTS
         assert instance.failures == expected_failures
         mock_in_scope_macros.assert_called()
 

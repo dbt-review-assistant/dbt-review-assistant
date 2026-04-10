@@ -5,7 +5,7 @@ from unittest.mock import Mock, PropertyMock, patch
 import pytest
 
 from checks.model_checks.model_names_must_match_pattern import ModelNamesMatchPattern
-from utils.manifest_filter_conditions import ManifestFilterConditions
+from utils.check_abc import STANDARD_MODEL_ARGUMENTS
 from utils.manifest_object.node.model.model import ManifestModel
 
 
@@ -59,26 +59,15 @@ def test_model_names_match_pattern_perform_checks(
         ) as mock_manifest,
     ):
         mock_in_scope_models = PropertyMock(
-            return_value=[
-                ManifestModel(model_data, ManifestFilterConditions())
-                for model_data in models
-            ]
+            return_value=[ManifestModel(model_data) for model_data in models]
         )
         type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
         instance = ModelNamesMatchPattern(Namespace())
         instance.args.name_must_match_pattern = pattern
         instance.perform_check()
         assert instance.check_name == "model-names-match-pattern"
-        assert instance.additional_arguments == [
-            "include_materializations",
-            "include_tags",
-            "include_packages",
-            "include_node_paths",
-            "exclude_materializations",
-            "exclude_tags",
-            "exclude_packages",
-            "exclude_node_paths",
-            "name_must_match_pattern",
+        assert instance.additional_arguments == STANDARD_MODEL_ARGUMENTS + [
+            "name_must_match_pattern"
         ]
         assert instance.failures == expected_failures
         mock_in_scope_models.assert_called()

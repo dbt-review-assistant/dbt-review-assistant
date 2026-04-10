@@ -129,6 +129,30 @@ these regex patterns will be considered out-of-scope for the check(s).
 `--exclude-name-patterns`: Optional - list of name regex patterns to exclude nodes by. Nodes names matching any of
 these regex patterns will be considered out-of-scope for the check(s).
 
+`--include-direct-parents`: Optional - list of direct parent unique IDs to include. Nodes that do not have at least 
+one of these as a direct parent will be considered out-of-scope for the check(s).
+
+`--exclude-direct-parents`: Optional - list of direct parent unique IDs to exclude. Nodes that do not have any of 
+these as a direct parent will be considered out-of-scope for the check(s).
+
+`--include-indirect-parents`: Optional - list of indirect parent unique IDs to include. Nodes that do not have at least 
+one of these as a direct or indirect parent will be considered out-of-scope for the check(s).
+
+`--exclude-indirect-parents`: Optional - list of indirect parent unique IDs to exclude. Nodes that do not have any of 
+these as a direct or indirect parent will be considered out-of-scope for the check(s).
+
+`--include-direct-children`: Optional - list of direct child unique IDs to include. Nodes that do not have at least 
+one of these as a direct child will be considered out-of-scope for the check(s).
+
+`--exclude-direct-children`: Optional - list of direct child unique IDs to exclude. Nodes that do not have any of 
+these as a direct child will be considered out-of-scope for the check(s).
+
+`--include-indirect-children`: Optional - list of indirect child unique IDs to include. Nodes that do not have at least 
+one of these as a direct or indirect child will be considered out-of-scope for the check(s).
+
+`--exclude-indirect-children`: Optional - list of indirect child unique IDs to exclude. Nodes that do not have any of 
+these as a direct or indirect child will be considered out-of-scope for the check(s).
+
 `--must-have-all-constraints-from`: Optional - List of constraint names, from which objects must have the full set.
 
 `--must-have-any-constraint-from`: Optional - List of constraint names, from which objects must have at least one value.
