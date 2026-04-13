@@ -274,13 +274,13 @@ def dictionary_values_mismatch(
                 object_name,
                 str(
                     "\n".join(
-                        f"{key}: {value['other']}"
+                        f"{key}: {value['right']}"
                         for key, value in sorted(difference.items(), key=lambda x: x[0])
                     )
                 ),
                 str(
                     "\n".join(
-                        f"{key}: {value['this']}"
+                        f"{key}: {value['left']}"
                         for key, value in sorted(difference.items(), key=lambda x: x[0])
                     )
                 ),

@@ -79,6 +79,11 @@ class ManifestObject(HasNameMixin, ABC):
         filepath = self.data.get("original_file_path")
         return Path(filepath) if filepath else None
 
+    @property
+    def meta(self) -> dict:
+        """Meta dictionary of the object found in the manifest."""
+        return self.data.get("meta", {})
+
     def is_included_by_original_or_patch_path(
         self, filepaths: Collection[Path]
     ) -> bool:
@@ -123,28 +128,16 @@ class ConfigurableMixin(ABC):
         return cast(HasData, self).data.get("config", {}) or {}
 
     @property
+    def meta(self) -> dict[str, Any]:
+        """Meta dictionary of the object found in the manifest."""
+        if self.config.get("meta"):
+            return self.config.get("meta", {})
+        return cast(HasData, self).data.get("meta", {})
+
+    @property
     def enabled(self) -> bool:
         """Whether the object is enabled in its config."""
         return self.config.get("enabled", True)
-
-    def config_difference(
-        self, other_config: dict[str, Any]
-    ) -> dict[str, dict[str, Any]]:
-        """Get the difference in config between this object and another config.
-
-        Only common keys are included in the comparison.
-
-        Args:
-            other_config: dictionary representing the config to compare.
-
-        Returns:
-            dictionary representing the difference in values.
-        """
-        return {
-            key: {"this": self.config.get(key), "other": value}
-            for key, value in other_config.items()
-            if self.config.get(key) != value
-        }
 
 
 class HasPatchPathMixin(ABC, HasPackageName):
@@ -343,3 +336,24 @@ class ManifestSource(
     """Represents a manifest source object."""
 
     pass
+
+
+def dict_difference(
+    left_dict: dict[str, Any], right_dict: dict[str, Any]
+) -> dict[str, dict[str, Any]]:
+    """Get the difference between left_dict and right_dict.
+
+    Only common keys are included in the comparison.
+
+    Args:
+        left_dict: dictionary representing the meta to compare.
+        right_dict: dictionary representing the meta to compare.
+
+    Returns:
+        dictionary representing the difference in values.
+    """
+    return {
+        key: {"left": left_dict.get(key), "right": value}
+        for key, value in right_dict.items()
+        if left_dict.get(key) != value
+    }

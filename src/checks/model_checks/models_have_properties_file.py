@@ -15,7 +15,7 @@ class ModelsHavePropertiesFile(ManifestCheck):
     check_name: str = "models-have-properties-file"
     additional_arguments = STANDARD_MODEL_ARGUMENTS
 
-    def perform_check(self):
+    def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
             model.unique_id

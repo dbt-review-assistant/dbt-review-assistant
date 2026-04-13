@@ -149,6 +149,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
+        name="must_have_specific_meta",
+        help="JSON object representing meta which nodes must have. Only included keys will be checked, so omitted"
+        " keys will not be checked",
+        type=json.loads,
+        required=False,
+        default=None,
+    ),
+    CliArgument(
         name="include_materializations",
         help="List of materialization types to include. Models with other materialization types will be ignored.",
         type=str,
