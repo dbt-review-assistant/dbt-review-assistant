@@ -42,7 +42,7 @@ from utils.manifest_object.node.model.model import ManifestModel
                 },
             ],
             {"materialized": "table"},
-            {"another_model": {"materialized": {"this": "view", "other": "table"}}},
+            {"another_model": {"materialized": {"left": "view", "right": "table"}}},
         ),
     ],
 )

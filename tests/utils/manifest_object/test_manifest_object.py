@@ -780,8 +780,8 @@ def test_configurable_mixin_enabled(data: dict, expected_return: bool):
             {"materialized": "view"},
             {
                 "materialized": {
-                    "other": "view",
-                    "this": "table",
+                    "right": "view",
+                    "left": "table",
                 },
             },
         ),
@@ -790,8 +790,8 @@ def test_configurable_mixin_enabled(data: dict, expected_return: bool):
             {"partition_by": {"granularity": "MONTH"}},
             {
                 "partition_by": {
-                    "other": {"granularity": "MONTH"},
-                    "this": {"granularity": "DAY"},
+                    "right": {"granularity": "MONTH"},
+                    "left": {"granularity": "DAY"},
                 },
             },
         ),

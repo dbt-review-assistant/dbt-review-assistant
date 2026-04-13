@@ -42,7 +42,7 @@ from utils.manifest_object.node.model.model import ManifestModel
                 },
             ],
             {"test": 1},
-            {"another_model": {"test": {"this": 2, "other": 1}}},
+            {"another_model": {"test": {"left": 2, "right": 1}}},
         ),
     ],
 )

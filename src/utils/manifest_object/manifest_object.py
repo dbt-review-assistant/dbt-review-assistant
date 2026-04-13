@@ -353,7 +353,7 @@ def dict_difference(
         dictionary representing the difference in values.
     """
     return {
-        key: {"this": left_dict.get(key), "other": value}
+        key: {"left": left_dict.get(key), "right": value}
         for key, value in right_dict.items()
         if left_dict.get(key) != value
     }

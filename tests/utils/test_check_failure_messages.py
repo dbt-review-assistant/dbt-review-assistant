@@ -386,8 +386,8 @@ def test_object_attribute_value_not_in_set(kwargs: dict, expected_return: str):
                 "differences": {
                     "test_model": {
                         "partition_by": {
-                            "this": {"granularity": "MONTH"},
-                            "other": {"granularity": "DAY"},
+                            "left": {"granularity": "MONTH"},
+                            "right": {"granularity": "DAY"},
                         }
                     }
                 },
@@ -407,14 +407,14 @@ def test_object_attribute_value_not_in_set(kwargs: dict, expected_return: str):
                 "differences": {
                     "test_model": {
                         "partition_by": {
-                            "this": {"granularity": "MONTH"},
-                            "other": {"granularity": "DAY"},
+                            "left": {"granularity": "MONTH"},
+                            "right": {"granularity": "DAY"},
                         }
                     },
                     "another_model": {
                         "incremental_strategy": {
-                            "this": "merge",
-                            "other": "delete+insert",
+                            "left": "merge",
+                            "right": "delete+insert",
                         }
                     },
                 },
