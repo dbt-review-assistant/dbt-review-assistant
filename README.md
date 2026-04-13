@@ -44,6 +44,9 @@ included in this check
 - `models-have-specific-config`: Check if models have a specific config. Provide a JSON representation of the required
 config using argument `--must-have-specific-config`. Any keys not present in this argument are not included in the 
 comparison
+- `models-have-specific-meta`: Check if models have a specific meta. Provide a JSON representation of the required
+config using argument `--must-have-specific-meta`. Any keys not present in this argument are not included in the 
+comparison
 
 ### Source checks:
 
@@ -178,10 +181,13 @@ option can include generic test or singular tests.
 
 `--name-must-match-pattern`: Optional - Regex pattern to match object names against.
 
-`--must-be-materialized-as-one-of`: Optional - Specific materialization names from which models must use one
+`--must-be-materialized-as-one-of`: Optional - Specific materialization names from which models must use one.
 
 `--must-have-specific-config`: Optional - JSON object representing config which nodes must have. Only included keys will
-be checked, so omitted keys will not be checked
+be checked, so omitted keys will not be checked.
+
+`--must-have-specific-meta`: Optional - JSON object representing meta which nodes must have. Only included keys will
+be checked, so omitted keys will not be checked.
 
 ### Running checks individually
 
@@ -328,6 +334,7 @@ This table shows which checks require which dbt artifacts:
 | `models-have-unit-tests`                        | ✅        | ❌       |
 | `models-have-properties-file`                   | ✅        | ❌       |
 | `models-have-specific-config`                   | ✅        | ❌       |
+| `models-have-specific-meta`                     | ✅        | ❌       |
 | `model-names-match-pattern`                     | ✅        | ❌       |
 | `models-have-specific-materialization`          | ✅        | ❌       |
 | `model-column-names-match-pattern`              | ✅        | ❌       |

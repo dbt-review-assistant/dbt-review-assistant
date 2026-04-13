@@ -10,6 +10,7 @@ from utils.manifest_object.manifest_object import (
     HasPatchPathMixin,
     ManifestColumn,
     ManifestObject,
+    dict_difference,
 )
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.constraint import Constraint
@@ -166,6 +167,28 @@ def test_manifest_object_name_matches_regex(
         data=data,
     )
     assert instance.name_matches_regex(regex_pattern) == expected
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
+        "Has top-level meta",
+        "No meta",
+    ],
+    argvalues=[
+        (
+            {"meta": {"test": 1}},
+            {"test": 1},
+        ),
+        (
+            {},
+            {},
+        ),
+    ],
+)
+def test_manifest_object_meta(data: dict, expected_return: bool):
+    instance = ConcreteManifestObject(data)
+    assert instance.meta == expected_return
 
 
 def test_manifest_column_name():
@@ -699,6 +722,33 @@ def test_configurable_mixin_config(data: dict, expected_return: bool):
 @pytest.mark.parametrize(
     argnames=["data", "expected_return"],
     ids=[
+        "Has meta under config",
+        "Has top-level meta",
+        "No meta",
+    ],
+    argvalues=[
+        (
+            {"config": {"meta": {"test": 1}}},
+            {"test": 1},
+        ),
+        (
+            {"meta": {"test": 1}},
+            {"test": 1},
+        ),
+        (
+            {},
+            {},
+        ),
+    ],
+)
+def test_configurable_mixin_meta(data: dict, expected_return: bool):
+    instance = ConcreteConfigurableNode(data)
+    assert instance.meta == expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
         "Enabled",
         "Disabled",
     ],
@@ -747,10 +797,10 @@ def test_configurable_mixin_enabled(data: dict, expected_return: bool):
         ),
     ],
 )
-def test_configurable_mixin_(
+def test_dict_difference(
     data: dict,
     expected_config: dict,
     expected_return: bool,
 ):
     instance = ConcreteConfigurableNode(data)
-    assert instance.config_difference(expected_config) == expected_return
+    assert dict_difference(instance.config, expected_config) == expected_return

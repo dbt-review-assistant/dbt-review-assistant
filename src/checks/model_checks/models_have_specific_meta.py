@@ -1,4 +1,4 @@
-"""Check if models have a specific config."""
+"""Check if models have a specific meta."""
 
 from typing import Any
 
@@ -7,25 +7,25 @@ from utils.check_failure_messages import dictionary_values_mismatch
 from utils.manifest_object.manifest_object import dict_difference
 
 
-class ModelsHaveSpecificConfig(ManifestCheck):
-    """Check if models have a specific config.
+class ModelsHaveSpecificMeta(ManifestCheck):
+    """Check if models have a specific meta.
 
     Attributes:
         check_name: name of the check
         additional_arguments: arguments required in addition to the global arguments
     """
 
-    check_name: str = "models-have-specific-config"
-    additional_arguments = STANDARD_MODEL_ARGUMENTS + ["must_have_specific_config"]
+    check_name: str = "models-have-specific-meta"
+    additional_arguments = STANDARD_MODEL_ARGUMENTS + ["must_have_specific_meta"]
 
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures: dict[str, dict[str, Any]] = {
             model.unique_id: dict_difference(
-                model.config, self.args.must_have_specific_config
+                model.meta, self.args.must_have_specific_meta
             )
             for model in self.manifest.in_scope_models
-            if dict_difference(model.config, self.args.must_have_specific_config)
+            if dict_difference(model.meta, self.args.must_have_specific_meta)
         }
 
     @property
@@ -34,5 +34,5 @@ class ModelsHaveSpecificConfig(ManifestCheck):
         return dictionary_values_mismatch(
             differences=self.failures,
             object_type="model",
-            dict_name="config",
+            dict_name="meta",
         )

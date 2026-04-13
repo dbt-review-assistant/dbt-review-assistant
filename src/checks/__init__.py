@@ -36,6 +36,7 @@ from checks.model_checks.models_have_specific_config import ModelsHaveSpecificCo
 from checks.model_checks.models_have_specific_materialization import (
     ModelsHaveSpecificMaterialization,
 )
+from checks.model_checks.models_have_specific_meta import ModelsHaveSpecificMeta
 from checks.model_checks.models_have_tags import ModelsHaveTags
 from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
@@ -65,6 +66,7 @@ ALL_CHECKS = (
     ModelNamesMatchPattern,
     ModelColumnNamesMatchPattern,
     ModelsHaveSpecificConfig,
+    ModelsHaveSpecificMeta,
     MacroArgumentsHaveDescriptions,
     MacroArgumentsHaveTypes,
     MacroArgumentsMatchManifestVsSql,
