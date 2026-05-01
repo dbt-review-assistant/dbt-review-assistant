@@ -18,9 +18,8 @@ class ModelColumnNamesMatchPattern(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            column_id
-            for model in self.manifest.in_scope_models
-            for column_id, column in model.columns.items()
+            column.unique_id
+            for column in self.manifest.in_scope_model_columns
             if not column.name_matches_regex(self.args.name_must_match_pattern)
         }
 

@@ -17,6 +17,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-specific-materialization
   name: models-have-specific-materialization
@@ -27,6 +28,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-columns
   name: models-have-columns
@@ -37,6 +39,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-descriptions
   name: models-have-descriptions
@@ -47,6 +50,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-constraints
   name: models-have-constraints
@@ -57,6 +61,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-names-match-pattern
   name: model-names-match-pattern
@@ -67,6 +72,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-column-names-match-pattern
   name: model-column-names-match-pattern
@@ -77,6 +83,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: macros-have-descriptions
   name: macros-have-descriptions
@@ -87,6 +94,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: macro-names-match-pattern
   name: macro-names-match-pattern
@@ -97,6 +105,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-properties-file
   name: models-have-properties-file
@@ -107,6 +116,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-data-tests
   name: models-have-data-tests
@@ -117,6 +127,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: models-have-unit-tests
   name: models-have-unit-tests
@@ -127,6 +138,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: macro-arguments-have-descriptions
   name: macro-arguments-have-descriptions
@@ -137,6 +149,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: macro-arguments-have-types
   name: macro-arguments-have-types
@@ -147,6 +160,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: macro-arguments-match-manifest-vs-sql
   name: macro-arguments-match-manifest-vs-sql
@@ -157,6 +171,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-columns-have-descriptions
   name: model-columns-have-descriptions
@@ -167,6 +182,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-column-names-match-manifest-vs-catalog
   name: model-column-names-match-manifest-vs-catalog
@@ -177,6 +193,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: sources-have-descriptions
   name: sources-have-descriptions
@@ -187,6 +204,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: sources-have-columns
   name: sources-have-columns
@@ -197,6 +215,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: source-columns-have-descriptions
   name: source-columns-have-descriptions
@@ -207,6 +226,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: source-column-names-match-manifest-vs-catalog
   name: source-column-names-match-manifest-vs-catalog
@@ -217,6 +237,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: source-columns-have-types
   name: source-columns-have-types
@@ -227,6 +248,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: source-column-types-match-manifest-vs-catalog
   name: source-column-types-match-manifest-vs-catalog
@@ -237,6 +259,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: sources-have-data-tests
   name: sources-have-data-tests
@@ -247,6 +270,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-column-types-match-manifest-vs-catalog
   name: model-column-types-match-manifest-vs-catalog
@@ -257,6 +281,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-columns-have-types
   name: model-columns-have-types
@@ -267,6 +292,7 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]
 
 - id: model-column-descriptions-are-consistent
   name: model-column-descriptions-are-consistent
@@ -277,3 +303,4 @@
   pass_filenames: true
   types_or: [sql, yaml]
   require_serial: true
+  args: ["--files"]

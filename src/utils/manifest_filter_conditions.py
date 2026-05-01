@@ -16,9 +16,7 @@ from utils.get_relatives import (
 
 if TYPE_CHECKING:
     from utils.artifact_data import Manifest
-    from utils.manifest_object.manifest_object import (
-        ManifestObject,
-    )
+    from utils.manifest_object.manifest_object import ManifestObject
 
 
 @dataclass(eq=True)
@@ -60,7 +58,9 @@ class ManifestFilterMethod(ABC):
 
     @abstractmethod
     def is_manifest_object_in_scope(
-        self, manifest_object: "ManifestObject", manifest: Optional["Manifest"] = None
+        self,
+        manifest_object: "ManifestObject",
+        manifest: Optional["Manifest"] = None,
     ) -> bool:
         """Whether the object is in scope for the current check.
 
@@ -321,6 +321,8 @@ class PackageFilterMethod(ManifestFilterMethod):
         Raises:
             NotImplementedError: if the object does not support this filter method.
         """
+        if manifest_object.package_name is None:
+            raise NotImplementedError()
         excluded = (
             self.exclude_values is not None
             and manifest_object.package_name in self.exclude_values
@@ -363,6 +365,8 @@ class ResourceTypeFilterMethod(ManifestFilterMethod):
         Raises:
             NotImplementedError: if the object does not support this filter method.
         """
+        if manifest_object.resource_type is None:
+            raise NotImplementedError()
         excluded = (
             self.exclude_values is not None
             and manifest_object.resource_type in self.exclude_values
@@ -408,6 +412,8 @@ class DirectParentsFilterMethod(ManifestFilterMethod):
         """
         if manifest is None:
             raise ValueError("manifest cannot be None")
+        if manifest.parent_map.get(manifest_object.unique_id) is None:
+            raise NotImplementedError()
         excluded = self.exclude_values is not None and bool(
             get_direct_parents(
                 manifest_object.unique_id, manifest=manifest
@@ -457,6 +463,8 @@ class IndirectParentsFilterMethod(ManifestFilterMethod):
         """
         if manifest is None:
             raise ValueError("manifest cannot be None")
+        if manifest.parent_map.get(manifest_object.unique_id) is None:
+            raise NotImplementedError()
         excluded = self.exclude_values is not None and bool(
             get_all_parents(
                 manifest_object.unique_id,
@@ -510,6 +518,8 @@ class DirectChildrenFilterMethod(ManifestFilterMethod):
         """
         if manifest is None:
             raise ValueError("manifest cannot be None")
+        if manifest.child_map.get(manifest_object.unique_id) is None:
+            raise NotImplementedError()
         excluded = self.exclude_values is not None and bool(
             get_direct_children(
                 manifest_object.unique_id, manifest=manifest
@@ -559,6 +569,8 @@ class IndirectChildrenFilterMethod(ManifestFilterMethod):
         """
         if manifest is None:
             raise ValueError("manifest cannot be None")
+        if manifest.child_map.get(manifest_object.unique_id) is None:
+            raise NotImplementedError()
         excluded = self.exclude_values is not None and bool(
             get_all_children(
                 manifest_object.unique_id,
@@ -609,6 +621,8 @@ class PathFilterMethod(ManifestFilterMethod):
         Raises:
             NotImplementedError: if the object does not support this filter method.
         """
+        if not manifest_object.data.get("original_file_path"):
+            raise NotImplementedError()
         excluded = self.exclude_values is not None and any(
             Path(manifest_object.data["original_file_path"]).is_relative_to(path)
             for path in self.exclude_values
@@ -636,6 +650,36 @@ class PathFilterMethod(ManifestFilterMethod):
             if self.exclude_values
             else ""
         )
+
+
+def try_filter_method(
+    filter_method: ManifestFilterMethod,
+    manifest_object: "ManifestObject",
+    manifest: Optional["Manifest"],
+) -> bool:
+    """Try applying a filter method on a manifest object.
+
+    If the object does not implement this method, try applying
+    the method to its parent instead.
+
+    Args:
+        filter_method: FilterMethod instance.
+        manifest_object: ManifestObject instance.
+        manifest: Manifest instance.
+
+    Returns:
+        True if the filter method passes.
+    """
+    try:
+        return filter_method.is_manifest_object_in_scope(manifest_object, manifest)
+    except NotImplementedError:
+        if getattr(manifest_object, "parent", False):
+            return try_filter_method(
+                filter_method,
+                getattr(manifest_object, "parent"),
+                manifest,
+            )
+        return True
 
 
 @dataclass(eq=True, frozen=True)
@@ -674,7 +718,9 @@ class ManifestFilterConditions:
         )
 
     def is_manifest_object_in_scope(
-        self, manifest_object: "ManifestObject", manifest: Optional["Manifest"]
+        self,
+        manifest_object: "ManifestObject",
+        manifest: Optional["Manifest"],
     ) -> bool:
         """Whether the object is in scope after all filter methods.
 
@@ -683,13 +729,12 @@ class ManifestFilterConditions:
             manifest: Manifest instance.
         """
         for filter_method in self.filter_methods:
-            try:
-                if not filter_method.is_manifest_object_in_scope(
-                    manifest_object, manifest
-                ):
-                    return False
-            except NotImplementedError:
-                pass
+            if not try_filter_method(
+                filter_method,
+                manifest_object,
+                manifest,
+            ):
+                return False
         return True
 
     @property

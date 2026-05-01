@@ -69,16 +69,21 @@ def test_source_columns_have_descriptions_perform_checks(
             SourceColumnsHaveDescriptions, "manifest", new_callable=PropertyMock
         ) as mock_manifest,
     ):
-        mock_in_scope_sources = PropertyMock(
-            return_value=[ManifestSource(source_data) for source_data in sources]
-        )
-        type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
+        columns = [
+            column
+            for source_data in sources
+            for column in ManifestSource(source_data).columns
+        ]
+        mock_in_scope_source_columns = PropertyMock(return_value=columns)
+        type(
+            mock_manifest.return_value
+        ).in_scope_source_columns = mock_in_scope_source_columns
         instance = SourceColumnsHaveDescriptions(Namespace())
         instance.perform_check()
         assert instance.check_name == "source-columns-have-descriptions"
         assert instance.additional_arguments == STANDARD_SOURCE_ARGUMENTS
         assert instance.failures == expected_failures
-        mock_in_scope_sources.assert_called_once()
+        mock_in_scope_source_columns.assert_called_once()
 
 
 def test_source_columns_have_descriptions_failure_message():

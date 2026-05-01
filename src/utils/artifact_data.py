@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Collection, Generator
 
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.manifest_object import ManifestSource
+from utils.manifest_object.manifest_object import ManifestColumn, ManifestSource
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.model import ManifestModel
 from utils.manifest_object.node.node import (
@@ -119,6 +119,20 @@ class Manifest:
                 or model.is_included_by_original_or_patch_path(self.filepaths)
             ):
                 yield model
+
+    @cached_property
+    def in_scope_model_columns(self) -> Generator[ManifestColumn, None, None]:
+        """All model columns present in the manifest, after filtering.
+
+        Yields:
+            ManifestColumn objects, after filtering.
+        """
+        return (
+            column
+            for model in self.models.values()
+            for column in model.columns
+            if self.filter_conditions.is_manifest_object_in_scope(column, self)
+        )
 
     def get_model(self, model_id: str) -> ManifestModel | None:
         """Get a model from the manifest by looking up by unique ID.
@@ -236,6 +250,20 @@ class Manifest:
                 or source.is_included_by_original_or_patch_path(self.filepaths)
             ):
                 yield source
+
+    @cached_property
+    def in_scope_source_columns(self) -> Generator[ManifestColumn, None, None]:
+        """All source columns present in the manifest, after filtering.
+
+        Yields:
+            ManifestColumn objects, after filtering.
+        """
+        return (
+            column
+            for source in self.sources.values()
+            for column in source.columns
+            if self.filter_conditions.is_manifest_object_in_scope(column, self)
+        )
 
     @cached_property
     def macros(self) -> dict[str, Macro]:

@@ -23,13 +23,70 @@ from utils.manifest_filter_conditions import (
     ResourceTypeFilterMethod,
     TagFilterMethod,
     UniqueIdFilterMethod,
+    try_filter_method,
 )
-from utils.manifest_object.manifest_object import HasPatchPathMixin, ManifestObject
+from utils.manifest_object.manifest_object import (
+    HasPatchPathMixin,
+    ManifestColumn,
+    ManifestObject,
+)
 from utils.manifest_object.node.model.model import ManifestModel
 
 
 class ConcreteManifestObject(ManifestObject, HasPatchPathMixin):
     pass
+
+
+@pytest.mark.parametrize(
+    ids=[
+        "Included model",
+        "Included column",
+        "Excluded model",
+        "Excluded column",
+    ],
+    argnames=["filter_method", "manifest_object", "manifest", "expected_return"],
+    argvalues=[
+        (
+            PathFilterMethod(Namespace(include_node_paths=[Path("test")])),
+            ManifestModel({"original_file_path": "test"}),
+            Mock(),
+            True,
+        ),
+        (
+            PathFilterMethod(Namespace(include_node_paths=[Path("test")])),
+            ManifestColumn(
+                {"name": "column_1"},
+                parent=ManifestModel({"original_file_path": "test"}),
+            ),
+            Mock(),
+            True,
+        ),
+        (
+            PathFilterMethod(Namespace(exclude_node_paths=[Path("test")])),
+            ManifestModel({"unique_id": "test_model", "original_file_path": "test"}),
+            Mock(),
+            False,
+        ),
+        (
+            PathFilterMethod(Namespace(exclude_node_paths=[Path("test")])),
+            ManifestColumn(
+                {"name": "column_1"},
+                parent=ManifestModel({"original_file_path": "test"}),
+            ),
+            Mock(),
+            False,
+        ),
+    ],
+)
+def test_try_filter_method(
+    filter_method: ManifestFilterMethod,
+    manifest_object: ManifestObject,
+    manifest: Manifest,
+    expected_return: bool,
+):
+    assert (
+        try_filter_method(filter_method, manifest_object, manifest) is expected_return
+    )
 
 
 @pytest.mark.parametrize(
@@ -655,6 +712,7 @@ def test_manifest_object_filter_method_post_init(
         "include_packages",
         "exclude_packages",
         "expected_return",
+        "expected_raise",
     ],
     ids=[
         "Explicitly included",
@@ -664,6 +722,7 @@ def test_manifest_object_filter_method_post_init(
         "Explicitly included, with exclude condition",
         "Explicitly excluded, with include condition",
         "Both explicitly included and explicitly excluded - exclude should take precedence",
+        "Package is None",
     ],
     argvalues=[
         (
@@ -674,6 +733,7 @@ def test_manifest_object_filter_method_post_init(
             ["test_dbt_package"],
             None,
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -683,6 +743,7 @@ def test_manifest_object_filter_method_post_init(
             ["test_dbt_package"],
             None,
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -692,6 +753,7 @@ def test_manifest_object_filter_method_post_init(
             None,
             ["test_dbt_package"],
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -701,6 +763,7 @@ def test_manifest_object_filter_method_post_init(
             None,
             ["test_dbt_package"],
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -710,6 +773,7 @@ def test_manifest_object_filter_method_post_init(
             ["test_dbt_package"],
             ["different_dbt_package"],
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -719,6 +783,7 @@ def test_manifest_object_filter_method_post_init(
             ["different_dbt_package"],
             ["test_dbt_package"],
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -728,6 +793,16 @@ def test_manifest_object_filter_method_post_init(
             ["test_dbt_package"],
             ["test_dbt_package"],
             False,
+            does_not_raise(),
+        ),
+        (
+            {
+                "unique_id": "excluded-model",
+            },
+            ["test_dbt_package"],
+            ["test_dbt_package"],
+            False,
+            pytest.raises(NotImplementedError),
         ),
     ],
 )
@@ -736,6 +811,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
     include_packages: list[str],
     exclude_packages: list[str],
     expected_return: bool,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
     manifest_object = ConcreteManifestObject(data)
     instance = PackageFilterMethod(
@@ -744,7 +820,8 @@ def test_package_filter_method_is_manifest_object_in_scope(
             exclude_packages=exclude_packages,
         )
     )
-    assert instance.is_manifest_object_in_scope(manifest_object) is expected_return
+    with expected_raise:
+        assert instance.is_manifest_object_in_scope(manifest_object) is expected_return
 
 
 @pytest.mark.parametrize(
@@ -753,6 +830,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
         "include_paths",
         "exclude_paths",
         "expected_return",
+        "expected_raise",
     ],
     ids=[
         "Explicitly included",
@@ -763,6 +841,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
         "Explicitly excluded, with include condition",
         "Both explicitly included and explicitly excluded - exclude should take precedence",
         "Exact filepath match",
+        "No original filepath",
     ],
     argvalues=[
         (
@@ -773,6 +852,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             [Path("test/model/")],
             None,
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -782,6 +862,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             [Path("test/model/subdir/")],
             None,
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -791,6 +872,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             None,
             [Path("test/model/")],
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -800,6 +882,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             None,
             [Path("test/model/subdir/")],
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -809,6 +892,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             [Path("test/model/")],
             [Path("test/model/subdir/")],
             True,
+            does_not_raise(),
         ),
         (
             {
@@ -818,6 +902,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             [Path("test/model/subdir/")],
             [Path("test/model/")],
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -827,6 +912,7 @@ def test_package_filter_method_is_manifest_object_in_scope(
             [Path("test/model/")],
             [Path("test/model")],
             False,
+            does_not_raise(),
         ),
         (
             {
@@ -836,6 +922,16 @@ def test_package_filter_method_is_manifest_object_in_scope(
             [Path("test/model/path.sql")],
             None,
             True,
+            does_not_raise(),
+        ),
+        (
+            {
+                "unique_id": "included-model",
+            },
+            [Path("test/model/")],
+            None,
+            True,
+            pytest.raises(NotImplementedError),
         ),
     ],
 )
@@ -844,6 +940,7 @@ def test_path_filter_method_is_manifest_object_in_scope(
     include_paths: list[Path],
     exclude_paths: list[Path],
     expected_return: bool,
+    expected_raise: does_not_raise | RaisesExc[BaseException],
 ):
     manifest_object = ConcreteManifestObject(data)
     instance = PathFilterMethod(
@@ -852,7 +949,8 @@ def test_path_filter_method_is_manifest_object_in_scope(
             exclude_node_paths=exclude_paths,
         )
     )
-    assert instance.is_manifest_object_in_scope(manifest_object) is expected_return
+    with expected_raise:
+        assert instance.is_manifest_object_in_scope(manifest_object) is expected_return
 
 
 @pytest.mark.parametrize(
@@ -1232,6 +1330,7 @@ def test_tag_filter_method_is_manifest_object_in_scope(
         "Explicitly included",
         "Not explicitly included",
         "Manifest None",
+        "Parent map is None",
     ],
     argvalues=[
         (
@@ -1263,6 +1362,16 @@ def test_tag_filter_method_is_manifest_object_in_scope(
             None,
             True,
             pytest.raises(ValueError, match="cannot be None"),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            Mock(parent_map={}),
+            True,
+            pytest.raises(NotImplementedError),
         ),
     ],
 )
@@ -1304,6 +1413,7 @@ def test_direct_parents_filter_method_is_manifest_object_included(
         "Explicitly included",
         "Not explicitly included",
         "Manifest None",
+        "Parent map is None",
     ],
     argvalues=[
         (
@@ -1335,6 +1445,16 @@ def test_direct_parents_filter_method_is_manifest_object_included(
             None,
             True,
             pytest.raises(ValueError, match="cannot be None"),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            Mock(parent_map={}),
+            True,
+            pytest.raises(NotImplementedError),
         ),
     ],
 )
@@ -1376,6 +1496,7 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
         "Explicitly included",
         "Not explicitly included",
         "Manifest None",
+        "Child map is None",
     ],
     argvalues=[
         (
@@ -1407,6 +1528,16 @@ def test_indirect_parents_filter_method_is_manifest_object_included(
             None,
             True,
             pytest.raises(ValueError, match="cannot be None"),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            Mock(child_map={}),
+            True,
+            pytest.raises(NotImplementedError),
         ),
     ],
 )
@@ -1448,6 +1579,7 @@ def test_direct_children_filter_method_is_manifest_object_included(
         "Explicitly included",
         "Not explicitly included",
         "Manifest None",
+        "Child map is None",
     ],
     argvalues=[
         (
@@ -1479,6 +1611,16 @@ def test_direct_children_filter_method_is_manifest_object_included(
             None,
             True,
             pytest.raises(ValueError, match="cannot be None"),
+        ),
+        (
+            {
+                "unique_id": "included_model",
+            },
+            ["test_model", "another_model"],
+            {"test_model"},
+            Mock(child_map={}),
+            True,
+            pytest.raises(NotImplementedError),
         ),
     ],
 )
@@ -1525,7 +1667,7 @@ def test_indirect_children_filter_method_is_manifest_object_included(
     ],
     argvalues=[
         (
-            {},
+            {"unique_id": "included_model"},
             Namespace(),
             ManifestModel,
             Mock(),

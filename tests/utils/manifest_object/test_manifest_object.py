@@ -14,6 +14,7 @@ from utils.manifest_object.manifest_object import (
 )
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.constraint import Constraint
+from utils.manifest_object.node.model.model import ManifestModel
 from utils.manifest_object.node.node import SingularTest
 
 
@@ -193,7 +194,7 @@ def test_manifest_object_meta(data: dict, expected_return: bool):
 
 def test_manifest_column_name():
     name = "test_column"
-    instance = ManifestColumn({"name": name})
+    instance = ManifestColumn({"name": name}, "test_column")
     assert instance.name == name
 
 
@@ -215,7 +216,7 @@ def test_manifest_column_name():
     ],
 )
 def test_manifest_column_data_type(data: dict, expected_return: str):
-    instance = ManifestColumn(data)
+    instance = ManifestColumn(data, ManifestModel({}))
     assert instance.data_type == expected_return
 
 
@@ -237,7 +238,7 @@ def test_manifest_column_data_type(data: dict, expected_return: str):
     ],
 )
 def test_manifest_column_has_data_type(data: dict, expected_return: bool):
-    instance = ManifestColumn(data)
+    instance = ManifestColumn(data, ManifestModel({}))
     assert instance.has_data_type is expected_return
 
 
@@ -261,7 +262,7 @@ def test_manifest_column_has_data_type(data: dict, expected_return: bool):
 def test_manifest_column_constraints(
     data: dict, expected_return: tuple[Constraint, ...]
 ):
-    instance = ManifestColumn(data)
+    instance = ManifestColumn(data, ManifestModel({}))
     assert instance.constraints == expected_return
 
 
@@ -283,7 +284,7 @@ def test_manifest_column_constraints(
     ],
 )
 def test_manifest_column_description(data: dict, expected_return: str):
-    instance = ManifestColumn(data)
+    instance = ManifestColumn(data, ManifestModel({}))
     assert instance.description == expected_return
 
 
@@ -305,7 +306,7 @@ def test_manifest_column_description(data: dict, expected_return: str):
     ],
 )
 def test_manifest_column_has_description(data: dict, expected_return: str):
-    instance = ManifestColumn(data)
+    instance = ManifestColumn(data, ManifestModel({}))
     assert instance.has_description == expected_return
 
 
@@ -329,24 +330,42 @@ class ConcreteHasColumnsMixin(HasColumnsMixin, ManifestObject):
                     "column2": {"name": "column2", "data_type": "integer"},
                 },
             },
-            {
-                "test_model.column1": ManifestColumn(
-                    {"name": "column1", "data_type": "string"}
+            [
+                ManifestColumn(
+                    {"name": "column1", "data_type": "string"},
+                    ConcreteHasColumnsMixin(
+                        {
+                            "unique_id": "test_model",
+                            "columns": {
+                                "column1": {"name": "column1", "data_type": "string"},
+                                "column2": {"name": "column2", "data_type": "integer"},
+                            },
+                        }
+                    ),
                 ),
-                "test_model.column2": ManifestColumn(
-                    {"name": "column2", "data_type": "integer"}
+                ManifestColumn(
+                    {"name": "column2", "data_type": "integer"},
+                    ConcreteHasColumnsMixin(
+                        {
+                            "unique_id": "test_model",
+                            "columns": {
+                                "column1": {"name": "column1", "data_type": "string"},
+                                "column2": {"name": "column2", "data_type": "integer"},
+                            },
+                        }
+                    ),
                 ),
-            },
+            ],
         ),
         (
             {"unique_id": "test_model", "columns": {}},
-            {},
+            [],
         ),
         (
             {
                 "unique_id": "test_model",
             },
-            {},
+            [],
         ),
     ],
 )
@@ -356,7 +375,7 @@ def test_has_columns_mixin_columns(
     instance = ConcreteHasColumnsMixin(
         data=data,
     )
-    assert instance.columns == expected_return
+    assert list(instance.columns) == expected_return
 
 
 class ConcreteDataTestableNode(DataTestableMixin, ManifestObject):

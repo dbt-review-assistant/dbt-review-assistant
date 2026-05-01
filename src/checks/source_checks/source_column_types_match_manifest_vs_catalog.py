@@ -1,9 +1,14 @@
 """Check if the source column types match between the manifest and the catalog."""
 
+from typing import TYPE_CHECKING
+
 from utils.check_abc import STANDARD_SOURCE_ARGUMENTS, ManifestVsCatalogComparison
 from utils.check_failure_messages import (
     manifest_vs_catalog_column_type_mismatch_message,
 )
+
+if TYPE_CHECKING:
+    pass
 
 
 class SourceColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
@@ -23,20 +28,21 @@ class SourceColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        eligible_sources = {
-            source.unique_id: source
-            for source in self.manifest.in_scope_sources
-            if source.enabled
+        eligible_columns = [
+            column
+            for column in self.manifest.in_scope_source_columns
+            if getattr(column.parent, "enabled", True)
+        ]
+        eligible_sources: set[str] = {
+            column.parent.unique_id for column in eligible_columns
         }
         self.manifest_items = {
-            column_id: column.data_type
-            for source_id, source in eligible_sources.items()
-            for column_id, column in source.columns.items()
+            column.unique_id: column.data_type for column in eligible_columns
         }
         self.catalog_items = {
             column_id: column_data.type
             for source_id, source in self.catalog.sources.items()
-            if source_id in eligible_sources.keys()
+            if source_id in eligible_sources
             for column_id, column_data in source.columns.items()
         }
 

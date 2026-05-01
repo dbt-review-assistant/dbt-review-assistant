@@ -17,6 +17,7 @@ from utils.manifest_object.node.model.model import ManifestModel
         "One model, columns match",
         "Two models, columns mismatch",
         "One disabled model",
+        "Extra column in catalog",
     ],
     argnames=[
         "manifest_models",
@@ -117,6 +118,30 @@ from utils.manifest_object.node.model.model import ManifestModel
             set(),
             set(),
         ),
+        (
+            [
+                {
+                    "unique_id": "test_model",
+                    "config": {"enabled": True},
+                    "columns": {
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
+                    },
+                },
+            ],
+            {
+                "test_model": {
+                    "unique_id": "test_model",
+                    "columns": {
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
+                        "column_3": {"name": "column_3"},
+                    },
+                },
+            },
+            {"test_model.column_1", "test_model.column_2"},
+            {"test_model.column_1", "test_model.column_2", "test_model.column_3"},
+        ),
     ],
 )
 def test_model_column_names_match_manifest_vs_catalog_perform_checks(
@@ -137,10 +162,15 @@ def test_model_column_names_match_manifest_vs_catalog_perform_checks(
             ModelColumnNamesMatchManifestVsCatalog, "catalog", new_callable=PropertyMock
         ) as mock_catalog,
     ):
-        mock_in_scope_models = PropertyMock(
-            return_value=[ManifestModel(model_data) for model_data in manifest_models]
-        )
-        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
+        columns = [
+            column
+            for model_data in manifest_models
+            for column in ManifestModel(model_data).columns
+        ]
+        mock_in_scope_model_columns = PropertyMock(return_value=columns)
+        type(
+            mock_manifest.return_value
+        ).in_scope_model_columns = mock_in_scope_model_columns
         mock_catalog_nodes = PropertyMock(
             return_value={
                 model_id: CatalogTable(model_data)
@@ -155,7 +185,7 @@ def test_model_column_names_match_manifest_vs_catalog_perform_checks(
         assert instance.catalog_items == expected_catalog_items
         assert instance.manifest_items == expected_manifest_items
         mock_catalog_nodes.assert_called_once()
-        mock_in_scope_models.assert_called_once()
+        mock_in_scope_model_columns.assert_called_once()
 
 
 def test_model_column_names_match_manifest_vs_catalog_failure_message():

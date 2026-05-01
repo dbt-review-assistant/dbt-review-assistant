@@ -183,29 +183,44 @@ def test_manifest_vs_catalog_column_type_mismatch_message(kwargs, expected_retur
         (
             {
                 "column_1": [
-                    {"model": "test_model_1", "description": "test description"},
-                    {"model": "test_model_2", "description": "another description"},
+                    {
+                        "unique_id": "test_model_1.column",
+                        "description": "test description",
+                    },
+                    {
+                        "unique_id": "test_model_2.column",
+                        "description": "another description",
+                    },
                 ],
                 "column_2": [
-                    {"model": "test_model_1", "description": "test description"},
-                    {"model": "test_model_2", "description": "another description"},
-                    {"model": "test_model_3", "description": "yet another description"},
+                    {
+                        "unique_id": "test_model_1.column",
+                        "description": "test description",
+                    },
+                    {
+                        "unique_id": "test_model_2.column",
+                        "description": "another description",
+                    },
+                    {
+                        "unique_id": "test_model_3.column",
+                        "description": "yet another description",
+                    },
                 ],
             },
             """There are inconsistent descriptions for the following model column descriptions:
-+-------------------------+-------------------------+-------------------------+
-|          Column         |          Model          |       Descriptions      |
-+-------------------------+-------------------------+-------------------------+
-|         column_1        |       test_model_1      |     test description    |
-+-------------------------+-------------------------+-------------------------+
-|         column_1        |       test_model_2      |   another description   |
-+-------------------------+-------------------------+-------------------------+
-|         column_2        |       test_model_1      |     test description    |
-+-------------------------+-------------------------+-------------------------+
-|         column_2        |       test_model_2      |   another description   |
-+-------------------------+-------------------------+-------------------------+
-|         column_2        |       test_model_3      | yet another description |
-+-------------------------+-------------------------+-------------------------+""",
++------------------------------+------------------------------+
+|          Unique ID           |         Descriptions         |
++------------------------------+------------------------------+
+|     test_model_1.column      |       test description       |
++------------------------------+------------------------------+
+|     test_model_2.column      |     another description      |
++------------------------------+------------------------------+
+|     test_model_1.column      |       test description       |
++------------------------------+------------------------------+
+|     test_model_2.column      |     another description      |
++------------------------------+------------------------------+
+|     test_model_3.column      |   yet another description    |
++------------------------------+------------------------------+""",
         ),
     ],
 )

@@ -67,16 +67,19 @@ def test_model_columns_have_types_perform_checks(
             ModelColumnsHaveTypes, "manifest", new_callable=PropertyMock
         ) as mock_manifest,
     ):
-        mock_in_scope_models = PropertyMock(
-            return_value=[ManifestModel(model_data) for model_data in models]
-        )
-        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
+        columns = [
+            column
+            for model_data in models
+            for column in ManifestModel(model_data).columns
+        ]
+        mock_in_scope_columns = PropertyMock(return_value=columns)
+        type(mock_manifest.return_value).in_scope_model_columns = mock_in_scope_columns
         instance = ModelColumnsHaveTypes(Namespace())
         instance.perform_check()
         assert instance.check_name == "model-columns-have-types"
         assert instance.additional_arguments == STANDARD_MODEL_ARGUMENTS
         assert instance.failures == expected_failures
-        mock_in_scope_models.assert_called_once()
+        mock_in_scope_columns.assert_called_once()
 
 
 def test_model_columns_have_descriptions_failure_message():

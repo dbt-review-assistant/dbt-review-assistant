@@ -17,6 +17,7 @@ from utils.manifest_object.manifest_object import ManifestSource
         "One source, names match",
         "Two sources, names mismatch",
         "One disabled source",
+        "Extra column in catalog",
     ],
     argnames=[
         "manifest_sources",
@@ -31,8 +32,8 @@ from utils.manifest_object.manifest_object import ManifestSource
                     "unique_id": "test_source",
                     "config": {"enabled": True},
                     "columns": {
-                        "column_1": {},
-                        "column_2": {},
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
                     },
                 },
             ],
@@ -40,8 +41,8 @@ from utils.manifest_object.manifest_object import ManifestSource
                 "test_source": {
                     "unique_id": "test_source",
                     "columns": {
-                        "column_1": {},
-                        "column_2": {},
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
                     },
                 },
             },
@@ -54,16 +55,16 @@ from utils.manifest_object.manifest_object import ManifestSource
                     "unique_id": "test_source",
                     "config": {"enabled": True},
                     "columns": {
-                        "column_1": {},
-                        "column_2": {},
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
                     },
                 },
                 {
                     "unique_id": "another_source",
                     "config": {"enabled": True},
                     "columns": {
-                        "column_3": {},
-                        "column_4": {},
+                        "column_3": {"name": "column_3"},
+                        "column_4": {"name": "column_4"},
                     },
                 },
             ],
@@ -71,15 +72,15 @@ from utils.manifest_object.manifest_object import ManifestSource
                 "test_source": {
                     "unique_id": "test_source",
                     "columns": {
-                        "column_1": {},
-                        "column_2": {},
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
                     },
                 },
                 "another_source": {
                     "unique_id": "another_source",
                     "columns": {
-                        "column_3": {},
-                        "column_4": {},
+                        "column_3": {"name": "column_3"},
+                        "column_4": {"name": "column_4"},
                     },
                 },
             },
@@ -102,8 +103,8 @@ from utils.manifest_object.manifest_object import ManifestSource
                     "unique_id": "test_source",
                     "config": {"enabled": False},
                     "columns": {
-                        "column_1": {},
-                        "column_2": {},
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
                     },
                 },
             ],
@@ -111,13 +112,37 @@ from utils.manifest_object.manifest_object import ManifestSource
                 "test_source": {
                     "unique_id": "test_source",
                     "columns": {
-                        "column_1": {},
-                        "column_2": {},
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
                     },
                 },
             },
             set(),
             set(),
+        ),
+        (
+            [
+                {
+                    "unique_id": "test_source",
+                    "config": {"enabled": True},
+                    "columns": {
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
+                    },
+                },
+            ],
+            {
+                "test_source": {
+                    "unique_id": "test_source",
+                    "columns": {
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
+                        "column_3": {"name": "column_3"},
+                    },
+                },
+            },
+            {"test_source.column_1", "test_source.column_2"},
+            {"test_source.column_1", "test_source.column_2", "test_source.column_3"},
         ),
     ],
 )
@@ -141,12 +166,15 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
             new_callable=PropertyMock,
         ) as mock_catalog,
     ):
-        mock_in_scope_sources = PropertyMock(
-            return_value=[
-                ManifestSource(source_data) for source_data in manifest_sources
-            ]
-        )
-        type(mock_manifest.return_value).in_scope_sources = mock_in_scope_sources
+        columns = [
+            column
+            for source_data in manifest_sources
+            for column in ManifestSource(source_data).columns
+        ]
+        mock_in_scope_source_columns = PropertyMock(return_value=columns)
+        type(
+            mock_manifest.return_value
+        ).in_scope_source_columns = mock_in_scope_source_columns
         mock_catalog_sources = PropertyMock(
             return_value={
                 source_id: CatalogTable(source_data)
@@ -161,7 +189,7 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
         assert instance.catalog_items == expected_catalog_items
         assert instance.manifest_items == expected_manifest_items
         mock_catalog_sources.assert_called_once()
-        mock_in_scope_sources.assert_called_once()
+        mock_in_scope_source_columns.assert_called_once()
 
 
 def test_source_column_names_match_manifest_vs_catalog_failure_message():

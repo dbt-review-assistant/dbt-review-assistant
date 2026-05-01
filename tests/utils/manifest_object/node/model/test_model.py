@@ -2,9 +2,10 @@ from unittest.mock import Mock
 
 import pytest
 
+from utils.manifest_object.manifest_object import ManifestColumn
 from utils.manifest_object.node.model.constraint import Constraint
 from utils.manifest_object.node.model.contract import Contract
-from utils.manifest_object.node.model.model import ManifestColumn, ManifestModel
+from utils.manifest_object.node.model.model import ManifestModel
 
 
 @pytest.mark.parametrize(
@@ -22,20 +23,42 @@ from utils.manifest_object.node.model.model import ManifestColumn, ManifestModel
                     "column_2": {"data": "more_test_data"},
                 },
             },
-            {
-                "test_model.column_1": ManifestColumn({"data": "test_data"}),
-                "test_model.column_2": ManifestColumn({"data": "more_test_data"}),
-            },
+            [
+                ManifestColumn(
+                    {"data": "test_data"},
+                    ManifestModel(
+                        {
+                            "unique_id": "test_model",
+                            "columns": {
+                                "column_1": {"data": "test_data"},
+                                "column_2": {"data": "more_test_data"},
+                            },
+                        }
+                    ),
+                ),
+                ManifestColumn(
+                    {"data": "more_test_data"},
+                    ManifestModel(
+                        {
+                            "unique_id": "test_model",
+                            "columns": {
+                                "column_1": {"data": "test_data"},
+                                "column_2": {"data": "more_test_data"},
+                            },
+                        }
+                    ),
+                ),
+            ],
         ),
         (
             {"unique_id": "test_model", "columns": {}},
-            {},
+            [],
         ),
     ],
 )
 def test_manifest_model_columns(data: dict, expected_return: dict[str, ManifestColumn]):
     instance = ManifestModel(data)
-    assert instance.columns == expected_return
+    assert list(instance.columns) == expected_return
 
 
 @pytest.mark.parametrize(

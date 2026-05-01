@@ -76,10 +76,13 @@ def test_model_column_names_match_pattern_perform_checks(
             ModelColumnNamesMatchPattern, "manifest", new_callable=PropertyMock
         ) as mock_manifest,
     ):
-        mock_in_scope_models = PropertyMock(
-            return_value=[ManifestModel(model_data) for model_data in models]
-        )
-        type(mock_manifest.return_value).in_scope_models = mock_in_scope_models
+        columns = [
+            column
+            for model_data in models
+            for column in ManifestModel(model_data).columns
+        ]
+        mock_in_scope_columns = PropertyMock(return_value=columns)
+        type(mock_manifest.return_value).in_scope_model_columns = mock_in_scope_columns
         instance = ModelColumnNamesMatchPattern(Namespace())
         instance.args.name_must_match_pattern = pattern
         instance.perform_check()
@@ -88,7 +91,7 @@ def test_model_column_names_match_pattern_perform_checks(
             "name_must_match_pattern",
         ]
         assert instance.failures == expected_failures
-        mock_in_scope_models.assert_called()
+        mock_in_scope_columns.assert_called()
 
 
 def test_model_column_names_match_pattern_failure_message():

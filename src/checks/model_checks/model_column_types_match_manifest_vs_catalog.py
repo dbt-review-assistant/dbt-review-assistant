@@ -1,9 +1,14 @@
 """Check if the model column types match between the manifest and the catalog."""
 
+from typing import TYPE_CHECKING
+
 from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestVsCatalogComparison
 from utils.check_failure_messages import (
     manifest_vs_catalog_column_type_mismatch_message,
 )
+
+if TYPE_CHECKING:
+    from utils.manifest_object.manifest_object import ManifestColumn
 
 
 class ModelColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
@@ -23,20 +28,22 @@ class ModelColumnTypesMatchManifestVsCatalog(ManifestVsCatalogComparison):
 
     def perform_check(self) -> None:
         """Execute the check logic."""
-        eligible_models = {
-            model.unique_id: model
-            for model in self.manifest.in_scope_models
-            if model.enabled and model.materialized != "ephemeral"
+        eligible_columns: list["ManifestColumn"] = [
+            column
+            for column in self.manifest.in_scope_model_columns
+            if getattr(column.parent, "enabled", True)
+            and getattr(column.parent, "materialized", "") != "ephemeral"
+        ]
+        eligible_models: set[str] = {
+            column.parent.unique_id for column in eligible_columns
         }
         self.manifest_items = {
-            column_id: column.data_type
-            for model in eligible_models.values()
-            for column_id, column in model.columns.items()
+            column.unique_id: column.data_type for column in eligible_columns
         }
         self.catalog_items = {
             column_id: column.type
             for node_id, node in self.catalog.nodes.items()
-            if node_id in eligible_models.keys()
+            if node_id in eligible_models
             for column_id, column in node.columns.items()
         }
 
