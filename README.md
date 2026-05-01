@@ -271,7 +271,7 @@ repos:
     rev: <latest tag>
     hooks:
       - id: all-checks
-        args: [ "--config-dir", "my_dbt_project" ]
+        args: [ "--config-dir", "my_dbt_project"]
 ```
 
 Or to run individual checks as standalone hooks:
@@ -283,16 +283,20 @@ repos:
     rev: <latest tag>
     hooks:
       - id: all-models-have-descriptions
-        args: [ "--include-packages", "my_dbt_project" ]
+        args: ["--include-packages", "my_dbt_project", "--files"]
       - id: all-models-have-constraints
         args: [
           "--must-have-all-constraints-from",
           "primary_key",
           "--include-materializations",
           "table",
-          "incremental"
+          "incremental",
+          "--files",
         ]
 ```
+***IMPORTANT*** - If the hook for an individual check uses `args`, or uses `- repo: local`, ensure that `args` includes
+`"--files"` as its last element. `pre-commit` will append filenames to the end of the entry, and without the `--files`
+flag the argument parser has no way to separate these filenames from the other argument values.
 
 Note that the recommended option is to use the single entry version, because this can benefit from improved performance
 by allowing `dbt-review-assistant` to cache data in memory between checks. Running checks individually forces them to be
