@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Collection
 
-from utils.manifest_object.manifest_object import DataTestableMixin, ManifestColumn
+from utils.manifest_object.manifest_object import DataTestableMixin, HasColumnsMixin
 from utils.manifest_object.node.model.constraint import Constraint
 from utils.manifest_object.node.model.contract import Contract
 from utils.manifest_object.node.node import ManifestNode
@@ -11,20 +11,8 @@ if TYPE_CHECKING:
     from utils.artifact_data import Manifest
 
 
-class ManifestModel(ManifestNode, DataTestableMixin):
+class ManifestModel(ManifestNode, DataTestableMixin, HasColumnsMixin):
     """Represents a model from the manifest file."""
-
-    @property
-    def columns(self) -> dict[str, ManifestColumn]:
-        """The model's columns.
-
-        Returns:
-            a dictionary mapping column unique IDs to ManifestColumn instances.
-        """
-        return {
-            f"{self.unique_id}.{column_name}": ManifestColumn(column_data)
-            for column_name, column_data in self.data.get("columns", {}).items()
-        }
 
     @property
     def constraints(self) -> tuple[Constraint, ...]:
@@ -85,7 +73,7 @@ class ManifestModel(ManifestNode, DataTestableMixin):
         constraints.update(
             {
                 constraint.type
-                for column in self.columns.values()
+                for column in self.columns
                 for constraint in column.constraints
             }
         )

@@ -18,9 +18,8 @@ class SourceColumnsHaveDescriptions(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            column_id
-            for source in self.manifest.in_scope_sources
-            for column_id, column in source.columns.items()
+            column.unique_id
+            for column in self.manifest.in_scope_source_columns
             if not column.description
         }
 

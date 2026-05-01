@@ -138,21 +138,20 @@ def inconsistent_column_descriptions_message(
 
     Args:
         descriptions: dict mapping column names to a list of occurrence instance dicts,
-        including the name of the model and the description in that model
+        including the unique ID and the description
 
     Returns:
         string summarising the check failures
     """
     table = PrettyTable(**PRETTY_TABLE_KWARGS)
-    table.field_names = ["Column", "Model", "Descriptions"]
+    table.field_names = ["Unique ID", "Descriptions"]
     for column_name, column_instances in sorted(
         descriptions.items(), key=lambda x: x[0]
     ):
         for column_instance in column_instances:
             table.add_row(
                 [
-                    column_name,
-                    column_instance["model"],
+                    column_instance["unique_id"],
                     column_instance["description"],
                 ]
             )

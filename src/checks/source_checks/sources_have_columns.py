@@ -20,7 +20,7 @@ class SourcesHaveColumns(ManifestCheck):
         self.failures = {
             source.unique_id
             for source in self.manifest.in_scope_sources
-            if not source.columns
+            if not list(source.columns)
         }
 
     @property

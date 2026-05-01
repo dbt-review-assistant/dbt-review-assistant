@@ -23,19 +23,18 @@ class ModelColumnsDescriptionsAreConsistent(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         all_descriptions: dict[str, list[dict[str, str]]] = {}
-        models = self.manifest.in_scope_models
-        for model in models:
-            for column in model.columns.values():
-                if not all_descriptions.get(column.name):
-                    all_descriptions[column.name] = []
-                all_descriptions[column.name].append(
-                    {
-                        "description": column.description if column.description else "",
-                        "model": model.unique_id,
-                    }
-                )
+        columns = self.manifest.in_scope_model_columns
+        for column in columns:
+            if not all_descriptions.get(column.name):
+                all_descriptions[column.name] = []
+            all_descriptions[column.name].append(
+                {
+                    "description": column.description if column.description else "",
+                    "unique_id": column.unique_id,
+                }
+            )
         self.descriptions = {
-            column_name: sorted(column_instances, key=lambda x: x["model"])
+            column_name: sorted(column_instances, key=lambda x: x["unique_id"])
             for column_name, column_instances in all_descriptions.items()
             if len({instance["description"] for instance in column_instances}) > 1
         }

@@ -20,7 +20,7 @@ class ModelsHaveColumns(ManifestCheck):
         self.failures = {
             model.unique_id
             for model in self.manifest.in_scope_models
-            if not model.columns
+            if not list(model.columns)
         }
 
     @property

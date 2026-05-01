@@ -4,7 +4,7 @@ import re
 from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Collection, Protocol, cast
+from typing import TYPE_CHECKING, Any, Collection, Generator, Protocol, cast
 
 from utils.manifest_object.node.model.constraint import Constraint
 
@@ -200,20 +200,27 @@ class HasUniqueId(Protocol):
         ...
 
 
-@dataclass(eq=True, frozen=True)
-class ManifestColumn(HasNameMixin):
+@dataclass(eq=True)
+class ManifestColumn(ManifestObject, HasNameMixin):
     """Represents a column in the manifest file.
 
     Attributes:
         data: data for the column from the manifest file.
+        parent: HasUniqueId instance the column belongs to.
     """
 
     data: dict
+    parent: "HasUniqueId"
 
     @property
     def name(self) -> str:
         """The name of the column."""
         return self.data["name"]
+
+    @property
+    def unique_id(self) -> str:
+        """The unique ID of the column."""
+        return f"{self.parent.unique_id}.{self.name}"
 
     @property
     def data_type(self) -> str | None:
@@ -312,22 +319,21 @@ class DataTestableMixin(ABC):
         return has_required_data_tests
 
 
-class HasColumnsMixin(ABC):
+class HasColumnsMixin(ABC, HasUniqueId):
     """Mixin for objects which can have columns."""
 
     @property
-    def columns(self) -> dict[str, ManifestColumn]:
+    def columns(self) -> Generator[ManifestColumn, None, None]:
         """Columns associated with this object.
 
-        Returns:
-            a mapping of column unique IDs to ManifestColumn objects.
+        Yields:
+            ManifestColumn objects.
         """
         data = cast(HasData, self).data
-        unique_id = cast(ManifestObject, self).unique_id
-        return {
-            f"{unique_id}.{column_name}": ManifestColumn(column_data)
+        return (
+            ManifestColumn(column_data, parent=self)
             for column_name, column_data in data.get("columns", {}).items()
-        }
+        )
 
 
 class ManifestSource(

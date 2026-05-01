@@ -16,7 +16,7 @@ from utils.artifact_data import (
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_filter_conditions import ManifestFilterConditions
 from utils.manifest_object.macro import Macro
-from utils.manifest_object.manifest_object import ManifestSource
+from utils.manifest_object.manifest_object import ManifestColumn, ManifestSource
 from utils.manifest_object.node.generic_test import GenericTest
 from utils.manifest_object.node.model.model import ManifestModel
 from utils.manifest_object.node.node import (
@@ -118,11 +118,20 @@ def test_manifest_in_scope_models(mock_get_json_artifact_data):
     filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {
         "nodes": {
-            "test_model": {"resource_type": "model", "package_name": "test_package"},
-            "another_model": {"resource_type": "model", "package_name": "test_package"},
+            "test_model": {
+                "resource_type": "model",
+                "package_name": "test_package",
+                "unique_id": "test_model",
+            },
+            "another_model": {
+                "resource_type": "model",
+                "package_name": "test_package",
+                "unique_id": "another_model",
+            },
             "one_more_model": {
                 "resource_type": "model",
                 "package_name": "another_package",
+                "unique_id": "one_more_model",
             },
             "test_seed": {"resource_type": "seed"},
         },
@@ -131,16 +140,224 @@ def test_manifest_in_scope_models(mock_get_json_artifact_data):
     }
     expected_models = [
         ManifestModel(
-            data={"resource_type": "model", "package_name": "test_package"},
+            data={
+                "resource_type": "model",
+                "package_name": "test_package",
+                "unique_id": "test_model",
+            },
         ),
         ManifestModel(
-            data={"resource_type": "model", "package_name": "test_package"},
+            data={
+                "resource_type": "model",
+                "package_name": "test_package",
+                "unique_id": "another_model",
+            },
         ),
     ]
     mock_get_json_artifact_data.return_value = mock_data
     path = Path("test")
     instance = Manifest(manifest_dir=path, filter_conditions=filters)
     assert list(instance.in_scope_models) == expected_models
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_model_columns(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_model": {
+                "unique_id": "test_model",
+                "resource_type": "model",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "another_model": {
+                "unique_id": "another_model",
+                "resource_type": "model",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "one_more_model": {
+                "unique_id": "one_more_model",
+                "resource_type": "model",
+                "package_name": "another_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "test_seed": {"resource_type": "seed"},
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    expected_columns = [
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestModel(
+                data={
+                    "unique_id": "test_model",
+                    "resource_type": "model",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestModel(
+                data={
+                    "unique_id": "test_model",
+                    "resource_type": "model",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestModel(
+                data={
+                    "unique_id": "another_model",
+                    "resource_type": "model",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestModel(
+                data={
+                    "unique_id": "another_model",
+                    "resource_type": "model",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+    ]
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert list(instance.in_scope_model_columns) == expected_columns
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_source_columns(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "sources": {
+            "test_source": {
+                "unique_id": "test_source",
+                "resource_type": "source",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "another_source": {
+                "unique_id": "another_source",
+                "resource_type": "source",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "one_more_source": {
+                "unique_id": "one_more_source",
+                "resource_type": "source",
+                "package_name": "another_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "test_seed": {"resource_type": "seed"},
+        },
+    }
+    expected_columns = [
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestSource(
+                data={
+                    "unique_id": "test_source",
+                    "resource_type": "source",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestSource(
+                data={
+                    "unique_id": "test_source",
+                    "resource_type": "source",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestSource(
+                data={
+                    "unique_id": "another_source",
+                    "resource_type": "source",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestSource(
+                data={
+                    "unique_id": "another_source",
+                    "resource_type": "source",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+    ]
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert list(instance.in_scope_source_columns) == expected_columns
 
 
 @pytest.mark.parametrize(
@@ -375,24 +592,38 @@ def test_manifest_in_scope_sources(mock_get_json_artifact_data):
     filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {
         "sources": {
-            "test_source": {"resource_type": "source", "package_name": "test_package"},
+            "test_source": {
+                "resource_type": "source",
+                "package_name": "test_package",
+                "unique_id": "test_source",
+            },
             "another_source": {
                 "resource_type": "source",
                 "package_name": "test_package",
+                "unique_id": "another_source",
             },
             "one_more_source": {
                 "resource_type": "source",
                 "package_name": "another_package",
+                "unique_id": "one_more_source",
             },
         },
         "unit_tests": {},
     }
     expected_sources = [
         ManifestSource(
-            data={"resource_type": "source", "package_name": "test_package"},
+            data={
+                "resource_type": "source",
+                "package_name": "test_package",
+                "unique_id": "test_source",
+            },
         ),
         ManifestSource(
-            data={"resource_type": "source", "package_name": "test_package"},
+            data={
+                "resource_type": "source",
+                "package_name": "test_package",
+                "unique_id": "another_source",
+            },
         ),
     ]
     mock_get_json_artifact_data.return_value = mock_data
@@ -430,30 +661,44 @@ def test_manifest_in_scope_macros(mock_get_json_artifact_data):
     filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {
         "macros": {
-            "test_macro": {"resource_type": "macro", "package_name": "test_package"},
-            "another_source": {
+            "test_macro": {
                 "resource_type": "macro",
                 "package_name": "test_package",
+                "unique_id": "test_macro",
             },
-            "one_more_source": {
+            "another_macro": {
+                "resource_type": "macro",
+                "package_name": "test_package",
+                "unique_id": "another_macro",
+            },
+            "one_more_macro": {
                 "resource_type": "macro",
                 "package_name": "another_package",
+                "unique_id": "one_more_macro",
             },
         },
         "unit_tests": {},
     }
-    expected_sources = [
+    expected_macros = [
         Macro(
-            data={"resource_type": "macro", "package_name": "test_package"},
+            data={
+                "resource_type": "macro",
+                "package_name": "test_package",
+                "unique_id": "test_macro",
+            },
         ),
         Macro(
-            data={"resource_type": "macro", "package_name": "test_package"},
+            data={
+                "resource_type": "macro",
+                "package_name": "test_package",
+                "unique_id": "another_macro",
+            },
         ),
     ]
     mock_get_json_artifact_data.return_value = mock_data
     path = Path("test")
     instance = Manifest(manifest_dir=path, filter_conditions=filters)
-    assert list(instance.in_scope_macros) == expected_sources
+    assert list(instance.in_scope_macros) == expected_macros
 
 
 @patch("utils.artifact_data.get_json_artifact_data")
