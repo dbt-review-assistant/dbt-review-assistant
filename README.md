@@ -195,7 +195,7 @@ To run individual checks using the CLI, run the `dbt-review-assistant` command f
 arguments required, for example:
 
 ```commandline
-dbt-review-assistant all-models-have-descriptions --include-packages my_dbt_project
+dbt-review-assistant models-have-descriptions --include-packages my_dbt_project
 ```
 
 ### Running several checks together
@@ -282,9 +282,9 @@ repos:
   - repo: https://github.com/sambloom92/dbt-review-assistant
     rev: <latest tag>
     hooks:
-      - id: all-models-have-descriptions
+      - id: models-have-descriptions
         args: ["--include-packages", "my_dbt_project", "--files"]
-      - id: all-models-have-constraints
+      - id: models-have-constraints
         args: [
           "--must-have-all-constraints-from",
           "primary_key",
@@ -393,7 +393,7 @@ repos:
           "./my_dbt_project"
         ]
         language: python
-        pass_filenames: true
+        pass_filenames: false
         require_serial: true
         types_or: [sql,yaml]
         files: "my_dbt_project/"
@@ -418,9 +418,9 @@ repos:
   - repo: https://github.com/sambloom92/dbt-review-assistant
     rev: <latest tag>
     hooks:
-      - id: all-models-have-descriptions
+      - id: models-have-descriptions
         args: [ "--include-packages", "my_dbt_project" ]
-      - id: all-models-have-constraints
+      - id: models-have-constraints
         args: [
           "--must-have-all-constraints-from",
           "primary_key",
