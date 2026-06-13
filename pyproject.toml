@@ -17,10 +17,16 @@ dependencies = [
 Repository = "https://github.com/dbt-review-assistant/dbt-review-assistant"
 
 [build-system]
-requires = ["setuptools >= 64"]
+requires = ["setuptools >= 64", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
 "src" = ["py.typed"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+build_command = "pip install build && python -m build"
+major_on_zero = false
 
 [dependency-groups]
 dev = [
@@ -35,6 +41,8 @@ dev = [
     "tox-uv>=1.29.0",
     "pytest-sugar>=1.1.1",
     "ruff>=0.14.2",
+    "python-semantic-release>=10.5.3",
+    "build>=1.2.0",
 ]
 
 [project.scripts]
