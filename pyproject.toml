@@ -17,10 +17,20 @@ dependencies = [
 Repository = "https://github.com/dbt-review-assistant/dbt-review-assistant"
 
 [build-system]
-requires = ["setuptools >= 64"]
+requires = ["setuptools >= 64", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
 "src" = ["py.typed"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+build_command = "uv build"
+# This ensures uv.lock is updated with the new version before PSR commits
+post_version_setup_command = "uv lock"
+major_on_zero = false
+allow_zero_version = true
+upload_to_repository = true
 
 [dependency-groups]
 dev = [
@@ -35,6 +45,8 @@ dev = [
     "tox-uv>=1.29.0",
     "pytest-sugar>=1.1.1",
     "ruff>=0.14.2",
+    "python-semantic-release>=10.5.3",
+    "build>=1.2.0",
 ]
 
 [project.scripts]
