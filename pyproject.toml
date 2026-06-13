@@ -25,8 +25,12 @@ build-backend = "setuptools.build_meta"
 
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
-build_command = "pip install build && python -m build"
+build_command = "uv build"
+# This ensures uv.lock is updated with the new version before PSR commits
+post_version_setup_command = "uv lock"
 major_on_zero = false
+allow_zero_version = true
+upload_to_repository = true
 
 [dependency-groups]
 dev = [

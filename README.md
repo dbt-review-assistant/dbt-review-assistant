@@ -1,4 +1,4 @@
-[![Tests and Code Checks](https://github.com/sambloom92/dbt-review-assistant/actions/workflows/main.yml/badge.svg)](https://github.com/sambloom92/dbt-review-assistant/actions/workflows/main.yml)
+[![CI & Release](https://github.com/sambloom92/dbt-review-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/sambloom92/dbt-review-assistant/actions/workflows/ci.yml)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 # dbt Review Assistant
