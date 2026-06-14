@@ -1,7 +1,7 @@
 """Classes representing macro objects in the manifest file."""
 
 from dataclasses import dataclass
-from typing import Any, Generator
+from typing import Any
 
 from utils.manifest_object.manifest_object import HasPatchPathMixin, ManifestObject
 
@@ -36,16 +36,16 @@ class Macro(ManifestObject, HasPatchPathMixin):
     """Represents a macro in the manifest."""
 
     @property
-    def arguments(self) -> Generator[MacroArgument, None, None]:
+    def arguments(self) -> list[MacroArgument]:
         """The macro's arguments.
 
-        Yields:
-            MacroArgument instances.
+        Returns:
+            List of MacroArgument instances.
         """
-        return (
+        return [
             MacroArgument(data=argument_data)
             for argument_data in self.data.get("arguments", [])
-        )
+        ]
 
     @property
     def macro_sql(self) -> str:

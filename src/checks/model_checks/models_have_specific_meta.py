@@ -21,11 +21,9 @@ class ModelsHaveSpecificMeta(ManifestCheck):
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures: dict[str, dict[str, Any]] = {
-            model.unique_id: dict_difference(
-                model.meta, self.args.must_have_specific_meta
-            )
+            model.unique_id: diff
             for model in self.manifest.in_scope_models
-            if dict_difference(model.meta, self.args.must_have_specific_meta)
+            if (diff := dict_difference(model.meta, self.args.must_have_specific_meta))
         }
 
     @property

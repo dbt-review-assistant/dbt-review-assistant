@@ -1,11 +1,11 @@
-"""CHeck if models have columns listed in the manifest."""
+"""Check if models have columns listed in the manifest."""
 
 from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_attribute_message
 
 
 class ModelsHaveColumns(ManifestCheck):
-    """CHeck if models have columns listed the manifest.
+    """Check if models have columns listed in the manifest.
 
     Attributes:
         check_name: name of the check
