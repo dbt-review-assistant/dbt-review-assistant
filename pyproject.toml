@@ -1,6 +1,6 @@
 [project]
 name = "dbt-review-assistant"
-version = "2.3.2"
+version = "2.4.0"
 description = "Pre-commit hooks for dbt projects"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,6 +16,11 @@ dependencies = [
 [project.urls]
 Repository = "https://github.com/dbt-review-assistant/dbt-review-assistant"
 
+[project.scripts]
+dbt-review-assistant = "checks.entrypoint:entrypoint"
+dbtra = "checks.entrypoint:entrypoint"
+
+
 [build-system]
 requires = ["setuptools >= 64", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -23,33 +28,13 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.package-data]
 "src" = ["py.typed"]
 
+
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
 build_command = "pip install uv && rm -rf .venv && uv lock && uv build"
 major_on_zero = false
 allow_zero_version = true
 upload_to_repository = true
-
-[dependency-groups]
-dev = [
-    "setuptools>=64",
-    "mypy>=1.18.2",
-    "pre-commit>=4.3.0",
-    "pytest>=8.4.2",
-    "yamllint>=1.37.1",
-    "types-jsonschema>=4.25.1.20251009",
-    "types-pyyaml>=6.0.12.20250915",
-    "pytest-cov>=7.0.0",
-    "tox-uv>=1.29.0",
-    "pytest-sugar>=1.1.1",
-    "ruff>=0.14.2",
-    "python-semantic-release>=10.5.3",
-    "build>=1.2.0",
-]
-
-[project.scripts]
-dbt-review-assistant = "checks.entrypoint:entrypoint"
-dbtra = "checks.entrypoint:entrypoint"
 
 [tool.ruff.lint]
 # Enable all `pydocstyle` rules, limiting to those that adhere to the
@@ -65,6 +50,7 @@ convention = "google"
 "tests/**" = ["D"]
 # Ignore all files that start with `test_.py`.
 "test_*.py" = ["D"]
+
 
 [tool.tox]
 requires = ["tox>=4", "tox-uv>=1.29.0"]
@@ -96,3 +82,21 @@ commands = [["mypy", { replace = "posargs", default = ["src"], extend = true} ]]
 "3.12" = ["3.12"]
 "3.11" = ["3.11"]
 "3.10" = ["3.10"]
+
+[dependency-groups]
+dev = [
+    "setuptools>=64",
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "yamllint>=1.37.1",
+    "types-jsonschema>=4.25.1.20251009",
+    "types-pyyaml>=6.0.12.20250915",
+    "pytest-cov>=7.0.0",
+    "tox-uv>=1.29.0",
+    "pytest-sugar>=1.1.1",
+    "ruff>=0.14.2",
+    "python-semantic-release>=10.5.3",
+    "build>=1.2.0",
+]
+
