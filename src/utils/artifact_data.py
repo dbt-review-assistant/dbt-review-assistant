@@ -1,6 +1,7 @@
 """Utilities for fetching dbt artifact data."""
 
 import json
+import warnings
 from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Collection
@@ -25,6 +26,8 @@ if TYPE_CHECKING:
 
 MANIFEST_FILE_NAME = "manifest.json"
 CATALOG_FILE_NAME = "catalog.json"
+SUPPORTED_MANIFEST_SCHEMA_VERSION = "https://schemas.getdbt.com/dbt/manifest/v12.json"
+SUPPORTED_CATALOG_SCHEMA_VERSION = "https://schemas.getdbt.com/dbt/catalog/v1.json"
 
 
 class Catalog:
@@ -37,6 +40,16 @@ class Catalog:
             catalog_dir: directory where the catalog.json file is located.
         """
         self.data = get_json_artifact_data(catalog_dir / CATALOG_FILE_NAME)
+        schema_version = self.data.get("metadata", {}).get("dbt_schema_version")
+        if schema_version != SUPPORTED_CATALOG_SCHEMA_VERSION:
+            warnings.warn(
+                f"Unsupported catalog schema version: '{schema_version}'. "
+                f"Only '{SUPPORTED_CATALOG_SCHEMA_VERSION}' (dbt Core 1.0+) is explicitly supported. "
+                "To resolve, upgrade to dbt Core 1.0 or later and re-run `dbt docs generate` to regenerate the catalog. "
+                "Results may be incorrect or incomplete.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     @cached_property
     def nodes(self) -> dict[str, CatalogTable]:
@@ -82,6 +95,17 @@ class Manifest:
         self.data = get_json_artifact_data(manifest_dir / MANIFEST_FILE_NAME)
         self.filter_conditions = filter_conditions
         self.filepaths = set(filepaths) if filepaths else None
+        schema_version = self.data.get("metadata", {}).get("dbt_schema_version")
+        if schema_version != SUPPORTED_MANIFEST_SCHEMA_VERSION:
+            warnings.warn(
+                f"Unsupported manifest schema version: '{schema_version}'. "
+                f"Only '{SUPPORTED_MANIFEST_SCHEMA_VERSION}' (dbt Core 1.8+) is explicitly supported. "
+                "Manifest schema versions by dbt release: v12 → 1.8+, v11 → 1.7, v10 → 1.6, v9 → 1.5. "
+                "To resolve, upgrade to dbt Core 1.8 or later and re-run `dbt parse` to regenerate the manifest. "
+                "Results may be incorrect or incomplete.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     @cached_property
     def nodes(self) -> dict[str, dict[str, Any]]:

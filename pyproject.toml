@@ -36,6 +36,9 @@ major_on_zero = false
 allow_zero_version = true
 upload_to_repository = false
 
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::UserWarning"]
+
 [tool.ruff.lint]
 # Enable all `pydocstyle` rules, limiting to those that adhere to the
 # Google convention via `convention = "google"`, below.
