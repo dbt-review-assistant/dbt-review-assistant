@@ -102,4 +102,4 @@ def check_status_header(message: str, status: bool) -> str:
         ConsoleBackgroundColour.GREEN if status else ConsoleBackgroundColour.RED,
         ConsoleEmphasis.BOLD,
     )
-    return f"{coloured_message}"
+    return coloured_message

@@ -47,7 +47,6 @@ from utils.manifest_object.manifest_object import ManifestSource
 def test_sources_have_descriptions_perform_checks(
     sources: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(SourcesHaveDescriptions, "__call__"),

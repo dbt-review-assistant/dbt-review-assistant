@@ -1,11 +1,11 @@
-"""CHeck if models have a description."""
+"""Check if models have a description."""
 
 from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_attribute_message
 
 
 class ModelsHaveDescriptions(ManifestCheck):
-    """CHeck if models have a description.
+    """Check if models have a description.
 
     Attributes:
         check_name: name of the check

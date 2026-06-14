@@ -59,7 +59,6 @@ from utils.manifest_object.manifest_object import ManifestSource
 def test_source_columns_have_types_perform_checks(
     sources: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(SourceColumnsHaveTypes, "__call__"),
@@ -84,7 +83,7 @@ def test_source_columns_have_types_perform_checks(
         mock_in_scope_source_columns.assert_called_once()
 
 
-def test_source_columns_have_descriptions_failure_message():
+def test_source_columns_have_types_failure_message():
     with (
         patch.object(SourceColumnsHaveTypes, "failures"),
         patch.object(SourceColumnsHaveTypes, "__call__"),

@@ -50,7 +50,6 @@ def test_macro_names_match_pattern_perform_checks(
     macros: Iterable[dict[str, str]],
     pattern: str,
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(MacroNamesMatchPattern, "__call__"),

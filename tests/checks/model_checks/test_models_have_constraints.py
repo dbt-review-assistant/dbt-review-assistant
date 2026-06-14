@@ -201,7 +201,6 @@ def test_models_have_constraints_perform_check(
     must_have_all_constraints_from: Collection[str],
     must_have_any_constraint_from: Collection[str],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveConstraints, "__call__"),

@@ -109,7 +109,6 @@ def test_model_has_contract_enforced(model: dict, expected_return: bool):
 def test_models_have_contracts_perform_check(
     models: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveContracts, "__call__"),
