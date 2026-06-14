@@ -39,6 +39,11 @@ class ManifestModel(ManifestNode, DataTestableMixin, HasColumnsMixin):
         return None
 
     @property
+    def access(self) -> str | None:
+        """The model's access level (private, protected, or public)."""
+        return self.data.get("access")
+
+    @property
     def materialized(self) -> str | None:
         """The model's configured materialization type."""
         return self.config.get("materialized")

@@ -140,6 +140,17 @@
   require_serial: true
   args: ["--files"]
 
+- id: models-have-access
+  name: models-have-access
+  description: >
+    Check if models have an access level configured
+  entry: dbt-review-assistant models-have-access
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
 - id: models-have-columns
   name: models-have-columns
   description: >
@@ -206,11 +217,44 @@
   require_serial: true
   args: ["--files"]
 
+- id: models-have-specific-config
+  name: models-have-specific-config
+  description: >
+    Check if models have a specific configuration value set
+  entry: dbt-review-assistant models-have-specific-config
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
 - id: models-have-specific-materialization
   name: models-have-specific-materialization
   description: >
     Check if models are materialized with one of a set of allowed materializations
   entry: dbt-review-assistant models-have-specific-materialization
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-specific-meta
+  name: models-have-specific-meta
+  description: >
+    Check if models have a specific meta value set
+  entry: dbt-review-assistant models-have-specific-meta
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-tags
+  name: models-have-tags
+  description: >
+    Check if models have tags
+  entry: dbt-review-assistant models-have-tags
   language: python
   pass_filenames: true
   types_or: [sql, yaml]
@@ -225,6 +269,28 @@
   language: python
   pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: seed-column-names-match-manifest-vs-catalog
+  name: seed-column-names-match-manifest-vs-catalog
+  description: >
+    Check if seed column names match between the manifest and the catalog
+  entry: dbt-review-assistant seed-column-names-match-manifest-vs-catalog
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
+  require_serial: true
+  args: ["--files"]
+
+- id: seed-column-types-match-manifest-vs-catalog
+  name: seed-column-types-match-manifest-vs-catalog
+  description: >
+    Check if seed column types match between the manifest and the catalog
+  entry: dbt-review-assistant seed-column-types-match-manifest-vs-catalog
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
   require_serial: true
   args: ["--files"]
 
@@ -261,6 +327,17 @@
   require_serial: true
   args: ["--files"]
 
+- id: seeds-have-data-tests
+  name: seeds-have-data-tests
+  description: >
+    Check if seeds have data tests
+  entry: dbt-review-assistant seeds-have-data-tests
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
+  require_serial: true
+  args: ["--files"]
+
 - id: seeds-have-descriptions
   name: seeds-have-descriptions
   description: >
@@ -272,11 +349,88 @@
   require_serial: true
   args: ["--files"]
 
+- id: seeds-have-tags
+  name: seeds-have-tags
+  description: >
+    Check if seeds have tags
+  entry: dbt-review-assistant seeds-have-tags
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
+  require_serial: true
+  args: ["--files"]
+
+- id: snapshot-columns-have-descriptions
+  name: snapshot-columns-have-descriptions
+  description: >
+    Check if snapshot columns have descriptions
+  entry: dbt-review-assistant snapshot-columns-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: snapshot-columns-have-types
+  name: snapshot-columns-have-types
+  description: >
+    Check if snapshot columns have types
+  entry: dbt-review-assistant snapshot-columns-have-types
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: snapshot-names-match-pattern
+  name: snapshot-names-match-pattern
+  description: >
+    Check if snapshot names match a regex pattern
+  entry: dbt-review-assistant snapshot-names-match-pattern
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: snapshots-have-columns
+  name: snapshots-have-columns
+  description: >
+    Check if snapshots have columns listed in a properties.yml file
+  entry: dbt-review-assistant snapshots-have-columns
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: snapshots-have-data-tests
+  name: snapshots-have-data-tests
+  description: >
+    Check if snapshots have data tests
+  entry: dbt-review-assistant snapshots-have-data-tests
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
 - id: snapshots-have-descriptions
   name: snapshots-have-descriptions
   description: >
     Check if snapshots have descriptions
   entry: dbt-review-assistant snapshots-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: snapshots-have-tags
+  name: snapshots-have-tags
+  description: >
+    Check if snapshots have tags
+  entry: dbt-review-assistant snapshots-have-tags
   language: python
   pass_filenames: true
   types_or: [sql, yaml]
@@ -365,6 +519,28 @@
   description: >
     Check if sources have freshness configured
   entry: dbt-review-assistant sources-have-freshness
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: sources-have-loader
+  name: sources-have-loader
+  description: >
+    Check if sources have a loader configured
+  entry: dbt-review-assistant sources-have-loader
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: sources-have-tags
+  name: sources-have-tags
+  description: >
+    Check if sources have tags
+  entry: dbt-review-assistant sources-have-tags
   language: python
   pass_filenames: true
   types_or: [sql, yaml]

@@ -51,10 +51,21 @@ comparison
 - `models-have-specific-meta`: Check if models have a specific meta. Provide a JSON representation of the required
 config using argument `--must-have-specific-meta`. Any keys not present in this argument are not included in the 
 comparison
+- `models-have-access`: Check if models have an access level configured. Optionally specify a list of allowed access
+  levels using `--must-be-accessed-as-one-of`
 
 ### Snapshot checks:
 
 - `snapshots-have-descriptions`: Check if snapshots have descriptions
+- `snapshots-have-columns`: Check if snapshots have columns listed in a properties.yml file
+- `snapshots-have-tags`: Check if snapshots have tags. Optionally specify a set from which snapshots must have all
+  tags, or from which they must have at least one tag
+- `snapshots-have-data-tests`: Check if snapshots have data tests (generic or singular tests)
+- `snapshot-columns-have-descriptions`: Check if snapshot columns have descriptions. Snapshots without columns listed
+  at all will always pass this check, so it's recommended to run `snapshots-have-columns` as a complementary check.
+- `snapshot-columns-have-types`: Check if snapshot columns have data types documented. Snapshots without columns listed
+  at all will always pass this check, so it's recommended to run `snapshots-have-columns` as a complementary check.
+- `snapshot-names-match-pattern`: Check if snapshot names match a regex pattern
 
 ### Seed checks:
 
@@ -64,6 +75,13 @@ comparison
 will always pass this check.
 - `seed-columns-have-types`: Check if seed columns have data types documented. Seeds without columns listed at all
 will always pass this check.
+- `seed-column-names-match-manifest-vs-catalog`: Check if seed column names match between the manifest.json and the
+  catalog.json
+- `seed-column-types-match-manifest-vs-catalog`: Check if seed column data types match between the manifest.json and
+  the catalog.json
+- `seeds-have-data-tests`: Check if seeds have data tests (generic or singular tests)
+- `seeds-have-tags`: Check if seeds have tags. Optionally specify a set from which seeds must have all tags, or from
+  which they must have at least one tag
 
 ### Source checks:
 
@@ -79,6 +97,9 @@ will always pass this check, so it's recommend to run `sources-have-columns` as 
   catalog.json
 - `source-column-types-match-manifest-vs-catalog`: Check if source column data types match between the manifest.json and
   the catalog.json
+- `sources-have-loader`: Check if sources have a loader configured
+- `sources-have-tags`: Check if sources have tags. Optionally specify a set from which sources must have all tags,
+  or from which they must have at least one tag
 
 ### Macro checks:
 
@@ -200,6 +221,8 @@ option can include generic test or singular tests.
 `--name-must-match-pattern`: Optional - Regex pattern to match object names against.
 
 `--must-be-materialized-as-one-of`: Optional - Specific materialization names from which models must use one.
+
+`--must-be-accessed-as-one-of`: Optional - Specific access levels from which models must use one (private, protected, public).
 
 `--must-have-specific-config`: Optional - JSON object representing config which nodes must have. Only included keys will
 be checked, so omitted keys will not be checked.
@@ -348,40 +371,55 @@ This table shows which checks require which dbt artifacts:
 
 | check-id                                        | manifest | catalog |
 |-------------------------------------------------|----------|---------|
-| `models-have-descriptions`                      | ✅        | ❌       |
-| `models-have-tags`                              | ✅        | ❌       |
-| `models-have-contracts`                         | ✅        | ❌       |
-| `models-have-constraints`                       | ✅        | ❌       |
-| `models-have-data-tests`                        | ✅        | ❌       |
-| `models-have-unit-tests`                        | ✅        | ❌       |
-| `models-have-properties-file`                   | ✅        | ❌       |
-| `models-have-specific-config`                   | ✅        | ❌       |
-| `models-have-specific-meta`                     | ✅        | ❌       |
-| `model-names-match-pattern`                     | ✅        | ❌       |
-| `models-have-specific-materialization`          | ✅        | ❌       |
-| `model-column-names-match-pattern`              | ✅        | ❌       |
-| `model-columns-have-descriptions`               | ✅        | ❌       |
-| `model-columns-have-types`                      | ✅        | ❌       |
-| `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
-| `model-column-types-match-manifest-vs-catalog`  | ✅        | ✅       |
-| `model-column-descriptions-are-consistent`      | ✅        | ❌       |
-| `snapshots-have-descriptions`                   | ✅        | ❌       |
-| `seeds-have-columns`                            | ✅        | ❌       |
-| `seeds-have-descriptions`                       | ✅        | ❌       |
-| `seed-columns-have-descriptions`                | ✅        | ❌       |
-| `seed-columns-have-types`                       | ✅        | ❌       |
-| `sources-have-descriptions`                     | ✅        | ❌       |
-| `sources-have-freshness`                        | ✅        | ❌       |
-| `sources-have-data-tests`                       | ✅        | ❌       |
-| `source-columns-have-descriptions`              | ✅        | ❌       |
-| `source-columns-have-types`                     | ✅        | ❌       |
-| `source-column-names-match-manifest-vs-catalog` | ✅        | ✅       |
-| `source-column-types-match-manifest-vs-catalog` | ✅        | ✅       |
-| `macros-have-descriptions`                      | ✅        | ❌       |
-| `macro-arguments-have-descriptions`             | ✅        | ❌       |
-| `macro-arguments-have-types`                    | ✅        | ❌       |
-| `macro-arguments-match-manifest-vs-sql`         | ✅        | ❌       |
-| `macro-names-match-pattern`                     | ✅        | ❌       |
+| `models-have-descriptions`                          | ✅        | ❌       |
+| `models-have-tags`                                  | ✅        | ❌       |
+| `models-have-contracts`                             | ✅        | ❌       |
+| `models-have-constraints`                           | ✅        | ❌       |
+| `models-have-data-tests`                            | ✅        | ❌       |
+| `models-have-unit-tests`                            | ✅        | ❌       |
+| `models-have-properties-file`                       | ✅        | ❌       |
+| `models-have-columns`                               | ✅        | ❌       |
+| `models-have-specific-config`                       | ✅        | ❌       |
+| `models-have-specific-meta`                         | ✅        | ❌       |
+| `models-have-access`                                | ✅        | ❌       |
+| `model-names-match-pattern`                         | ✅        | ❌       |
+| `models-have-specific-materialization`              | ✅        | ❌       |
+| `model-column-names-match-pattern`                  | ✅        | ❌       |
+| `model-columns-have-descriptions`                   | ✅        | ❌       |
+| `model-columns-have-types`                          | ✅        | ❌       |
+| `model-column-names-match-manifest-vs-catalog`      | ✅        | ✅       |
+| `model-column-types-match-manifest-vs-catalog`      | ✅        | ✅       |
+| `model-column-descriptions-are-consistent`          | ✅        | ❌       |
+| `snapshots-have-descriptions`                       | ✅        | ❌       |
+| `snapshots-have-columns`                            | ✅        | ❌       |
+| `snapshots-have-tags`                               | ✅        | ❌       |
+| `snapshots-have-data-tests`                         | ✅        | ❌       |
+| `snapshot-columns-have-descriptions`                | ✅        | ❌       |
+| `snapshot-columns-have-types`                       | ✅        | ❌       |
+| `snapshot-names-match-pattern`                      | ✅        | ❌       |
+| `seeds-have-columns`                                | ✅        | ❌       |
+| `seeds-have-descriptions`                           | ✅        | ❌       |
+| `seeds-have-tags`                                   | ✅        | ❌       |
+| `seeds-have-data-tests`                             | ✅        | ❌       |
+| `seed-columns-have-descriptions`                    | ✅        | ❌       |
+| `seed-columns-have-types`                           | ✅        | ❌       |
+| `seed-column-names-match-manifest-vs-catalog`       | ✅        | ✅       |
+| `seed-column-types-match-manifest-vs-catalog`       | ✅        | ✅       |
+| `sources-have-descriptions`                         | ✅        | ❌       |
+| `sources-have-freshness`                            | ✅        | ❌       |
+| `sources-have-data-tests`                           | ✅        | ❌       |
+| `sources-have-columns`                              | ✅        | ❌       |
+| `sources-have-loader`                               | ✅        | ❌       |
+| `sources-have-tags`                                 | ✅        | ❌       |
+| `source-columns-have-descriptions`                  | ✅        | ❌       |
+| `source-columns-have-types`                         | ✅        | ❌       |
+| `source-column-names-match-manifest-vs-catalog`     | ✅        | ✅       |
+| `source-column-types-match-manifest-vs-catalog`     | ✅        | ✅       |
+| `macros-have-descriptions`                          | ✅        | ❌       |
+| `macro-arguments-have-descriptions`                 | ✅        | ❌       |
+| `macro-arguments-have-types`                        | ✅        | ❌       |
+| `macro-arguments-match-manifest-vs-sql`             | ✅        | ❌       |
+| `macro-names-match-pattern`                         | ✅        | ❌       |
 
 These JSON files are typically in the `.gitignore`, so they are not tracked in git, and are often cleaned up when
 running `dbt clean`, so knowing how to generate them is important.

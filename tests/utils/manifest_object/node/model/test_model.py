@@ -415,3 +415,21 @@ def test_manifest_model_has_unit_tests(
     mock_manifest.unit_tests = unit_tests
     instance = ManifestModel(data)
     assert instance.has_unit_tests(manifest=mock_manifest) is expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
+        "access set to public",
+        "access set to protected",
+        "access not set",
+    ],
+    argvalues=[
+        ({"access": "public"}, "public"),
+        ({"access": "protected"}, "protected"),
+        ({}, None),
+    ],
+)
+def test_manifest_model_access(data: dict, expected_return: str | None):
+    instance = ManifestModel(data)
+    assert instance.access == expected_return

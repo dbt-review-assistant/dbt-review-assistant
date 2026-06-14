@@ -829,6 +829,22 @@ def test_dict_difference(
 @pytest.mark.parametrize(
     argnames=["data", "expected_return"],
     ids=[
+        "loader set",
+        "loader not set",
+    ],
+    argvalues=[
+        ({"loader": "fivetran"}, "fivetran"),
+        ({}, None),
+    ],
+)
+def test_manifest_source_loader(data: dict, expected_return):
+    instance = ManifestSource(data)
+    assert instance.loader == expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
         "loaded_at_field set",
         "loaded_at_field not set",
     ],

@@ -952,6 +952,68 @@ def test_manifest_in_scope_seed_columns(mock_get_json_artifact_data):
 
 
 @patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_snapshot_columns(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_snapshot": {
+                "unique_id": "test_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "excluded_snapshot": {
+                "unique_id": "excluded_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "another_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                },
+            },
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    expected_columns = [
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestSnapshot(
+                data={
+                    "unique_id": "test_snapshot",
+                    "resource_type": "snapshot",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestSnapshot(
+                data={
+                    "unique_id": "test_snapshot",
+                    "resource_type": "snapshot",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+    ]
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert list(instance.in_scope_snapshot_columns) == expected_columns
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_unit_tests(mock_get_json_artifact_data):
     filters = ManifestFilterConditions()
     mock_data = {

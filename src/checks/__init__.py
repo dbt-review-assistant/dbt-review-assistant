@@ -26,6 +26,7 @@ from checks.model_checks.model_columns_have_descriptions import (
 )
 from checks.model_checks.model_columns_have_types import ModelColumnsHaveTypes
 from checks.model_checks.model_names_must_match_pattern import ModelNamesMatchPattern
+from checks.model_checks.models_have_access import ModelsHaveAccess
 from checks.model_checks.models_have_columns import ModelsHaveColumns
 from checks.model_checks.models_have_constraints import ModelsHaveConstraints
 from checks.model_checks.models_have_contracts import ModelsHaveContracts
@@ -39,13 +40,31 @@ from checks.model_checks.models_have_specific_materialization import (
 from checks.model_checks.models_have_specific_meta import ModelsHaveSpecificMeta
 from checks.model_checks.models_have_tags import ModelsHaveTags
 from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
+from checks.seed_checks.seed_column_names_match_manifest_vs_catalog import (
+    SeedColumnNamesMatchManifestVsCatalog,
+)
+from checks.seed_checks.seed_column_types_match_manifest_vs_catalog import (
+    SeedColumnTypesMatchManifestVsCatalog,
+)
 from checks.seed_checks.seed_columns_have_descriptions import (
     SeedColumnsHaveDescriptions,
 )
 from checks.seed_checks.seed_columns_have_types import SeedColumnsHaveTypes
 from checks.seed_checks.seeds_have_columns import SeedsHaveColumns
+from checks.seed_checks.seeds_have_data_tests import SeedsHaveDataTests
 from checks.seed_checks.seeds_have_descriptions import SeedsHaveDescriptions
+from checks.seed_checks.seeds_have_tags import SeedsHaveTags
+from checks.snapshot_checks.snapshot_columns_have_descriptions import (
+    SnapshotColumnsHaveDescriptions,
+)
+from checks.snapshot_checks.snapshot_columns_have_types import SnapshotColumnsHaveTypes
+from checks.snapshot_checks.snapshot_names_match_pattern import (
+    SnapshotNamesMatchPattern,
+)
+from checks.snapshot_checks.snapshots_have_columns import SnapshotsHaveColumns
+from checks.snapshot_checks.snapshots_have_data_tests import SnapshotsHaveDataTests
 from checks.snapshot_checks.snapshots_have_descriptions import SnapshotsHaveDescriptions
+from checks.snapshot_checks.snapshots_have_tags import SnapshotsHaveTags
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
     SourceColumnNamesMatchManifestVsCatalog,
 )
@@ -60,43 +79,58 @@ from checks.source_checks.sources_have_columns import SourcesHaveColumns
 from checks.source_checks.sources_have_data_tests import SourcesHaveDataTests
 from checks.source_checks.sources_have_descriptions import SourcesHaveDescriptions
 from checks.source_checks.sources_have_freshness import SourcesHaveFreshness
+from checks.source_checks.sources_have_loader import SourcesHaveLoader
+from checks.source_checks.sources_have_tags import SourcesHaveTags
 
 ALL_CHECKS = (
-    ModelsHaveContracts,
-    ModelsHaveColumns,
-    ModelsHaveDescriptions,
-    ModelsHaveConstraints,
-    MacrosHaveDescriptions,
-    ModelsHavePropertiesFile,
-    ModelsHaveSpecificMaterialization,
-    ModelsHaveDataTests,
-    ModelsHaveUnitTests,
-    ModelNamesMatchPattern,
-    ModelColumnNamesMatchPattern,
-    ModelsHaveSpecificConfig,
-    ModelsHaveSpecificMeta,
     MacroArgumentsHaveDescriptions,
     MacroArgumentsHaveTypes,
     MacroArgumentsMatchManifestVsSql,
     MacroNamesMatchPattern,
-    ModelColumnsHaveDescriptions,
-    ModelColumnNamesMatchManifestVsCatalog,
-    SourcesHaveDescriptions,
-    SourceColumnsHaveDescriptions,
-    SourceColumnNamesMatchManifestVsCatalog,
-    SourceColumnsHaveTypes,
-    SourceColumnTypesMatchManifestVsCatalog,
-    SourcesHaveDataTests,
-    SourcesHaveColumns,
-    ModelColumnTypesMatchManifestVsCatalog,
-    ModelColumnsHaveTypes,
+    MacrosHaveDescriptions,
     ModelColumnsDescriptionsAreConsistent,
+    ModelColumnNamesMatchManifestVsCatalog,
+    ModelColumnNamesMatchPattern,
+    ModelColumnTypesMatchManifestVsCatalog,
+    ModelColumnsHaveDescriptions,
+    ModelColumnsHaveTypes,
+    ModelNamesMatchPattern,
+    ModelsHaveAccess,
+    ModelsHaveColumns,
+    ModelsHaveConstraints,
+    ModelsHaveContracts,
+    ModelsHaveDataTests,
+    ModelsHaveDescriptions,
+    ModelsHavePropertiesFile,
+    ModelsHaveSpecificConfig,
+    ModelsHaveSpecificMaterialization,
+    ModelsHaveSpecificMeta,
     ModelsHaveTags,
-    SeedsHaveColumns,
-    SeedsHaveDescriptions,
+    ModelsHaveUnitTests,
+    SeedColumnNamesMatchManifestVsCatalog,
+    SeedColumnTypesMatchManifestVsCatalog,
     SeedColumnsHaveDescriptions,
     SeedColumnsHaveTypes,
+    SeedsHaveColumns,
+    SeedsHaveDataTests,
+    SeedsHaveDescriptions,
+    SeedsHaveTags,
+    SnapshotColumnsHaveDescriptions,
+    SnapshotColumnsHaveTypes,
+    SnapshotNamesMatchPattern,
+    SnapshotsHaveColumns,
+    SnapshotsHaveDataTests,
     SnapshotsHaveDescriptions,
+    SnapshotsHaveTags,
+    SourceColumnNamesMatchManifestVsCatalog,
+    SourceColumnTypesMatchManifestVsCatalog,
+    SourceColumnsHaveDescriptions,
+    SourceColumnsHaveTypes,
+    SourcesHaveColumns,
+    SourcesHaveDataTests,
+    SourcesHaveDescriptions,
     SourcesHaveFreshness,
+    SourcesHaveLoader,
+    SourcesHaveTags,
 )
 ALL_CHECKS_MAP = {check.check_name: check for check in ALL_CHECKS}

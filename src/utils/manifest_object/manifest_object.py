@@ -342,6 +342,11 @@ class ManifestSource(
     """Represents a manifest source object."""
 
     @property
+    def loader(self) -> str | None:
+        """The tool or process that loads data into this source."""
+        return self.data.get("loader")
+
+    @property
     def loaded_at_field(self) -> str | None:
         """The field used to determine when the source was last loaded."""
         return self.data.get("loaded_at_field")

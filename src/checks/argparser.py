@@ -133,6 +133,14 @@ ADDITIONAL_ARGUMENTS: tuple[CliArgument, ...] = (
         default=None,
     ),
     CliArgument(
+        name="must_be_accessed_as_one_of",
+        help="Specific access levels from which models must use one (private, protected, public).",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+    ),
+    CliArgument(
         name="must_be_materialized_as_one_of",
         help="Specific materialization names from which models must use one.",
         type=str,
