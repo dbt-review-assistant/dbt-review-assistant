@@ -553,4 +553,4 @@ hooks by [DataCoves](https://datacoves.com/product) (formerly pre-commit-dbt). I
 immensely useful for my own dbt projects, and I am very grateful to them for contributing it. That said, there were a
 number of ways in which I believed it could be improved and simplified, so I decided to try writing my own tool. While
 there may be similarities in some of the checks, all code in this repository is written by myself, with nothing taken
-from any other projects or AI tools.
+from any other projects.
