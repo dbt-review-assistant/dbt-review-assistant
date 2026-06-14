@@ -39,6 +39,11 @@ from checks.model_checks.models_have_specific_materialization import (
 from checks.model_checks.models_have_specific_meta import ModelsHaveSpecificMeta
 from checks.model_checks.models_have_tags import ModelsHaveTags
 from checks.model_checks.models_have_unit_tests import ModelsHaveUnitTests
+from checks.seed_checks.seed_columns_have_descriptions import (
+    SeedColumnsHaveDescriptions,
+)
+from checks.seed_checks.seed_columns_have_types import SeedColumnsHaveTypes
+from checks.seed_checks.seeds_have_descriptions import SeedsHaveDescriptions
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
     SourceColumnNamesMatchManifestVsCatalog,
 )
@@ -84,5 +89,8 @@ ALL_CHECKS = (
     ModelColumnsHaveTypes,
     ModelColumnsDescriptionsAreConsistent,
     ModelsHaveTags,
+    SeedsHaveDescriptions,
+    SeedColumnsHaveDescriptions,
+    SeedColumnsHaveTypes,
 )
 ALL_CHECKS_MAP = {check.check_name: check for check in ALL_CHECKS}

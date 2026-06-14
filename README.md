@@ -48,6 +48,14 @@ comparison
 config using argument `--must-have-specific-meta`. Any keys not present in this argument are not included in the 
 comparison
 
+### Seed checks:
+
+- `seeds-have-descriptions`: Check if seeds have descriptions
+- `seed-columns-have-descriptions`: Check if seed columns have descriptions. Seeds without columns listed at all
+will always pass this check.
+- `seed-columns-have-types`: Check if seed columns have data types documented. Seeds without columns listed at all
+will always pass this check.
+
 ### Source checks:
 
 - `sources-have-descriptions`: Check if sources have descriptions
@@ -347,6 +355,9 @@ This table shows which checks require which dbt artifacts:
 | `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-types-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-descriptions-are-consistent`      | ✅        | ❌       |
+| `seeds-have-descriptions`                       | ✅        | ❌       |
+| `seed-columns-have-descriptions`                | ✅        | ❌       |
+| `seed-columns-have-types`                       | ✅        | ❌       |
 | `sources-have-descriptions`                     | ✅        | ❌       |
 | `sources-have-data-tests`                       | ✅        | ❌       |
 | `source-columns-have-descriptions`              | ✅        | ❌       |

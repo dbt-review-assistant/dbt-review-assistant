@@ -304,3 +304,36 @@
   types_or: [sql, yaml]
   require_serial: true
   args: ["--files"]
+
+- id: seeds-have-descriptions
+  name: seeds-have-descriptions
+  description: >
+    Check if seeds have descriptions
+  entry: dbt-review-assistant seeds-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: seed-columns-have-descriptions
+  name: seed-columns-have-descriptions
+  description: >
+    Check if seed columns have descriptions
+  entry: dbt-review-assistant seed-columns-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: seed-columns-have-types
+  name: seed-columns-have-types
+  description: >
+    Check if seed columns have types
+  entry: dbt-review-assistant seed-columns-have-types
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]

@@ -300,6 +300,37 @@ class Manifest:
         ]
 
     @cached_property
+    def in_scope_seeds(self) -> list[ManifestSeed]:
+        """All seeds present in the manifest, after filtering.
+
+        Returns:
+            List of ManifestSeed objects after filtering.
+        """
+        return [
+            seed
+            for seed in self.seeds.values()
+            if self.filter_conditions.is_manifest_object_in_scope(seed, self)
+            and (
+                not self.filepaths
+                or seed.is_included_by_original_or_patch_path(self.filepaths)
+            )
+        ]
+
+    @cached_property
+    def in_scope_seed_columns(self) -> list[ManifestColumn]:
+        """All seed columns present in the manifest, after filtering.
+
+        Returns:
+            List of ManifestColumn objects after filtering.
+        """
+        return [
+            column
+            for seed in self.seeds.values()
+            for column in seed.columns
+            if self.filter_conditions.is_manifest_object_in_scope(column, self)
+        ]
+
+    @cached_property
     def unit_tests(self) -> dict[str, UnitTest]:
         """All unit tests present in the manifest.
 

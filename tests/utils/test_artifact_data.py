@@ -702,6 +702,152 @@ def test_manifest_in_scope_macros(mock_get_json_artifact_data):
 
 
 @patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_seeds(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_seed": {
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+            },
+            "another_seed": {
+                "unique_id": "another_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+            },
+            "one_more_seed": {
+                "unique_id": "one_more_seed",
+                "resource_type": "seed",
+                "package_name": "another_package",
+            },
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    expected_seeds = [
+        ManifestSeed(
+            data={
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+            },
+        ),
+        ManifestSeed(
+            data={
+                "unique_id": "another_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+            },
+        ),
+    ]
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert list(instance.in_scope_seeds) == expected_seeds
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_seed_columns(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_seed": {
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "another_seed": {
+                "unique_id": "another_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+            "one_more_seed": {
+                "unique_id": "one_more_seed",
+                "resource_type": "seed",
+                "package_name": "another_package",
+                "columns": {
+                    "column1": {"name": "column1"},
+                    "column2": {"name": "column2"},
+                },
+            },
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    expected_columns = [
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestSeed(
+                data={
+                    "unique_id": "test_seed",
+                    "resource_type": "seed",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestSeed(
+                data={
+                    "unique_id": "test_seed",
+                    "resource_type": "seed",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column1"},
+            parent=ManifestSeed(
+                data={
+                    "unique_id": "another_seed",
+                    "resource_type": "seed",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+        ManifestColumn(
+            data={"name": "column2"},
+            parent=ManifestSeed(
+                data={
+                    "unique_id": "another_seed",
+                    "resource_type": "seed",
+                    "package_name": "test_package",
+                    "columns": {
+                        "column1": {"name": "column1"},
+                        "column2": {"name": "column2"},
+                    },
+                }
+            ),
+        ),
+    ]
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert list(instance.in_scope_seed_columns) == expected_columns
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_unit_tests(mock_get_json_artifact_data):
     filters = ManifestFilterConditions()
     mock_data = {
