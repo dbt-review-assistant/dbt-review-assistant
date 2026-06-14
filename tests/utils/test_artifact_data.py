@@ -748,6 +748,96 @@ def test_manifest_in_scope_seeds(mock_get_json_artifact_data):
 
 
 @patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_seeds_filepath_csv_filter(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_seed": {
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/test_seed.csv",
+            },
+            "another_seed": {
+                "unique_id": "another_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/another_seed.csv",
+            },
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(
+        manifest_dir=path,
+        filter_conditions=filters,
+        filepaths=[Path("seeds/test_seed.csv")],
+    )
+    assert instance.in_scope_seeds == [
+        ManifestSeed(
+            data={
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/test_seed.csv",
+            },
+        )
+    ]
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_seeds_non_seed_filepaths_include_all(
+    mock_get_json_artifact_data,
+):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_seed": {
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/test_seed.csv",
+            },
+            "another_seed": {
+                "unique_id": "another_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/another_seed.csv",
+            },
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(
+        manifest_dir=path,
+        filter_conditions=filters,
+        filepaths=[Path("models/my_model.sql"), Path("models/schema.yml")],
+    )
+    assert instance.in_scope_seeds == [
+        ManifestSeed(
+            data={
+                "unique_id": "test_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/test_seed.csv",
+            },
+        ),
+        ManifestSeed(
+            data={
+                "unique_id": "another_seed",
+                "resource_type": "seed",
+                "package_name": "test_package",
+                "original_file_path": "seeds/another_seed.csv",
+            },
+        ),
+    ]
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_in_scope_seed_columns(mock_get_json_artifact_data):
     filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
     mock_data = {

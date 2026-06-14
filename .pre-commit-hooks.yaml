@@ -5,7 +5,7 @@
   entry: dbt-review-assistant all-checks
   language: python
   pass_filenames: true
-  types_or: [sql, yaml]
+  types_or: [sql, yaml, csv]
   require_serial: true
 
 - id: models-have-contracts
@@ -305,6 +305,17 @@
   require_serial: true
   args: ["--files"]
 
+- id: seeds-have-columns
+  name: seeds-have-columns
+  description: >
+    Check if seeds have columns listed in a properties.yml file
+  entry: dbt-review-assistant seeds-have-columns
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
+  require_serial: true
+  args: ["--files"]
+
 - id: seeds-have-descriptions
   name: seeds-have-descriptions
   description: >
@@ -312,7 +323,7 @@
   entry: dbt-review-assistant seeds-have-descriptions
   language: python
   pass_filenames: true
-  types_or: [sql, yaml]
+  types_or: [sql, yaml, csv]
   require_serial: true
   args: ["--files"]
 
@@ -323,7 +334,7 @@
   entry: dbt-review-assistant seed-columns-have-descriptions
   language: python
   pass_filenames: true
-  types_or: [sql, yaml]
+  types_or: [sql, yaml, csv]
   require_serial: true
   args: ["--files"]
 
@@ -334,6 +345,6 @@
   entry: dbt-review-assistant seed-columns-have-types
   language: python
   pass_filenames: true
-  types_or: [sql, yaml]
+  types_or: [sql, yaml, csv]
   require_serial: true
   args: ["--files"]

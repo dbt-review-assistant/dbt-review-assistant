@@ -306,13 +306,18 @@ class Manifest:
         Returns:
             List of ManifestSeed objects after filtering.
         """
+        seed_filepaths = (
+            {p for p in self.filepaths if p.suffix == ".csv" or "seeds" in p.parts}
+            if self.filepaths
+            else None
+        )
         return [
             seed
             for seed in self.seeds.values()
             if self.filter_conditions.is_manifest_object_in_scope(seed, self)
             and (
-                not self.filepaths
-                or seed.is_included_by_original_or_patch_path(self.filepaths)
+                not seed_filepaths
+                or seed.is_included_by_original_or_patch_path(seed_filepaths)
             )
         ]
 

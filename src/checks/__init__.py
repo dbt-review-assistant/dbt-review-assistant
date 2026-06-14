@@ -43,6 +43,7 @@ from checks.seed_checks.seed_columns_have_descriptions import (
     SeedColumnsHaveDescriptions,
 )
 from checks.seed_checks.seed_columns_have_types import SeedColumnsHaveTypes
+from checks.seed_checks.seeds_have_columns import SeedsHaveColumns
 from checks.seed_checks.seeds_have_descriptions import SeedsHaveDescriptions
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
     SourceColumnNamesMatchManifestVsCatalog,
@@ -89,6 +90,7 @@ ALL_CHECKS = (
     ModelColumnsHaveTypes,
     ModelColumnsDescriptionsAreConsistent,
     ModelsHaveTags,
+    SeedsHaveColumns,
     SeedsHaveDescriptions,
     SeedColumnsHaveDescriptions,
     SeedColumnsHaveTypes,

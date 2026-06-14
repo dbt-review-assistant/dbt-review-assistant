@@ -50,6 +50,7 @@ comparison
 
 ### Seed checks:
 
+- `seeds-have-columns`: Check if seeds have columns listed in a properties.yml file
 - `seeds-have-descriptions`: Check if seeds have descriptions
 - `seed-columns-have-descriptions`: Check if seed columns have descriptions. Seeds without columns listed at all
 will always pass this check.
@@ -355,6 +356,7 @@ This table shows which checks require which dbt artifacts:
 | `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-types-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-descriptions-are-consistent`      | ✅        | ❌       |
+| `seeds-have-columns`                            | ✅        | ❌       |
 | `seeds-have-descriptions`                       | ✅        | ❌       |
 | `seed-columns-have-descriptions`                | ✅        | ❌       |
 | `seed-columns-have-types`                       | ✅        | ❌       |
