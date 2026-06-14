@@ -9,6 +9,8 @@ import pytest
 from utils.artifact_data import (
     CATALOG_FILE_NAME,
     MANIFEST_FILE_NAME,
+    SUPPORTED_CATALOG_SCHEMA_VERSION,
+    SUPPORTED_MANIFEST_SCHEMA_VERSION,
     Catalog,
     Manifest,
     get_json_artifact_data,
@@ -66,7 +68,7 @@ def test_get_json_artifact_data(
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_manifest_init(mock_get_json_artifact_data):
-    mock_data = Mock()
+    mock_data = {"metadata": {"dbt_schema_version": SUPPORTED_MANIFEST_SCHEMA_VERSION}}
     mock_get_json_artifact_data.return_value = mock_data
     path = Path("test")
     filters = ManifestFilterConditions()
@@ -74,6 +76,18 @@ def test_manifest_init(mock_get_json_artifact_data):
     mock_get_json_artifact_data.assert_called_with(path / MANIFEST_FILE_NAME)
     assert instance.filter_conditions is filters
     assert instance.data is mock_data
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_init_warns_on_unsupported_schema(mock_get_json_artifact_data):
+    unsupported = "https://schemas.getdbt.com/dbt/manifest/v11.json"
+    mock_get_json_artifact_data.return_value = {
+        "metadata": {"dbt_schema_version": unsupported}
+    }
+    with pytest.warns(UserWarning, match="v11"):
+        Manifest(
+            manifest_dir=Path("test"), filter_conditions=ManifestFilterConditions()
+        )
 
 
 @patch("utils.artifact_data.get_json_artifact_data")
@@ -991,12 +1005,22 @@ def test_manifest_parent_map(mock_get_json_artifact_data):
 
 @patch("utils.artifact_data.get_json_artifact_data")
 def test_catalog_init(mock_get_json_artifact_data):
-    mock_data = Mock()
+    mock_data = {"metadata": {"dbt_schema_version": SUPPORTED_CATALOG_SCHEMA_VERSION}}
     mock_get_json_artifact_data.return_value = mock_data
     path = Path("test")
     instance = Catalog(catalog_dir=path)
     mock_get_json_artifact_data.assert_called_with(path / CATALOG_FILE_NAME)
     assert instance.data is mock_data
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_catalog_init_warns_on_unsupported_schema(mock_get_json_artifact_data):
+    unsupported = "https://schemas.getdbt.com/dbt/catalog/v0.json"
+    mock_get_json_artifact_data.return_value = {
+        "metadata": {"dbt_schema_version": unsupported}
+    }
+    with pytest.warns(UserWarning, match="v0"):
+        Catalog(catalog_dir=Path("test"))
 
 
 @patch("utils.artifact_data.get_json_artifact_data")

@@ -8,6 +8,10 @@
 `dbt-review-assistant` is a Python-based CLI tool which helps dbt developers with ensuring their projects are well
 **documented**, comprehensively **tested** and **consistent**.
 
+> **dbt manifest compatibility:** This tool is explicitly tested against the [dbt manifest v12 schema](https://schemas.getdbt.com/dbt/manifest/v12.json)
+> (dbt Core 1.8+). Other manifest versions may work but are not officially supported — a warning is emitted at runtime
+> if a different schema version is detected.
+
 Maintaining dbt projects can be challenging, especially when the projects get large, complex and have lots of
 contributors. `dbt-review-assistant` aims to help developers and reviewers to focus on what matters, by taking care of
 the most boring checklist items automatically.
