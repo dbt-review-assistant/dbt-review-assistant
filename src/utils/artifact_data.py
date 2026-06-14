@@ -324,6 +324,20 @@ class Manifest:
         ]
 
     @cached_property
+    def in_scope_snapshot_columns(self) -> list[ManifestColumn]:
+        """All snapshot columns present in the manifest, after filtering.
+
+        Returns:
+            List of ManifestColumn objects after filtering.
+        """
+        return [
+            column
+            for snapshot in self.snapshots.values()
+            for column in snapshot.columns
+            if self.filter_conditions.is_manifest_object_in_scope(column, self)
+        ]
+
+    @cached_property
     def in_scope_snapshots(self) -> list[ManifestSnapshot]:
         """All snapshots present in the manifest, after filtering.
 

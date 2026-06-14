@@ -3,6 +3,7 @@
 from abc import ABC
 
 from utils.manifest_object.manifest_object import (
+    DataTestableMixin,
     HasColumnsMixin,
     HasPatchPathMixin,
     ManifestObject,
@@ -34,7 +35,7 @@ class ManifestHookNode(ManifestNode):
     pass
 
 
-class ManifestSeed(ManifestNode, HasColumnsMixin):
+class ManifestSeed(ManifestNode, DataTestableMixin, HasColumnsMixin):
     """Represents a seed from the manifest file."""
 
     pass
@@ -46,7 +47,7 @@ class SingularTest(ManifestNode):
     pass
 
 
-class ManifestSnapshot(ManifestNode):
+class ManifestSnapshot(ManifestNode, DataTestableMixin, HasColumnsMixin):
     """Represents a snapshot from the manifest file."""
 
     pass
