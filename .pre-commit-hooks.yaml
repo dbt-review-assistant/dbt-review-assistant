@@ -8,138 +8,6 @@
   types_or: [sql, yaml, csv]
   require_serial: true
 
-- id: models-have-contracts
-  name: models-have-contracts
-  description: >
-    Check if models have contracts enabled
-  entry: dbt-review-assistant models-have-contracts
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-specific-materialization
-  name: models-have-specific-materialization
-  description: >
-    Check if models are materialized with one of a set of allowed materializations
-  entry: dbt-review-assistant models-have-specific-materialization
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-columns
-  name: models-have-columns
-  description: >
-    Check if models have columns listed in a properties.yml file
-  entry: dbt-review-assistant models-have-columns
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-descriptions
-  name: models-have-descriptions
-  description: >
-    Check if models have descriptions
-  entry: dbt-review-assistant models-have-descriptions
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-constraints
-  name: models-have-constraints
-  description: >
-    Check if models have constraints
-  entry: dbt-review-assistant models-have-constraints
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: model-names-match-pattern
-  name: model-names-match-pattern
-  description: >
-    Check if model names match a regex pattern
-  entry: dbt-review-assistant model-names-match-pattern
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: model-column-names-match-pattern
-  name: model-column-names-match-pattern
-  description: >
-    Check if model column names match a regex pattern
-  entry: dbt-review-assistant model-column-names-match-pattern
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: macros-have-descriptions
-  name: macros-have-descriptions
-  description: >
-    Check if macros have descriptions
-  entry: dbt-review-assistant macros-have-descriptions
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: macro-names-match-pattern
-  name: macro-names-match-pattern
-  description: >
-    Check if macro names match a regex pattern
-  entry: dbt-review-assistant macro-names-match-pattern
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-properties-file
-  name: models-have-properties-file
-  description: >
-    Check if models have a properties YAML file
-  entry: dbt-review-assistant models-have-properties-file
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-data-tests
-  name: models-have-data-tests
-  description: >
-    Check if models have data tests
-  entry: dbt-review-assistant models-have-data-tests
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: models-have-unit-tests
-  name: models-have-unit-tests
-  description: >
-    Check if models have unit tests
-  entry: dbt-review-assistant models-have-unit-tests
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
 - id: macro-arguments-have-descriptions
   name: macro-arguments-have-descriptions
   description: >
@@ -173,11 +41,33 @@
   require_serial: true
   args: ["--files"]
 
-- id: model-columns-have-descriptions
-  name: model-columns-have-descriptions
+- id: macro-names-match-pattern
+  name: macro-names-match-pattern
   description: >
-    Check if model columns have descriptions
-  entry: dbt-review-assistant model-columns-have-descriptions
+    Check if macro names match a regex pattern
+  entry: dbt-review-assistant macro-names-match-pattern
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: macros-have-descriptions
+  name: macros-have-descriptions
+  description: >
+    Check if macros have descriptions
+  entry: dbt-review-assistant macros-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: model-column-descriptions-are-consistent
+  name: model-column-descriptions-are-consistent
+  description: >
+    Check if column descriptions are consistent across different models
+  entry: dbt-review-assistant model-column-descriptions-are-consistent
   language: python
   pass_filenames: true
   types_or: [sql, yaml]
@@ -195,77 +85,11 @@
   require_serial: true
   args: ["--files"]
 
-- id: sources-have-descriptions
-  name: sources-have-descriptions
+- id: model-column-names-match-pattern
+  name: model-column-names-match-pattern
   description: >
-    Check if sources have descriptions
-  entry: dbt-review-assistant sources-have-descriptions
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: sources-have-columns
-  name: sources-have-columns
-  description: >
-    Check if sources have columns listed in a properties.yml file
-  entry: dbt-review-assistant sources-have-columns
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: source-columns-have-descriptions
-  name: source-columns-have-descriptions
-  description: >
-    Check if source columns have descriptions
-  entry: dbt-review-assistant source-columns-have-descriptions
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: source-column-names-match-manifest-vs-catalog
-  name: source-column-names-match-manifest-vs-catalog
-  description: >
-    Check if source column names match between the manifest and the catalog
-  entry: dbt-review-assistant source-column-names-match-manifest-vs-catalog
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: source-columns-have-types
-  name: source-columns-have-types
-  description: >
-    Check if source columns have types
-  entry: dbt-review-assistant source-columns-have-types
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: source-column-types-match-manifest-vs-catalog
-  name: source-column-types-match-manifest-vs-catalog
-  description: >
-    Check if source column types match between the manifest and the catalog
-  entry: dbt-review-assistant source-column-types-match-manifest-vs-catalog
-  language: python
-  pass_filenames: true
-  types_or: [sql, yaml]
-  require_serial: true
-  args: ["--files"]
-
-- id: sources-have-data-tests
-  name: sources-have-data-tests
-  description: >
-    Check if sources have data tests
-  entry: dbt-review-assistant sources-have-data-tests
+    Check if model column names match a regex pattern
+  entry: dbt-review-assistant model-column-names-match-pattern
   language: python
   pass_filenames: true
   types_or: [sql, yaml]
@@ -283,6 +107,17 @@
   require_serial: true
   args: ["--files"]
 
+- id: model-columns-have-descriptions
+  name: model-columns-have-descriptions
+  description: >
+    Check if model columns have descriptions
+  entry: dbt-review-assistant model-columns-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
 - id: model-columns-have-types
   name: model-columns-have-types
   description: >
@@ -294,14 +129,124 @@
   require_serial: true
   args: ["--files"]
 
-- id: model-column-descriptions-are-consistent
-  name: model-column-descriptions-are-consistent
+- id: model-names-match-pattern
+  name: model-names-match-pattern
   description: >
-    Check if column descriptions are consistent across different models
-  entry: dbt-review-assistant model-column-descriptions-are-consistent
+    Check if model names match a regex pattern
+  entry: dbt-review-assistant model-names-match-pattern
   language: python
   pass_filenames: true
   types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-columns
+  name: models-have-columns
+  description: >
+    Check if models have columns listed in a properties.yml file
+  entry: dbt-review-assistant models-have-columns
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-constraints
+  name: models-have-constraints
+  description: >
+    Check if models have constraints
+  entry: dbt-review-assistant models-have-constraints
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-contracts
+  name: models-have-contracts
+  description: >
+    Check if models have contracts enabled
+  entry: dbt-review-assistant models-have-contracts
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-data-tests
+  name: models-have-data-tests
+  description: >
+    Check if models have data tests
+  entry: dbt-review-assistant models-have-data-tests
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-descriptions
+  name: models-have-descriptions
+  description: >
+    Check if models have descriptions
+  entry: dbt-review-assistant models-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-properties-file
+  name: models-have-properties-file
+  description: >
+    Check if models have a properties YAML file
+  entry: dbt-review-assistant models-have-properties-file
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-specific-materialization
+  name: models-have-specific-materialization
+  description: >
+    Check if models are materialized with one of a set of allowed materializations
+  entry: dbt-review-assistant models-have-specific-materialization
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: models-have-unit-tests
+  name: models-have-unit-tests
+  description: >
+    Check if models have unit tests
+  entry: dbt-review-assistant models-have-unit-tests
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: seed-columns-have-descriptions
+  name: seed-columns-have-descriptions
+  description: >
+    Check if seed columns have descriptions
+  entry: dbt-review-assistant seed-columns-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
+  require_serial: true
+  args: ["--files"]
+
+- id: seed-columns-have-types
+  name: seed-columns-have-types
+  description: >
+    Check if seed columns have types
+  entry: dbt-review-assistant seed-columns-have-types
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml, csv]
   require_serial: true
   args: ["--files"]
 
@@ -327,24 +272,101 @@
   require_serial: true
   args: ["--files"]
 
-- id: seed-columns-have-descriptions
-  name: seed-columns-have-descriptions
+- id: snapshots-have-descriptions
+  name: snapshots-have-descriptions
   description: >
-    Check if seed columns have descriptions
-  entry: dbt-review-assistant seed-columns-have-descriptions
+    Check if snapshots have descriptions
+  entry: dbt-review-assistant snapshots-have-descriptions
   language: python
   pass_filenames: true
-  types_or: [sql, yaml, csv]
+  types_or: [sql, yaml]
   require_serial: true
   args: ["--files"]
 
-- id: seed-columns-have-types
-  name: seed-columns-have-types
+- id: source-column-names-match-manifest-vs-catalog
+  name: source-column-names-match-manifest-vs-catalog
   description: >
-    Check if seed columns have types
-  entry: dbt-review-assistant seed-columns-have-types
+    Check if source column names match between the manifest and the catalog
+  entry: dbt-review-assistant source-column-names-match-manifest-vs-catalog
   language: python
   pass_filenames: true
-  types_or: [sql, yaml, csv]
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: source-column-types-match-manifest-vs-catalog
+  name: source-column-types-match-manifest-vs-catalog
+  description: >
+    Check if source column types match between the manifest and the catalog
+  entry: dbt-review-assistant source-column-types-match-manifest-vs-catalog
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: source-columns-have-descriptions
+  name: source-columns-have-descriptions
+  description: >
+    Check if source columns have descriptions
+  entry: dbt-review-assistant source-columns-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: source-columns-have-types
+  name: source-columns-have-types
+  description: >
+    Check if source columns have types
+  entry: dbt-review-assistant source-columns-have-types
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: sources-have-columns
+  name: sources-have-columns
+  description: >
+    Check if sources have columns listed in a properties.yml file
+  entry: dbt-review-assistant sources-have-columns
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: sources-have-data-tests
+  name: sources-have-data-tests
+  description: >
+    Check if sources have data tests
+  entry: dbt-review-assistant sources-have-data-tests
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: sources-have-descriptions
+  name: sources-have-descriptions
+  description: >
+    Check if sources have descriptions
+  entry: dbt-review-assistant sources-have-descriptions
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
+  require_serial: true
+  args: ["--files"]
+
+- id: sources-have-freshness
+  name: sources-have-freshness
+  description: >
+    Check if sources have freshness configured
+  entry: dbt-review-assistant sources-have-freshness
+  language: python
+  pass_filenames: true
+  types_or: [sql, yaml]
   require_serial: true
   args: ["--files"]

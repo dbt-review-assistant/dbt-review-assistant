@@ -45,6 +45,7 @@ from checks.seed_checks.seed_columns_have_descriptions import (
 from checks.seed_checks.seed_columns_have_types import SeedColumnsHaveTypes
 from checks.seed_checks.seeds_have_columns import SeedsHaveColumns
 from checks.seed_checks.seeds_have_descriptions import SeedsHaveDescriptions
+from checks.snapshot_checks.snapshots_have_descriptions import SnapshotsHaveDescriptions
 from checks.source_checks.source_column_names_match_manifest_vs_catalog import (
     SourceColumnNamesMatchManifestVsCatalog,
 )
@@ -58,6 +59,7 @@ from checks.source_checks.source_columns_have_types import SourceColumnsHaveType
 from checks.source_checks.sources_have_columns import SourcesHaveColumns
 from checks.source_checks.sources_have_data_tests import SourcesHaveDataTests
 from checks.source_checks.sources_have_descriptions import SourcesHaveDescriptions
+from checks.source_checks.sources_have_freshness import SourcesHaveFreshness
 
 ALL_CHECKS = (
     ModelsHaveContracts,
@@ -94,5 +96,7 @@ ALL_CHECKS = (
     SeedsHaveDescriptions,
     SeedColumnsHaveDescriptions,
     SeedColumnsHaveTypes,
+    SnapshotsHaveDescriptions,
+    SourcesHaveFreshness,
 )
 ALL_CHECKS_MAP = {check.check_name: check for check in ALL_CHECKS}

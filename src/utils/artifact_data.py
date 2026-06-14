@@ -300,6 +300,23 @@ class Manifest:
         ]
 
     @cached_property
+    def in_scope_snapshots(self) -> list[ManifestSnapshot]:
+        """All snapshots present in the manifest, after filtering.
+
+        Returns:
+            List of ManifestSnapshot objects after filtering.
+        """
+        return [
+            snapshot
+            for snapshot in self.snapshots.values()
+            if self.filter_conditions.is_manifest_object_in_scope(snapshot, self)
+            and (
+                not self.filepaths
+                or snapshot.is_included_by_original_or_patch_path(self.filepaths)
+            )
+        ]
+
+    @cached_property
     def in_scope_seeds(self) -> list[ManifestSeed]:
         """All seeds present in the manifest, after filtering.
 
