@@ -50,7 +50,6 @@ from utils.manifest_object.node.model.model import ManifestModel
 def test_models_have_properties_file_perform_checks(
     models: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHavePropertiesFile, "__call__"),

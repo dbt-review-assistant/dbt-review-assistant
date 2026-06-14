@@ -72,7 +72,6 @@ from utils.manifest_object.node.model.model import ManifestModel
 def test_model_column_descriptions_are_consistent_perform_checks(
     models: Iterable[dict[str, str]],
     expected_descriptions: dict[str, list[dict[str, str]]],
-    tmpdir,
 ):
     with (
         patch.object(ModelColumnsDescriptionsAreConsistent, "__call__"),

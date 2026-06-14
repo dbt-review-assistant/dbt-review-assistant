@@ -200,7 +200,6 @@ def test_macro_arguments_match_manifest_vs_sql_perform_checks(
     macros: Iterable[dict[str, str]],
     expected_sql_args: set[str],
     expected_manifest_args: set[str],
-    tmpdir,
 ):
     with (
         patch.object(MacroArgumentsMatchManifestVsSql, "__call__"),

@@ -48,11 +48,10 @@ from utils.manifest_object.node.model.model import ManifestModel
         ),
     ],
 )
-def test_models_have_columns_perform_checks(
+def test_models_have_specific_materialization_perform_checks(
     models: Iterable[dict[str, str]],
     allowed_values: set[str],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveSpecificMaterialization, "__call__"),
@@ -78,7 +77,7 @@ def test_models_have_columns_perform_checks(
         mock_in_scope_models.assert_called()
 
 
-def test_models_have_columns_failure_message():
+def test_models_have_specific_materialization_failure_message():
     with (
         patch.object(ModelsHaveSpecificMaterialization, "failures"),
         patch.object(ModelsHaveSpecificMaterialization, "__call__"),

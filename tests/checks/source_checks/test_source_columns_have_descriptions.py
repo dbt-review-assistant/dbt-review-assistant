@@ -61,7 +61,6 @@ from utils.manifest_object.manifest_object import ManifestSource
 def test_source_columns_have_descriptions_perform_checks(
     sources: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(SourceColumnsHaveDescriptions, "__call__"),

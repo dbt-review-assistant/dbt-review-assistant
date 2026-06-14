@@ -59,7 +59,6 @@ from utils.manifest_object.node.model.model import ManifestModel
 def test_model_columns_have_types_perform_checks(
     models: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelColumnsHaveTypes, "__call__"),
@@ -82,7 +81,7 @@ def test_model_columns_have_types_perform_checks(
         mock_in_scope_columns.assert_called_once()
 
 
-def test_model_columns_have_descriptions_failure_message():
+def test_model_columns_have_types_failure_message():
     with (
         patch.object(ModelColumnsHaveTypes, "failures"),
         patch.object(ModelColumnsHaveTypes, "__call__"),

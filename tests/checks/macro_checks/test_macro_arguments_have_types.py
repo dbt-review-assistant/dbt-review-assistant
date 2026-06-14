@@ -61,7 +61,6 @@ from utils.manifest_object.macro import Macro
 def test_macro_arguments_have_types_perform_checks(
     macros: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(MacroArgumentsHaveTypes, "__call__"),
@@ -81,7 +80,7 @@ def test_macro_arguments_have_types_perform_checks(
         mock_in_scope_macros.assert_called()
 
 
-def test_macro_arguments_have_descriptions_failure_message():
+def test_macro_arguments_have_types_failure_message():
     with (
         patch.object(MacroArgumentsHaveTypes, "failures"),
         patch.object(MacroArgumentsHaveTypes, "__call__"),

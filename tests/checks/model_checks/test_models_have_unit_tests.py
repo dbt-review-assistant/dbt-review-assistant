@@ -65,7 +65,6 @@ from utils.check_abc import STANDARD_MODEL_ARGUMENTS
 def test_models_have_unit_tests_perform_checks(
     manifest_data: dict[str, str],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveUnitTests, "__call__"),

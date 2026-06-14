@@ -47,7 +47,6 @@ from utils.manifest_object.macro import Macro
 def test_macros_have_descriptions_perform_checks(
     macros: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(MacrosHaveDescriptions, "__call__"),
