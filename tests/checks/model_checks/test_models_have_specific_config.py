@@ -50,7 +50,6 @@ def test_models_have_specific_config_perform_checks(
     models: Iterable[dict[str, str]],
     expected_config: dict[str, Any],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveSpecificConfig, "__call__"),
@@ -74,7 +73,7 @@ def test_models_have_specific_config_perform_checks(
         mock_in_scope_models.assert_called()
 
 
-def test_models_have_properties_file_failure_message():
+def test_models_have_specific_config_failure_message():
     with (
         patch.object(ModelsHaveSpecificConfig, "failures"),
         patch.object(ModelsHaveSpecificConfig, "__call__"),

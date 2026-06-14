@@ -3,7 +3,7 @@
 import json
 from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Collection, Generator
+from typing import TYPE_CHECKING, Any, Collection
 
 from utils.catalog_object.catalog_table import CatalogTable
 from utils.manifest_object.macro import Macro
@@ -106,33 +106,35 @@ class Manifest:
         }
 
     @cached_property
-    def in_scope_models(self) -> Generator[ManifestModel, None, None]:
+    def in_scope_models(self) -> list[ManifestModel]:
         """All models present in the manifest, after filtering.
 
-        Yields:
-            ManifestModel object for each model present in the manifest,
-            after filtering.
+        Returns:
+            List of ManifestModel objects after filtering.
         """
-        for model in self.models.values():
-            if self.filter_conditions.is_manifest_object_in_scope(model, self) and (
+        return [
+            model
+            for model in self.models.values()
+            if self.filter_conditions.is_manifest_object_in_scope(model, self)
+            and (
                 not self.filepaths
                 or model.is_included_by_original_or_patch_path(self.filepaths)
-            ):
-                yield model
+            )
+        ]
 
     @cached_property
-    def in_scope_model_columns(self) -> Generator[ManifestColumn, None, None]:
+    def in_scope_model_columns(self) -> list[ManifestColumn]:
         """All model columns present in the manifest, after filtering.
 
-        Yields:
-            ManifestColumn objects, after filtering.
+        Returns:
+            List of ManifestColumn objects after filtering.
         """
-        return (
+        return [
             column
             for model in self.models.values()
             for column in model.columns
             if self.filter_conditions.is_manifest_object_in_scope(column, self)
-        )
+        ]
 
     def get_model(self, model_id: str) -> ManifestModel | None:
         """Get a model from the manifest by looking up by unique ID.
@@ -238,32 +240,35 @@ class Manifest:
         }
 
     @cached_property
-    def in_scope_sources(self) -> Generator[ManifestSource, None, None]:
+    def in_scope_sources(self) -> list[ManifestSource]:
         """All sources present in the manifest, after filtering.
 
-        Yields:
-            ManifestSource objects, after filtering.
+        Returns:
+            List of ManifestSource objects after filtering.
         """
-        for source in self.sources.values():
-            if self.filter_conditions.is_manifest_object_in_scope(source, self) and (
+        return [
+            source
+            for source in self.sources.values()
+            if self.filter_conditions.is_manifest_object_in_scope(source, self)
+            and (
                 not self.filepaths
                 or source.is_included_by_original_or_patch_path(self.filepaths)
-            ):
-                yield source
+            )
+        ]
 
     @cached_property
-    def in_scope_source_columns(self) -> Generator[ManifestColumn, None, None]:
+    def in_scope_source_columns(self) -> list[ManifestColumn]:
         """All source columns present in the manifest, after filtering.
 
-        Yields:
-            ManifestColumn objects, after filtering.
+        Returns:
+            List of ManifestColumn objects after filtering.
         """
-        return (
+        return [
             column
             for source in self.sources.values()
             for column in source.columns
             if self.filter_conditions.is_manifest_object_in_scope(column, self)
-        )
+        ]
 
     @cached_property
     def macros(self) -> dict[str, Macro]:
@@ -278,18 +283,57 @@ class Manifest:
         }
 
     @cached_property
-    def in_scope_macros(self) -> Generator[Macro, None, None]:
+    def in_scope_macros(self) -> list[Macro]:
         """All macros present in the manifest, after filtering.
 
-        Yields:
-            Macro instances, after filtering.
+        Returns:
+            List of Macro instances after filtering.
         """
-        for macro in self.macros.values():
-            if self.filter_conditions.is_manifest_object_in_scope(macro, self) and (
+        return [
+            macro
+            for macro in self.macros.values()
+            if self.filter_conditions.is_manifest_object_in_scope(macro, self)
+            and (
                 not self.filepaths
                 or macro.is_included_by_original_or_patch_path(self.filepaths)
-            ):
-                yield macro
+            )
+        ]
+
+    @cached_property
+    def in_scope_seeds(self) -> list[ManifestSeed]:
+        """All seeds present in the manifest, after filtering.
+
+        Returns:
+            List of ManifestSeed objects after filtering.
+        """
+        seed_filepaths = (
+            {p for p in self.filepaths if p.suffix == ".csv" or "seeds" in p.parts}
+            if self.filepaths
+            else None
+        )
+        return [
+            seed
+            for seed in self.seeds.values()
+            if self.filter_conditions.is_manifest_object_in_scope(seed, self)
+            and (
+                not seed_filepaths
+                or seed.is_included_by_original_or_patch_path(seed_filepaths)
+            )
+        ]
+
+    @cached_property
+    def in_scope_seed_columns(self) -> list[ManifestColumn]:
+        """All seed columns present in the manifest, after filtering.
+
+        Returns:
+            List of ManifestColumn objects after filtering.
+        """
+        return [
+            column
+            for seed in self.seeds.values()
+            for column in seed.columns
+            if self.filter_conditions.is_manifest_object_in_scope(column, self)
+        ]
 
     @cached_property
     def unit_tests(self) -> dict[str, UnitTest]:

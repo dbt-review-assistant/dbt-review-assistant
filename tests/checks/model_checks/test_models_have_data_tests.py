@@ -250,7 +250,6 @@ def test_models_have_data_tests_perform_checks(
     must_have_all_data_tests_from: Collection[str],
     must_have_any_data_test_from: Collection[str],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveDataTests, "__call__"),

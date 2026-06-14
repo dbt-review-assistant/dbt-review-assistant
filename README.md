@@ -48,6 +48,15 @@ comparison
 config using argument `--must-have-specific-meta`. Any keys not present in this argument are not included in the 
 comparison
 
+### Seed checks:
+
+- `seeds-have-columns`: Check if seeds have columns listed in a properties.yml file
+- `seeds-have-descriptions`: Check if seeds have descriptions
+- `seed-columns-have-descriptions`: Check if seed columns have descriptions. Seeds without columns listed at all
+will always pass this check.
+- `seed-columns-have-types`: Check if seed columns have data types documented. Seeds without columns listed at all
+will always pass this check.
+
 ### Source checks:
 
 - `sources-have-descriptions`: Check if sources have descriptions
@@ -65,7 +74,7 @@ will always pass this check, so it's recommend to run `sources-have-columns` as 
 ### Macro checks:
 
 - `macros-have-descriptions`: Check if macros have descriptions
-- `macros-have-types`: Check if macros have data types
+- `macro-arguments-have-types`: Check if macro arguments have data types
 - `macro-arguments-have-descriptions`: Check if macro arguments have descriptions
 - `macro-arguments-match-manifest-vs-sql`: Check if macro arguments match between the manifest.json and the macro SQL
   code
@@ -254,7 +263,7 @@ overridden by individual checks, if they also define the same arguments with dif
 #### per_check_arguments
 
 The per_check_arguments section sets the arguments for each check instance. Each check instance must specify a
-`check-id`, and may optionally set an array of string `arguments`. Note that `check-id` does not need to be unique -
+`check_id`, and may optionally set an array of string `arguments`. Note that `check-id` does not need to be unique -
 the same check can be used any number of times, to allow them to be used with different arguments. The `description`
 key is completely optional, but it is suggested to add a description to tell other developers what the specific check is
 and why it is needed, so all contributors to your project know what the expectations are.
@@ -347,6 +356,10 @@ This table shows which checks require which dbt artifacts:
 | `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-types-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-descriptions-are-consistent`      | ✅        | ❌       |
+| `seeds-have-columns`                            | ✅        | ❌       |
+| `seeds-have-descriptions`                       | ✅        | ❌       |
+| `seed-columns-have-descriptions`                | ✅        | ❌       |
+| `seed-columns-have-types`                       | ✅        | ❌       |
 | `sources-have-descriptions`                     | ✅        | ❌       |
 | `sources-have-data-tests`                       | ✅        | ❌       |
 | `source-columns-have-descriptions`              | ✅        | ❌       |
@@ -489,7 +502,7 @@ jobs:
       - name: Run dbt docs generate
         run: dbt docs generate --no-compile
       - name: Run dbt-review-assistant
-        run: dbt-review-assistant all-checks --config ./
+        run: dbt-review-assistant all-checks --config-dir ./
 ```
 
 With the following `profiles.yml` contents:

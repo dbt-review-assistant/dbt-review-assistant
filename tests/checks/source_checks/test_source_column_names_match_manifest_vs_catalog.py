@@ -15,9 +15,10 @@ from utils.manifest_object.manifest_object import ManifestSource
 @pytest.mark.parametrize(
     ids=[
         "One source, names match",
-        "Two sources, names mismatch",
+        "Two sources, names match",
         "One disabled source",
         "Extra column in catalog",
+        "Two sources, names mismatch",
     ],
     argnames=[
         "manifest_sources",
@@ -144,6 +145,54 @@ from utils.manifest_object.manifest_object import ManifestSource
             {"test_source.column_1", "test_source.column_2"},
             {"test_source.column_1", "test_source.column_2", "test_source.column_3"},
         ),
+        (
+            [
+                {
+                    "unique_id": "test_source",
+                    "config": {"enabled": True},
+                    "columns": {
+                        "column_1": {"name": "column_1"},
+                        "column_2": {"name": "column_2"},
+                    },
+                },
+                {
+                    "unique_id": "another_source",
+                    "config": {"enabled": True},
+                    "columns": {
+                        "column_3": {"name": "column_3"},
+                        "column_4": {"name": "column_4"},
+                    },
+                },
+            ],
+            {
+                "test_source": {
+                    "unique_id": "test_source",
+                    "columns": {
+                        "column_1": {"name": "column_1"},
+                        "column_x": {"name": "column_x"},
+                    },
+                },
+                "another_source": {
+                    "unique_id": "another_source",
+                    "columns": {
+                        "column_3": {"name": "column_3"},
+                        "column_4": {"name": "column_4"},
+                    },
+                },
+            },
+            {
+                "test_source.column_1",
+                "test_source.column_2",
+                "another_source.column_3",
+                "another_source.column_4",
+            },
+            {
+                "test_source.column_1",
+                "test_source.column_x",
+                "another_source.column_3",
+                "another_source.column_4",
+            },
+        ),
     ],
 )
 def test_source_column_names_match_manifest_vs_catalog_perform_checks(
@@ -151,7 +200,6 @@ def test_source_column_names_match_manifest_vs_catalog_perform_checks(
     catalog_nodes: dict[str, dict[str, str]],
     expected_manifest_items: set[str],
     expected_catalog_items: set[str],
-    tmpdir,
 ):
     with (
         patch.object(SourceColumnNamesMatchManifestVsCatalog, "__call__"),

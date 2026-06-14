@@ -70,6 +70,27 @@ STANDARD_SOURCE_ARGUMENTS: list[str] = [
     "exclude_unique_ids",
 ]
 
+STANDARD_SEED_ARGUMENTS: list[str] = [
+    "include_tags",
+    "include_packages",
+    "include_node_paths",
+    "include_name_patterns",
+    "include_direct_parents",
+    "include_indirect_parents",
+    "include_direct_children",
+    "include_indirect_children",
+    "include_unique_ids",
+    "exclude_tags",
+    "exclude_packages",
+    "exclude_node_paths",
+    "exclude_name_patterns",
+    "exclude_direct_parents",
+    "exclude_indirect_parents",
+    "exclude_direct_children",
+    "exclude_indirect_children",
+    "exclude_unique_ids",
+]
+
 
 class Check(ABC):
     """Abstract base class for generic checks.

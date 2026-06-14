@@ -1,4 +1,4 @@
-"""CHeck if models have a description."""
+"""Check if model column names match the configured pattern."""
 
 from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_name_does_not_match_pattern

@@ -50,7 +50,6 @@ def test_models_have_specific_meta_perform_checks(
     models: Iterable[dict[str, str]],
     expected_meta: dict[str, Any],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveSpecificMeta, "__call__"),
@@ -74,7 +73,7 @@ def test_models_have_specific_meta_perform_checks(
         mock_in_scope_models.assert_called()
 
 
-def test_models_have_properties_file_failure_message():
+def test_models_have_specific_meta_failure_message():
     with (
         patch.object(ModelsHaveSpecificMeta, "failures"),
         patch.object(ModelsHaveSpecificMeta, "__call__"),

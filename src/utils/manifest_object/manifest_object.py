@@ -4,7 +4,7 @@ import re
 from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Collection, Generator, Protocol, cast
+from typing import TYPE_CHECKING, Any, Collection, Protocol, cast
 
 from utils.manifest_object.node.model.constraint import Constraint
 
@@ -323,17 +323,17 @@ class HasColumnsMixin(ABC, HasUniqueId):
     """Mixin for objects which can have columns."""
 
     @property
-    def columns(self) -> Generator[ManifestColumn, None, None]:
+    def columns(self) -> list[ManifestColumn]:
         """Columns associated with this object.
 
-        Yields:
-            ManifestColumn objects.
+        Returns:
+            List of ManifestColumn objects.
         """
         data = cast(HasData, self).data
-        return (
+        return [
             ManifestColumn(column_data, parent=self)
-            for column_name, column_data in data.get("columns", {}).items()
-        )
+            for column_data in data.get("columns", {}).values()
+        ]
 
 
 class ManifestSource(

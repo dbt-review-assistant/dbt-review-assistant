@@ -1,26 +1,26 @@
-"""Check if models have a description."""
+"""Check if seed columns have descriptions."""
 
-from utils.check_abc import STANDARD_MODEL_ARGUMENTS, ManifestCheck
+from utils.check_abc import STANDARD_SEED_ARGUMENTS, ManifestCheck
 from utils.check_failure_messages import object_missing_attribute_message
 
 
-class ModelsHaveDescriptions(ManifestCheck):
-    """Check if models have a description.
+class SeedColumnsHaveDescriptions(ManifestCheck):
+    """Check if seed columns have descriptions.
 
     Attributes:
         check_name: name of the check
         additional_arguments: arguments required in addition to the global arguments
     """
 
-    check_name: str = "models-have-descriptions"
-    additional_arguments = STANDARD_MODEL_ARGUMENTS
+    check_name: str = "seed-columns-have-descriptions"
+    additional_arguments = STANDARD_SEED_ARGUMENTS
 
     def perform_check(self) -> None:
         """Execute the check logic."""
         self.failures = {
-            model.unique_id
-            for model in self.manifest.in_scope_models
-            if not model.description
+            column.unique_id
+            for column in self.manifest.in_scope_seed_columns
+            if not column.description
         }
 
     @property
@@ -28,6 +28,6 @@ class ModelsHaveDescriptions(ManifestCheck):
         """Compile a failure log message."""
         return object_missing_attribute_message(
             missing_attributes=self.failures,
-            object_type="model",
+            object_type="seed column",
             attribute_type="description",
         )

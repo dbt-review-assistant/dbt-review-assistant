@@ -35,7 +35,7 @@ DEFAULTS = {
         (
             [],
             None,
-            pytest.raises(SystemExit, match="1"),
+            pytest.raises(SystemExit, match=r"^1$"),
         ),
         (
             [

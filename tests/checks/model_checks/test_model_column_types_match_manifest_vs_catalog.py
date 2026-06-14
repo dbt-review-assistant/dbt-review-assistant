@@ -157,7 +157,6 @@ def test_model_column_types_match_manifest_vs_catalog_perform_checks(
     catalog_nodes: dict[str, dict[str, str]],
     expected_manifest_items: set[str],
     expected_catalog_items: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelColumnTypesMatchManifestVsCatalog, "__call__"),

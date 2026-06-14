@@ -3,6 +3,7 @@
 from abc import ABC
 
 from utils.manifest_object.manifest_object import (
+    HasColumnsMixin,
     HasPatchPathMixin,
     ManifestObject,
     TaggableMixin,
@@ -33,7 +34,7 @@ class ManifestHookNode(ManifestNode):
     pass
 
 
-class ManifestSeed(ManifestNode):
+class ManifestSeed(ManifestNode, HasColumnsMixin):
     """Represents a seed from the manifest file."""
 
     pass

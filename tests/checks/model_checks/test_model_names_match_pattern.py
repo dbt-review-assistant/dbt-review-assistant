@@ -50,7 +50,6 @@ def test_model_names_match_pattern_perform_checks(
     models: Iterable[dict[str, str]],
     pattern: str,
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelNamesMatchPattern, "__call__"),

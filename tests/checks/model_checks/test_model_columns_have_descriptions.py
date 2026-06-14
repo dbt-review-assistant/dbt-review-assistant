@@ -61,7 +61,6 @@ from utils.manifest_object.node.model.model import ManifestModel
 def test_model_columns_have_descriptions_perform_checks(
     models: Iterable[dict[str, str]],
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelColumnsHaveDescriptions, "__call__"),

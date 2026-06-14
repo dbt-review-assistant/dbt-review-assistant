@@ -85,7 +85,6 @@ def test_models_have_tags_perform_checks(
     must_have_all_tags_from: set[str] | None,
     must_have_any_tag_from: set[str] | None,
     expected_failures: set[str],
-    tmpdir,
 ):
     with (
         patch.object(ModelsHaveTags, "__call__"),
