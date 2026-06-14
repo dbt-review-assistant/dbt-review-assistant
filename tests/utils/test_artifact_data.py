@@ -1038,3 +1038,49 @@ def test_catalog_sources(mock_get_json_artifact_data):
     path = Path("test")
     instance = Catalog(catalog_dir=path)
     assert instance.sources == expected_sources
+
+
+@patch("utils.artifact_data.get_json_artifact_data")
+def test_manifest_in_scope_snapshots(mock_get_json_artifact_data):
+    filters = ManifestFilterConditions(Namespace(include_packages=["test_package"]))
+    mock_data = {
+        "nodes": {
+            "test_snapshot": {
+                "unique_id": "test_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "test_package",
+            },
+            "another_snapshot": {
+                "unique_id": "another_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "test_package",
+            },
+            "one_more_snapshot": {
+                "unique_id": "one_more_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "another_package",
+            },
+        },
+        "sources": {},
+        "unit_tests": {},
+    }
+    expected_snapshots = [
+        ManifestSnapshot(
+            data={
+                "unique_id": "test_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "test_package",
+            },
+        ),
+        ManifestSnapshot(
+            data={
+                "unique_id": "another_snapshot",
+                "resource_type": "snapshot",
+                "package_name": "test_package",
+            },
+        ),
+    ]
+    mock_get_json_artifact_data.return_value = mock_data
+    path = Path("test")
+    instance = Manifest(manifest_dir=path, filter_conditions=filters)
+    assert list(instance.in_scope_snapshots) == expected_snapshots

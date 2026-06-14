@@ -10,6 +10,7 @@ from utils.manifest_object.manifest_object import (
     HasPatchPathMixin,
     ManifestColumn,
     ManifestObject,
+    ManifestSource,
     dict_difference,
 )
 from utils.manifest_object.node.generic_test import GenericTest
@@ -823,3 +824,65 @@ def test_dict_difference(
 ):
     instance = ConcreteConfigurableNode(data)
     assert dict_difference(instance.config, expected_config) == expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
+        "loaded_at_field set",
+        "loaded_at_field not set",
+    ],
+    argvalues=[
+        ({"loaded_at_field": "updated_at"}, "updated_at"),
+        ({}, None),
+    ],
+)
+def test_manifest_source_loaded_at_field(data: dict, expected_return):
+    instance = ManifestSource(data)
+    assert instance.loaded_at_field == expected_return
+
+
+@pytest.mark.parametrize(
+    argnames=["data", "expected_return"],
+    ids=[
+        "has loaded_at_field",
+        "has warn_after count",
+        "has error_after count",
+        "no freshness configured",
+        "freshness counts are None",
+    ],
+    argvalues=[
+        ({"loaded_at_field": "updated_at"}, True),
+        (
+            {
+                "freshness": {
+                    "warn_after": {"count": 24},
+                    "error_after": {"count": None},
+                }
+            },
+            True,
+        ),
+        (
+            {
+                "freshness": {
+                    "warn_after": {"count": None},
+                    "error_after": {"count": 48},
+                }
+            },
+            True,
+        ),
+        ({}, False),
+        (
+            {
+                "freshness": {
+                    "warn_after": {"count": None},
+                    "error_after": {"count": None},
+                }
+            },
+            False,
+        ),
+    ],
+)
+def test_manifest_source_has_freshness(data: dict, expected_return: bool):
+    instance = ManifestSource(data)
+    assert instance.has_freshness == expected_return

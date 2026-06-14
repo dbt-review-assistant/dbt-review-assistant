@@ -341,7 +341,22 @@ class ManifestSource(
 ):
     """Represents a manifest source object."""
 
-    pass
+    @property
+    def loaded_at_field(self) -> str | None:
+        """The field used to determine when the source was last loaded."""
+        return self.data.get("loaded_at_field")
+
+    @property
+    def has_freshness(self) -> bool:
+        """Whether the source has freshness configured."""
+        if self.loaded_at_field is not None:
+            return True
+        freshness = self.data.get("freshness") or {}
+        warn_after = freshness.get("warn_after") or {}
+        error_after = freshness.get("error_after") or {}
+        return (
+            warn_after.get("count") is not None or error_after.get("count") is not None
+        )
 
 
 def dict_difference(

@@ -57,7 +57,6 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: release
     permissions:
-      id-token: write # Required for PyPI Trusted Publishing
       contents: write # Required to push tags and updates to pyproject.toml
 
     steps:

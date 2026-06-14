@@ -48,6 +48,10 @@ comparison
 config using argument `--must-have-specific-meta`. Any keys not present in this argument are not included in the 
 comparison
 
+### Snapshot checks:
+
+- `snapshots-have-descriptions`: Check if snapshots have descriptions
+
 ### Seed checks:
 
 - `seeds-have-columns`: Check if seeds have columns listed in a properties.yml file
@@ -60,6 +64,7 @@ will always pass this check.
 ### Source checks:
 
 - `sources-have-descriptions`: Check if sources have descriptions
+- `sources-have-freshness`: Check if sources have freshness configured (via `loaded_at_field` or warn/error thresholds)
 - `sources-have-data-tests`: Check if sources have data tests (generic or singular tests)
 - `sources-have-columns`: Check if sources have columns listed
 - `source-columns-have-descriptions`: Check if source columns have descriptions. Sources without columns listed at all
@@ -356,11 +361,13 @@ This table shows which checks require which dbt artifacts:
 | `model-column-names-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-types-match-manifest-vs-catalog`  | ✅        | ✅       |
 | `model-column-descriptions-are-consistent`      | ✅        | ❌       |
+| `snapshots-have-descriptions`                   | ✅        | ❌       |
 | `seeds-have-columns`                            | ✅        | ❌       |
 | `seeds-have-descriptions`                       | ✅        | ❌       |
 | `seed-columns-have-descriptions`                | ✅        | ❌       |
 | `seed-columns-have-types`                       | ✅        | ❌       |
 | `sources-have-descriptions`                     | ✅        | ❌       |
+| `sources-have-freshness`                        | ✅        | ❌       |
 | `sources-have-data-tests`                       | ✅        | ❌       |
 | `source-columns-have-descriptions`              | ✅        | ❌       |
 | `source-columns-have-types`                     | ✅        | ❌       |
